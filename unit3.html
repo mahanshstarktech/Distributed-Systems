@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS Unit 3 — Concurrent Processes, IPC, RPC & RMI | RTU Exam Prep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#05070f;--surface:#0d1122;--surface2:#111630;
+  --border:#1c2640;--border2:#0e1428;
+  --ds:#6d28d9;--ds2:#8b5cf6;--ds3:#a78bfa;
+  --u1:#22d3ee;--u2:#f97316;--u3:#ef4444;--u4:#a78bfa;--u5:#10b981;--u6:#3b82f6;
+  --upred:#f59e0b;--gold:#fbbf24;--text:#dde8f2;--dim:#2e3a58;--dim2:#546080;
+  --mono:'JetBrains Mono',monospace;--head:'Fraunces',serif;--body:'Outfit',sans-serif;
+  --sidebar-w:290px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.82;overflow-x:hidden;}
+html{font-size:clamp(18px,1.4vw,22px);}
+@media(min-width:1200px){html{font-size:clamp(19px,1.35vw,22px);}}
+@media(min-width:1600px){html{font-size:clamp(20px,1.25vw,23px);}}
+@media(min-width:1900px){html{font-size:clamp(21px,1.15vw,24px);}}
+@media(max-width:900px){html{font-size:18px;}}
+@media(max-width:600px){html{font-size:17px;}}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.layout{display:flex;max-width:100%;}
+.content{flex:1;padding:clamp(28px,3.5vw,60px) clamp(24px,4.5vw,90px);max-width:calc(100% - var(--sidebar-w));overflow-x:hidden;min-width:0;}
+@media(min-width:1600px){.content{padding:clamp(36px,3vw,64px) clamp(40px,5vw,110px);}}
+.topnav{position:sticky;top:0;z-index:100;background:rgba(5,7,15,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border2);padding:0 28px;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.topnav::-webkit-scrollbar{display:none;}
+.tnlabel{font-family:var(--mono);font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--ds2);padding:15px 14px 15px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0;}
+.tnlink{font-family:var(--mono);font-size:.7rem;padding:8px 14px;border-radius:6px;text-decoration:none;color:var(--dim2);white-space:nowrap;flex-shrink:0;transition:all .18s;border:1px solid transparent;}
+.tnlink:hover{color:var(--text);background:var(--surface2);}
+.tnlink.active{color:var(--ds2);background:rgba(109,40,217,.1);border-color:rgba(109,40,217,.3);}
+.tnlink.pred{color:var(--upred);background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);font-weight:600;}
+.credit-band{background:#06081a;border-bottom:1px solid var(--border2);padding:11px 32px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
+.credit-text{font-family:var(--mono);font-size:.7rem;color:var(--dim2);}
+.credit-text span{color:var(--ds2);font-weight:600;}
+.credit-link{font-family:var(--mono);font-size:.68rem;padding:4px 14px;border-radius:5px;border:1px solid var(--border);color:var(--dim2);text-decoration:none;transition:all .2s;}
+.credit-link:hover{border-color:var(--ds2);color:var(--ds2);}
+.hero{position:relative;overflow:hidden;padding:clamp(50px,6vw,90px) clamp(24px,5vw,90px) clamp(44px,5vw,72px);background:var(--bg);}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(109,40,217,.08) 1px,transparent 1px),radial-gradient(circle,rgba(34,211,238,.04) 1px,transparent 1px);background-size:44px 44px,88px 88px;background-position:0 0,22px 22px;animation:dotDrift 30s linear infinite;}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 55% at 8% 50%,rgba(109,40,217,.09) 0%,transparent 65%),radial-gradient(ellipse 45% 50% at 88% 15%,rgba(34,211,238,.05) 0%,transparent 60%);pointer-events:none;}
+@keyframes dotDrift{0%{transform:translate(0,0);}100%{transform:translate(44px,44px);}}
+.hero-inner{position:relative;z-index:1;max-width:1700px;margin:0 auto;}
+.hero-tag{font-family:var(--mono);font-size:.7rem;color:var(--ds2);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.hero-dot{width:8px;height:8px;border-radius:50%;background:var(--ds2);box-shadow:0 0 14px var(--ds2);animation:blink 2.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.hero h1{font-family:var(--head);font-weight:800;font-size:clamp(34px,5.5vw,78px);line-height:1.02;color:#fff;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero h1 span{color:var(--ds2);}
+.hero h1 em{color:var(--u1);font-style:normal;}
+.hero-sub{color:var(--dim2);font-size:clamp(16px,1.6vw,22px);max-width:820px;line-height:1.8;margin-bottom:22px;}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{font-family:var(--mono);font-size:.68rem;padding:5px 14px;border-radius:5px;border:1px solid;}
+.badge-r{color:var(--u3);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);}
+.badge-v{color:var(--ds2);border-color:rgba(109,40,217,.35);background:rgba(109,40,217,.08);}
+.badge-g{color:var(--u5);border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.08);}
+.badge-gold{color:var(--upred);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08);}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);padding:28px 18px;border-right:1px solid var(--border);position:sticky;top:44px;height:calc(100vh - 44px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;flex-shrink:0;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sidebar-title{font-family:var(--mono);font-size:.62rem;color:var(--ds2);letter-spacing:2px;text-transform:uppercase;}
+.sidebar-close{display:none;background:none;border:1px solid var(--border);border-radius:4px;color:var(--dim2);cursor:pointer;padding:2px 9px;font-family:var(--mono);font-size:.68rem;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:7px;font-family:var(--head);font-size:.88rem;font-weight:600;color:var(--dim2);transition:all .2s;margin-bottom:3px;text-decoration:none;line-height:1.3;}
+.nav-item:hover,.nav-item.active{background:var(--surface2);color:var(--text);}
+.nav-item.active{color:var(--ds2);border-left:2px solid var(--ds2);padding-left:10px;}
+.nav-imp{margin-left:auto;font-family:var(--mono);font-size:.62rem;padding:2px 7px;border-radius:3px;background:var(--surface2);white-space:nowrap;}
+.nav-imp.high{color:var(--u3);}
+.nav-imp.med{color:var(--upred);}
+.nav-imp.ok{color:var(--ds2);}
+.sidebar-toggle{display:none;position:fixed;bottom:22px;right:22px;z-index:1000;width:52px;height:52px;border-radius:50%;background:var(--ds2);border:none;cursor:pointer;font-size:22px;color:#fff;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(109,40,217,.45);transition:transform .2s;}
+.sidebar-toggle:hover{transform:scale(1.1);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:98;backdrop-filter:blur(3px);}
+.sidebar-overlay.visible{display:block;}
+.section{margin-bottom:80px;scroll-margin-top:64px;}
+.section-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.section-num{font-family:var(--mono);font-size:.7rem;color:var(--ds2);background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.3);padding:5px 10px;border-radius:5px;min-width:40px;text-align:center;}
+.section-title{font-family:var(--head);font-size:clamp(22px,2.8vw,34px);font-weight:800;color:#fff;}
+.theory-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:clamp(22px,3vw,36px) clamp(24px,3.5vw,42px);margin-bottom:22px;}
+.theory-block h3{font-family:var(--head);font-size:clamp(18px,1.9vw,25px);font-weight:700;color:var(--ds2);margin-bottom:14px;}
+.theory-block h3.cyan{color:var(--u1);}
+.theory-block h3.orange{color:var(--u2);}
+.theory-block h3.red{color:var(--u3);}
+.theory-block h3.green{color:var(--u5);}
+.theory-block h3.blue{color:var(--u6);}
+.theory-block p{margin-bottom:14px;font-size:1rem;line-height:1.9;}
+.theory-block p:last-child{margin-bottom:0;}
+.theory-block ul,.theory-block ol{padding-left:26px;margin:12px 0;}
+.theory-block li{margin-bottom:10px;font-size:1rem;line-height:1.8;}
+h4{font-family:var(--head);font-size:1.05rem;font-weight:700;color:var(--text);margin:20px 0 10px;}
+.layman{background:rgba(109,40,217,.07);border:1px solid rgba(109,40,217,.25);border-left:3px solid var(--ds2);border-radius:8px;padding:16px 20px;font-family:var(--mono);font-size:.82rem;color:var(--ds3);margin:16px 0;line-height:1.78;}
+.layman::before{content:'💬 LAYMAN: ';color:var(--ds2);font-weight:700;font-size:.84rem;}
+.fbox{background:#04061a;border:1px solid rgba(109,40,217,.22);border-left:3px solid var(--ds2);border-radius:9px;padding:18px 22px;margin:18px 0;font-family:var(--mono);font-size:.82rem;color:#c4b5fd;overflow-x:auto;line-height:1.72;}
+.fbox .flbl{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:block;}
+.fbox .fl{color:#e9d5ff;font-size:.86rem;display:block;}
+.fbox .fn{color:var(--dim2);font-size:.75rem;margin-top:8px;display:block;font-style:italic;}
+.tip-box{border-radius:9px;padding:18px 20px;margin:16px 0;display:flex;gap:14px;}
+.tip-box.trick{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);}
+.tip-box.connect{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.25);}
+.tip-box.warning{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);}
+.tip-icon{font-size:21px;flex-shrink:0;margin-top:3px;}
+.tip-content{flex:1;}
+.tip-title{font-family:var(--head);font-size:.84rem;font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.tip-box.trick .tip-title{color:var(--gold);}
+.tip-box.connect .tip-title{color:var(--u1);}
+.tip-box.warning .tip-title{color:var(--u3);}
+.tip-content p{font-size:.92rem;color:var(--text);margin:0;line-height:1.78;}
+.comp-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.9rem;display:block;overflow-x:auto;}
+.comp-table th{background:var(--surface2);padding:12px 16px;text-align:left;font-family:var(--head);font-weight:700;color:var(--ds2);border-bottom:1px solid var(--border);white-space:nowrap;}
+.comp-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:var(--surface2);}
+.diagram-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin:18px 0;text-align:center;overflow-x:auto;}
+.diagram-cap{font-family:var(--mono);font-size:.72rem;color:var(--dim2);margin-top:12px;}
+.pyq-section{background:#080618;border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:clamp(20px,3vw,30px) clamp(22px,3.5vw,36px);margin-top:26px;}
+.pyq-header{font-family:var(--head);font-size:1rem;font-weight:700;color:var(--upred);margin-bottom:18px;}
+.pyq-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:18px 20px;margin-bottom:16px;}
+.pyq-q-text{font-family:var(--head);font-size:1rem;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.45;}
+.pyq-meta{font-family:var(--mono);font-size:.68rem;color:var(--dim2);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;}
+.topic-tag{background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.25);color:var(--ds2);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pred-tag{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--upred);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.unit-tag{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:var(--u1);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pyq-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 16px;cursor:pointer;font-family:var(--mono);font-size:.73rem;color:var(--upred);margin-top:12px;transition:all .2s;}
+.pyq-toggle:hover{background:var(--upred);color:#000;}
+.answer-content{display:none;margin-top:16px;font-size:.95rem;line-height:1.9;}
+.answer-content.open{display:block;}
+.answer-content strong{color:var(--ds3);}
+.answer-content ul,.answer-content ol{padding-left:22px;margin:10px 0;}
+.answer-content li{margin-bottom:8px;}
+.pred-banner{background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(109,40,217,.04));border:1px solid rgba(245,158,11,.35);border-left:3px solid var(--upred);border-radius:9px;padding:14px 18px;margin:16px 0;font-family:var(--mono);font-size:.8rem;color:var(--upred);display:flex;gap:12px;align-items:flex-start;}
+.pred-banner .pb-text{line-height:1.7;}
+.hl-v{color:var(--ds2);font-weight:600;}
+.hl-c{color:var(--u1);font-weight:600;}
+.hl-g{color:var(--u5);font-weight:600;}
+.hl-r{color:var(--u3);font-weight:600;}
+.hl-o{color:var(--u2);font-weight:600;}
+code{font-family:var(--mono);background:var(--surface2);padding:2px 7px;border-radius:4px;font-size:.8rem;color:var(--ds3);}
+.imp-bar-wrap{margin-bottom:12px;}
+.imp-bar-label{font-family:var(--mono);font-size:.75rem;color:var(--dim2);margin-bottom:5px;display:flex;justify-content:space-between;}
+.imp-bar{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.imp-bar-fill{height:100%;border-radius:4px;}
+.ibf-hot{background:var(--u3);}
+.ibf-high{background:var(--ds2);}
+.ibf-med{background:var(--upred);}
+/* PREDICTED */
+.predicted-section{background:linear-gradient(135deg,var(--bg) 0%,rgba(109,40,217,.04) 100%);border-top:1px solid rgba(109,40,217,.2);}
+.pred-inner{max-width:100%;margin:0 auto;padding:clamp(40px,5vw,72px) clamp(24px,4.5vw,90px);}
+@media(min-width:1600px){.pred-inner{padding:clamp(50px,4vw,80px) clamp(50px,5.5vw,120px);}}
+.pred-badge-top{display:inline-block;font-family:var(--mono);font-size:.75rem;color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:5px 14px;border-radius:5px;margin-bottom:14px;}
+.pred-sec-title{font-family:var(--head);font-size:clamp(24px,3.5vw,40px);font-weight:800;color:#fff;margin-bottom:6px;}
+.pred-sec-sub{font-family:var(--mono);font-size:.72rem;color:var(--dim2);letter-spacing:1px;margin-bottom:14px;}
+.pred-intro{font-family:var(--mono);font-size:.78rem;color:var(--dim2);max-width:960px;line-height:1.75;margin-bottom:18px;}
+.disc-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:14px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-start;}
+.disc-box p{font-size:.86rem;color:var(--text);}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,370px),1fr));gap:18px;margin-top:24px;}
+.pred-card{background:var(--surface);border:1px solid rgba(245,158,11,.2);border-radius:12px;border-top:3px solid var(--upred);overflow:hidden;}
+.pred-card-head{padding:20px 22px 14px;}
+.pred-part{font-family:var(--mono);font-size:.67rem;color:var(--dim2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-unit{font-family:var(--mono);font-size:.67rem;color:var(--u1);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-q{font-family:var(--head);font-size:clamp(.95rem,1.08vw,1.12rem);font-weight:700;color:#fff;line-height:1.4;margin-bottom:8px;}
+.pred-reason{font-size:clamp(.82rem,.94vw,.96rem);color:var(--dim2);line-height:1.7;margin-bottom:10px;}
+.pred-conf{font-family:var(--mono);font-size:.68rem;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:14px;}
+.pred-conf.high{color:var(--u3);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);}
+.pred-conf.med{color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);}
+.pred-answer-toggle{width:100%;padding:10px 22px;background:var(--surface2);border:none;border-top:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:.72rem;color:var(--ds2);text-align:left;transition:all .2s;}
+.pred-answer-toggle:hover{background:var(--ds2);color:#fff;}
+.pred-answer{display:none;padding:20px 22px;border-top:1px solid var(--border);background:var(--bg);}
+.pred-answer.open{display:block;}
+.pred-answer p{font-size:.92rem;line-height:1.9;margin-bottom:12px;}
+.pred-answer strong{color:var(--ds3);}
+.pred-answer ul,.pred-answer ol{padding-left:22px;margin:10px 0;}
+.pred-answer li{margin-bottom:8px;font-size:.9rem;}
+.pfbox{background:#04061a;border:1px solid rgba(109,40,217,.22);border-left:3px solid var(--ds2);border-radius:8px;padding:14px 18px;margin:10px 0;font-family:var(--mono);font-size:.78rem;color:#c4b5fd;overflow-x:auto;line-height:1.7;}
+.pfbox .fl{color:#e9d5ff;display:block;}
+.pfbox .fn{color:var(--dim2);font-size:.7rem;margin-top:6px;display:block;font-style:italic;}
+.prep-box{background:rgba(109,40,217,.06);border:1px solid rgba(109,40,217,.25);border-radius:10px;padding:22px 26px;margin-top:28px;}
+.prep-box h3{font-family:var(--head);font-size:clamp(1rem,1.2vw,1.28rem);font-weight:700;color:var(--ds2);margin-bottom:14px;}
+.prep-box p{font-size:.92rem;line-height:1.88;margin-bottom:10px;}
+.prep-box strong{color:#fff;}
+.site-footer{background:#030510;border-top:1px solid var(--border2);padding:28px 5vw;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--dim);}
+.site-footer a{color:var(--dim2);text-decoration:none;margin:0 12px;transition:color .2s;}
+.site-footer a:hover{color:var(--ds2);}
+.footer-links{margin-bottom:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;}
+@media(max-width:1100px){:root{--sidebar-w:265px;}}
+@media(max-width:900px){
+  .sidebar{position:fixed;top:0;left:0;height:100vh;z-index:99;background:var(--bg);transform:translateX(-100%);border-right:1px solid var(--border);transition:transform .3s ease;width:var(--sidebar-w);}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.9);}
+  .sidebar-close{display:block;}
+  .sidebar-toggle{display:flex;}
+  .content{max-width:100%;padding:28px 22px;}
+  .pred-inner{padding:44px 20px;}
+  .pred-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){.hero{padding:44px 18px 40px;}.theory-block{padding:20px 18px;}.pyq-section{padding:18px;}}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="tnlabel">DS · RTU</span>
+  <a class="tnlink" href="index.html">🏠 Home</a>
+  <a class="tnlink" href="unit2.html">🌐 U2: DS Fundamentals</a>
+  <a class="tnlink active" href="unit3.html">🔄 U3: Processes & IPC</a>
+  <a class="tnlink" href="unit4.html">📁 U4: Scheduling & DFS</a>
+  <a class="tnlink" href="unit5.html">🧠 U5: DSM & Computation</a>
+  <a class="tnlink" href="unit6.html">🛡️ U6: Agreement & CORBA</a>
+  <a class="tnlink pred" href="#predicted">🔮 Predicted 2026</a>
+</nav>
+
+<div class="credit-band">
+  <div class="credit-text">Crafted by <span>Mahansh Gaur</span> · B.Tech RTU Jaipur</div>
+  <a class="credit-link" href="https://www.instagram.com/mahaanshgaur_6513" target="_blank">📸 @mahaanshgaur_6513</a>
+  <a class="credit-link" href="https://github.com/mahanshstarktech" target="_blank">🐙 GitHub</a>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="hero-dot"></span>🔄 B.Tech VI Sem · RTU · DS 6CS5-11 / 6E7136 · Unit 3</div>
+    <h1>Concurrent <span>Processes</span><br><em>IPC, RPC &amp; RMI</em></h1>
+    <p class="hero-sub">Complete Unit 3: Processes &amp; Threads, Graph Models, Client/Server, Time Services, Language Synchronization Mechanisms, Message Passing, RPC, RMI, Sockets. All RTU PYQs 2023–2025 solved + full 2026 Predicted Paper.</p>
+    <div class="hero-badges">
+      <span class="badge badge-r">🔥 RPC/RMI — CERTAIN every paper Part A</span>
+      <span class="badge badge-gold">🔮 Language Mechanisms (Sync) — HIGH Part C 2026</span>
+      <span class="badge badge-v">IPC Mechanism — HIGH Part B</span>
+      <span class="badge badge-g">Process vs Thread — VERY HIGH 2026</span>
+    </div>
+  </div>
+</section>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="layout">
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Unit 3 Topics</div>
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <a class="nav-item" href="#overview">📊 Importance Overview</a>
+  <a class="nav-item" href="#processes">⚙️ Processes & Threads<span class="nav-imp high">90%</span></a>
+  <a class="nav-item" href="#graph">📈 Graph Models<span class="nav-imp ok">65%</span></a>
+  <a class="nav-item" href="#clientserver">🖥️ Client/Server Model<span class="nav-imp high">82%</span></a>
+  <a class="nav-item" href="#timeservices">⏱️ Time Services<span class="nav-imp med">72%</span></a>
+  <a class="nav-item" href="#synchronization">🔒 Language Sync Mechanisms<span class="nav-imp high">88%</span></a>
+  <a class="nav-item" href="#objectmodel">🧩 Object Model Servers<span class="nav-imp ok">65%</span></a>
+  <a class="nav-item" href="#messagepassing">📨 Message Passing<span class="nav-imp high">80%</span></a>
+  <a class="nav-item" href="#requestreply">📬 Request/Reply & Transactions<span class="nav-imp med">72%</span></a>
+  <a class="nav-item" href="#nameservice">📂 Name & Directory Services<span class="nav-imp med">70%</span></a>
+  <a class="nav-item" href="#rpc">📡 RPC — Remote Procedure Call<span class="nav-imp high">95%</span></a>
+  <a class="nav-item" href="#rmi">☕ RMI — Remote Method Invocation<span class="nav-imp high">90%</span></a>
+  <a class="nav-item" href="#sockets">🌐 Sockets & Transport<span class="nav-imp med">75%</span></a>
+  <a class="nav-item" href="#predicted">🔮 2026 Predicted Paper</a>
+  <a class="nav-item" href="#pyq-master">📝 All PYQs</a>
+</nav>
+
+<main class="content">
+
+<!-- ═══════ SECTION 00: OVERVIEW ═══════ -->
+<section class="section" id="overview">
+  <div class="section-header"><span class="section-num">00</span><h2 class="section-title">Topic Importance — Unit 3</h2></div>
+  <div class="theory-block">
+    <p>Unit 3 covers the "how processes talk to each other" layer of distributed systems. RPC/RMI is the single most certain Part A question across ALL three papers. Language Mechanisms for Synchronization jumped to Part C in 2025 — it's a rising anchor. Process vs Thread is a new high-confidence prediction for 2026.</p>
+    <div class="imp-bar-wrap" style="margin-top:18px">
+      <div class="imp-bar-label"><span>RPC / RMI (Part A every year)</span><span style="color:#ef4444">95% 🔮 CERTAIN</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:95%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Processes & Threads (Part A 2025 Q5)</span><span style="color:#ef4444">90% 🔮 VERY HIGH 2026</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:90%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Language Mechanisms for Synchronization</span><span style="color:#ef4444">88% 🔮 Part C 2026</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:88%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Client/Server + RPC Communication (Part C 2024)</span><span style="color:#8b5cf6">85%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:85%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>IPC Mechanism / Message Passing</span><span style="color:#8b5cf6">80%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:80%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Synchronous vs Asynchronous Communication</span><span style="color:#8b5cf6">78%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:78%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Sockets & Transport Level Communication</span><span style="color:#f59e0b">75%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:75%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Time Services & Name Services</span><span style="color:#f59e0b">72%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:72%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Graph Models / Object Model Servers</span><span style="color:#f59e0b">65%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:65%"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 01: PROCESSES & THREADS ═══════ -->
+<section class="section" id="processes">
+  <div class="section-header"><span class="section-num">01</span><h2 class="section-title">Processes &amp; Threads</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — VERY HIGH:</strong> "Differentiate between the process and thread" appeared in 2025 Part A Q5. New anchor topic. Absent from 2023 and 2024 — brand new in 2025, confirmed to persist. Based on the RTU pattern (2026 DIP, ML: new 2025 Part A topics retained), Process vs Thread is VERY HIGH for 2026 Part A.</div></div>
+  <div class="theory-block">
+    <h3>What is a Process?</h3>
+    <p>A <span class="hl-v">process</span> is a program in execution — an independent unit of execution with its own dedicated memory space (address space), program counter, registers, stack, and operating system resources. Each process runs in complete isolation from other processes.</p>
+    <div class="layman">A process is like a person working alone in their own private office. They have their own desk, computer, files, and tools. If two people want to share information, they have to send notes (messages) between offices — they can't directly touch each other's stuff. If one person quits, the other is completely unaffected.</div>
+    <div class="fbox">
+      <span class="flbl">Process — Key Properties</span>
+      <div class="fl">Own address space (code, data, heap, stack) — private</div>
+      <div class="fl">Own process ID (PID) assigned by OS</div>
+      <div class="fl">Own file descriptors, environment variables, resources</div>
+      <div class="fl">Isolated from other processes — crash = no impact on others</div>
+      <div class="fl">Heavy to create (fork() in Unix creates full copy of address space)</div>
+      <div class="fl">IPC needed for communication: pipes, sockets, message queues, shared memory</div>
+      <div class="fn">Typical process creation time: 100μs–10ms. Context switch: 1–10μs.</div>
+    </div>
+
+    <h3>What is a Thread?</h3>
+    <p>A <span class="hl-v">thread</span> (also called a lightweight process) is the smallest unit of execution within a process. Multiple threads share the same process address space — code, data, and heap — but each thread has its own <strong>stack, program counter, and registers</strong>.</p>
+    <div class="layman">Threads are like multiple workers sharing ONE office. They all use the same desk, computer, and files (shared memory). If one worker needs to tell another something, they can just talk directly — no notes needed (shared variables). Very fast to communicate but risky: if one worker accidentally shreds an important file, everyone is affected. Also, if one thread crashes badly, the whole process can die.</div>
+    <div class="fbox">
+      <span class="flbl">Thread — Key Properties</span>
+      <div class="fl">Shares address space with parent process (code, data, heap) — shared</div>
+      <div class="fl">Own stack, PC, registers — private per thread</div>
+      <div class="fl">Lightweight: cheap to create, cheap context switch</div>
+      <div class="fl">Direct communication via shared variables (needs synchronization!)</div>
+      <div class="fl">Crash of one thread can kill the whole process</div>
+      <div class="fl">Typical thread creation time: 10μs–100μs (10x faster than process)</div>
+    </div>
+
+    <h3 class="red">Process vs Thread — The Key Exam Table (2025 Q5)</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Process</th><th>Thread</th></tr>
+      <tr><td><strong>Definition</strong></td><td>Independent program in execution with own address space</td><td>Lightweight execution unit within a process; shares address space</td></tr>
+      <tr><td><strong>Memory</strong></td><td>Own private address space (code, data, heap, stack)</td><td>Shares code, data, heap; own stack only</td></tr>
+      <tr><td><strong>Creation cost</strong></td><td>Expensive — full address space copy (fork)</td><td>Cheap — only stack + registers allocated</td></tr>
+      <tr><td><strong>Context switch</strong></td><td>Slow — must save/restore full process context + TLB flush</td><td>Fast — same address space, only registers + stack</td></tr>
+      <tr><td><strong>Communication</strong></td><td>IPC required (pipes, sockets, message queues) — complex</td><td>Shared variables directly — simple but needs mutex/semaphore</td></tr>
+      <tr><td><strong>Isolation</strong></td><td>Complete — crash of one doesn't affect others</td><td>None — crash of one thread can kill all threads in process</td></tr>
+      <tr><td><strong>OS overhead</strong></td><td>High — OS maintains large Process Control Block (PCB)</td><td>Low — Thread Control Block (TCB) is small</td></tr>
+      <tr><td><strong>Use in DS</strong></td><td>Independent services, better fault isolation (microservices)</td><td>Server handles multiple requests concurrently (thread pool)</td></tr>
+      <tr><td><strong>Example</strong></td><td>Each Chrome tab is a separate process</td><td>Each Chrome tab uses multiple threads (rendering, JS, network)</td></tr>
+    </table>
+
+    <h3 class="cyan">Threads in Distributed Systems — Why Critical</h3>
+    <p>In a distributed server, threads enable <strong>concurrent client handling</strong>. Without threads, a server can only serve one client at a time. With a thread pool, each incoming request gets its own thread — the server handles hundreds of simultaneous requests.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 200" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">Multi-threaded Server Architecture</text>
+        <!-- Clients -->
+        <rect x="10" y="40" width="90" height="30" rx="5" fill="#0d1122" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="55" y="59" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">Client 1</text>
+        <rect x="10" y="82" width="90" height="30" rx="5" fill="#0d1122" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="55" y="101" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">Client 2</text>
+        <rect x="10" y="124" width="90" height="30" rx="5" fill="#0d1122" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="55" y="143" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">Client 3</text>
+        <!-- Dispatcher -->
+        <rect x="150" y="65" width="100" height="60" rx="7" fill="#0d1122" stroke="#8b5cf6" stroke-width="2"/>
+        <text x="200" y="90" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="9" font-weight="bold">Dispatcher</text>
+        <text x="200" y="106" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">Accepts requests</text>
+        <text x="200" y="118" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">Creates threads</text>
+        <!-- Thread Pool -->
+        <rect x="310" y="40" width="100" height="30" rx="5" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="360" y="59" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Worker Thread 1</text>
+        <rect x="310" y="82" width="100" height="30" rx="5" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="360" y="101" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Worker Thread 2</text>
+        <rect x="310" y="124" width="100" height="30" rx="5" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="360" y="143" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Worker Thread 3</text>
+        <!-- Shared DB -->
+        <rect x="460" y="75" width="90" height="45" rx="6" fill="#0d1122" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="505" y="97" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8" font-weight="bold">Shared DB</text>
+        <text x="505" y="112" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="7">Shared memory</text>
+        <!-- Arrows -->
+        <defs><marker id="a1" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#546080" stroke-width="1.5"/></marker></defs>
+        <line x1="100" y1="55" x2="148" y2="88" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#a1)"/>
+        <line x1="100" y1="97" x2="148" y2="97" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#a1)"/>
+        <line x1="100" y1="139" x2="148" y2="106" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#a1)"/>
+        <line x1="250" y1="85" x2="308" y2="55" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#a1)"/>
+        <line x1="250" y1="95" x2="308" y2="97" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#a1)"/>
+        <line x1="250" y1="105" x2="308" y2="136" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#a1)"/>
+        <line x1="410" y1="55" x2="458" y2="90" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a1)"/>
+        <line x1="410" y1="97" x2="458" y2="97" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a1)"/>
+        <line x1="410" y1="139" x2="458" y2="104" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a1)"/>
+        <text x="280" y="185" text-anchor="middle" fill="#2e3a58" font-family="JetBrains Mono" font-size="8">All threads share the same process + DB access. Each handles one client request concurrently.</text>
+      </svg>
+      <div class="diagram-cap">Fig: Multi-threaded Server — dispatcher creates one worker thread per client request; all threads share the process memory and database connection pool</div>
+    </div>
+
+    <h3 class="orange">Types of Threads — User-Level vs Kernel-Level</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>User-Level Threads (ULT)</th><th>Kernel-Level Threads (KLT)</th></tr>
+      <tr><td>Managed by</td><td>User-space thread library (e.g., pthreads)</td><td>OS kernel directly</td></tr>
+      <tr><td>Context switch</td><td>Very fast (no kernel call needed)</td><td>Slower (kernel involvement)</td></tr>
+      <tr><td>Blocking</td><td>One thread blocks → ALL threads in process block</td><td>Only blocking thread blocked; others continue</td></tr>
+      <tr><td>Parallelism</td><td>No true parallelism (kernel sees one process)</td><td>True parallelism on multi-core CPUs</td></tr>
+      <tr><td>Example</td><td>Green threads in early Java, GNU Pth</td><td>Linux pthreads, Windows threads</td></tr>
+    </table>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Process vs Thread in 25 words</div>
+        <p>"Process: independent execution with own address space, heavy creation, IPC needed for communication. Thread: lightweight execution unit within process, shared memory, fast context switch."</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Processes & Threads</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q5. Differentiate between the process and thread.</div>
+      <div class="pyq-meta"><span>2025 Part A Q5 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Process vs Thread</span><span class="pred-tag">🔮 VERY HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Process:</strong> Independent program in execution with its own private address space (code, data, heap, stack). Heavy to create. Needs IPC (pipes, sockets) to communicate. Isolated — crash of one doesn't affect others. Ex: Each running application is a separate process.<br><br>
+        <strong>Thread:</strong> Lightweight execution unit within a process. Shares code, data, heap with parent process; only has own stack and registers. Fast to create. Communicates via shared variables. One thread crash can kill all. Ex: Each browser tab uses multiple threads.<br><br>
+        <strong>Key difference:</strong> Process = private address space + heavy. Thread = shared address space + lightweight.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 02: GRAPH MODELS ═══════ -->
+<section class="section" id="graph">
+  <div class="section-header"><span class="section-num">02</span><h2 class="section-title">Graph Models for Process Representation</h2></div>
+  <div class="theory-block">
+    <h3>Why Graph Models?</h3>
+    <p>In distributed systems, multiple processes run concurrently and interact. <span class="hl-v">Graph models</span> provide a visual and formal way to represent processes, their interactions, dependencies, and execution order. They help detect deadlocks, analyze concurrency, and reason about correctness.</p>
+    <div class="layman">Graph models are like organizational charts or flowcharts for your processes. Instead of just saying "Process A talks to Process B," you draw a box for each process and an arrow showing the direction of communication or dependency. This helps you spot problems: if arrows form a circle, you might have a deadlock!</div>
+
+    <h3>1. Process Interaction Graph</h3>
+    <p>Represents processes as <strong>nodes</strong> and communication channels as <strong>directed edges</strong>. An edge from P1 to P2 means P1 can send messages to P2.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 440 160" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="220" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">Process Interaction Graph</text>
+        <circle cx="80" cy="90" r="30" fill="#0d1122" stroke="#8b5cf6" stroke-width="2"/>
+        <text x="80" y="95" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="10" font-weight="bold">P1</text>
+        <circle cx="220" cy="55" r="30" fill="#0d1122" stroke="#22d3ee" stroke-width="2"/>
+        <text x="220" y="60" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">P2</text>
+        <circle cx="360" cy="90" r="30" fill="#0d1122" stroke="#10b981" stroke-width="2"/>
+        <text x="360" y="95" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="10" font-weight="bold">P3</text>
+        <circle cx="220" cy="130" r="30" fill="#0d1122" stroke="#f97316" stroke-width="2"/>
+        <text x="220" y="135" text-anchor="middle" fill="#f97316" font-family="JetBrains Mono" font-size="10" font-weight="bold">P4</text>
+        <defs><marker id="ag" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#546080" stroke-width="1.5"/></marker></defs>
+        <line x1="108" y1="74" x2="190" y2="60" stroke="#546080" stroke-width="1.5" marker-end="url(#ag)"/>
+        <line x1="250" y1="60" x2="332" y2="78" stroke="#546080" stroke-width="1.5" marker-end="url(#ag)"/>
+        <line x1="108" y1="106" x2="192" y2="126" stroke="#546080" stroke-width="1.5" marker-end="url(#ag)"/>
+        <line x1="248" y1="126" x2="332" y2="102" stroke="#546080" stroke-width="1.5" marker-end="url(#ag)"/>
+        <text x="220" y="152" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">Nodes = Processes | Edges = message channels (directed)</text>
+      </svg>
+      <div class="diagram-cap">Fig: Process Interaction Graph — P1 sends to P2 and P4; P2 sends to P3; P4 sends to P3</div>
+    </div>
+
+    <h3 class="cyan">2. Wait-For Graph (WFG)</h3>
+    <p>A special graph used for <strong>deadlock detection</strong>. Directed edge from Pi to Pj means "Pi is waiting for Pj to release a resource." A cycle in the WFG indicates a deadlock.</p>
+    <div class="fbox">
+      <span class="flbl">Wait-For Graph — Deadlock Detection</span>
+      <div class="fl">Node: Each process in the system</div>
+      <div class="fl">Edge Pi → Pj: Pi is waiting for a resource held by Pj</div>
+      <div class="fl"></div>
+      <div class="fl">Deadlock exists iff there is a CYCLE in the WFG</div>
+      <div class="fl">Example: P1→P2→P3→P1 (cycle) = DEADLOCK</div>
+      <div class="fl">         P1→P2→P3 (no cycle) = No deadlock</div>
+      <div class="fn">In distributed systems, no single node has the global WFG — Chandy-Misra-Haas constructs it by propagating PROBE messages.</div>
+    </div>
+
+    <h3 class="orange">3. Precedence Graph (Task Graph)</h3>
+    <p>Used for representing the execution order of tasks. Edge from Ti to Tj means "Ti must complete before Tj begins." Used in static scheduling to assign tasks to processors.</p>
+    <div class="fbox">
+      <span class="flbl">Precedence Graph Properties</span>
+      <div class="fl">Directed Acyclic Graph (DAG) — no cycles (tasks can't depend on themselves)</div>
+      <div class="fl">Edge Ti → Tj: Ti is a prerequisite of Tj</div>
+      <div class="fl">Critical path: longest path in the DAG = minimum execution time</div>
+      <div class="fn">Used in: compiler optimization (instruction scheduling), distributed job scheduling, MapReduce DAG in Spark.</div>
+    </div>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: WFG → Distributed Deadlock (Unit 5)</div>
+        <p>The Wait-For Graph introduced here is the core data structure for distributed deadlock detection in Unit 5. Chandy-Misra-Haas algorithm builds the distributed WFG by sending PROBE messages. Understanding graph models here makes deadlock detection easier to understand later.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 03: CLIENT/SERVER MODEL ═══════ -->
+<section class="section" id="clientserver">
+  <div class="section-header"><span class="section-num">03</span><h2 class="section-title">Client/Server Model</h2></div>
+  <div class="theory-block">
+    <h3>Overview</h3>
+    <p>The <span class="hl-v">Client/Server model</span> is the dominant paradigm for building distributed applications. It separates the system into two asymmetric roles: <strong>clients</strong> that request services and <strong>servers</strong> that provide them. The model forms the basis of RPC and most internet applications.</p>
+    <div class="layman">The client-server model is exactly like a restaurant. You (the client) sit at a table and place an order (request). The kitchen (server) prepares your food (service) and sends it out. You never enter the kitchen — you just make requests through the waiter (protocol). The kitchen serves many customers simultaneously.</div>
+
+    <h3>How Client-Server Communication Works</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 180" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">Client/Server Interaction Model</text>
+        <!-- Client -->
+        <rect x="20" y="40" width="160" height="120" rx="8" fill="#0d1122" stroke="#22d3ee" stroke-width="2"/>
+        <text x="100" y="65" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">CLIENT</text>
+        <text x="100" y="83" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">1. issue_request()</text>
+        <text x="100" y="99" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">2. BLOCK (wait)</text>
+        <text x="100" y="115" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">5. receive_reply()</text>
+        <text x="100" y="131" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">6. process_result()</text>
+        <!-- Server -->
+        <rect x="380" y="40" width="160" height="120" rx="8" fill="#0d1122" stroke="#10b981" stroke-width="2"/>
+        <text x="460" y="65" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="10" font-weight="bold">SERVER</text>
+        <text x="460" y="83" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">3. receive_request()</text>
+        <text x="460" y="99" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">4. execute_service()</text>
+        <text x="460" y="115" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">send_reply()</text>
+        <text x="460" y="131" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">wait for next request</text>
+        <!-- Network -->
+        <defs><marker id="an" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#f59e0b" stroke-width="1.5"/></marker></defs>
+        <line x1="180" y1="85" x2="378" y2="85" stroke="#f59e0b" stroke-width="2" marker-end="url(#an)"/>
+        <text x="280" y="78" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">→ REQUEST message</text>
+        <line x1="378" y1="118" x2="180" y2="118" stroke="#8b5cf6" stroke-width="2" marker-end="url(#an)"/>
+        <text x="280" y="112" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="8">← REPLY message</text>
+        <text x="280" y="165" text-anchor="middle" fill="#2e3a58" font-family="JetBrains Mono" font-size="8">Network (LAN / WAN / Internet)</text>
+      </svg>
+      <div class="diagram-cap">Fig: Client/Server interaction — client issues request and blocks; server executes and sends reply; client unblocks</div>
+    </div>
+
+    <h3 class="orange">Characteristics of Client/Server Model</h3>
+    <div class="fbox">
+      <span class="flbl">Client Side Properties</span>
+      <div class="fl">Initiates communication (active role)</div>
+      <div class="fl">Sends request → waits (blocks) for reply</div>
+      <div class="fl">Typically runs on end-user machine</div>
+      <div class="fl">Doesn't need to be always running (intermittent)</div>
+      <div class="fl">Many clients can connect to one server</div>
+    </div>
+    <div class="fbox">
+      <span class="flbl">Server Side Properties</span>
+      <div class="fl">Waits passively for requests (reactive role)</div>
+      <div class="fl">Must be always running (daemon process)</div>
+      <div class="fl">Handles multiple clients simultaneously (threads/processes)</div>
+      <div class="fl">Has a well-known address/port that clients can find</div>
+      <div class="fl">Stateless (preferred) or stateful (complex but powerful)</div>
+    </div>
+
+    <h3>Stateless vs Stateful Servers</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Stateless Server</th><th>Stateful Server</th></tr>
+      <tr><td>Memory of client</td><td>Does NOT remember past interactions</td><td>Maintains session state per client</td></tr>
+      <tr><td>Fault recovery</td><td>Easy — restart server, clients retry</td><td>Hard — state may be lost on crash</td></tr>
+      <tr><td>Scalability</td><td>High — any server can handle any request</td><td>Lower — clients must reconnect to same server</td></tr>
+      <tr><td>Example</td><td>NFS server, HTTP/REST APIs, DNS</td><td>FTP server (tracks current directory), Coda file server</td></tr>
+      <tr><td>Idempotency</td><td>Requests are idempotent (safe to repeat)</td><td>Requests may not be idempotent</td></tr>
+    </table>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Client/Server</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q2(Part C). Explain client-server communication model on RPC and its message passing.</div>
+      <div class="pyq-meta"><span>2024 Part C Q2 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Client-Server + RPC</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Client-Server Model:</strong> Asymmetric paradigm — clients request services, servers provide them. Client initiates and blocks; server waits and responds. Forms the basis of RPC.<br><br>
+        [Draw the Client/Server Interaction diagram above for full marks]<br><br>
+        <strong>RPC on Client-Server:</strong> RPC (Remote Procedure Call) makes the client-server interaction transparent — the client calls a remote function as if it were local. See Section 11 (RPC) for full answer.<br><br>
+        <strong>Message Passing on Client-Server:</strong> More primitive — client explicitly sends(request) and receives(reply). Two modes:<br>
+        · Synchronous: client blocks until reply received<br>
+        · Asynchronous: client sends and continues; polls or gets notified of reply<br><br>
+        RPC is built on top of message passing — the stub layer converts function calls into send/receive operations automatically.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1(Part B). Explain how micro kernels can be used to organize an operating system in a client-server fashion.</div>
+      <div class="pyq-meta"><span>2023 Part B Q1 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Microkernel + Client-Server</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Microkernel OS Organization in Client-Server Fashion:</strong><br><br>
+        In a traditional monolithic OS, ALL services (file system, device drivers, networking) run in kernel space. In a <strong>microkernel</strong>, only the bare minimum runs in kernel space; everything else runs as user-space server processes.<br><br>
+        <strong>Microkernel structure:</strong><br>
+        · Kernel (minimal): Process management, IPC, memory management, interrupt handling<br>
+        · File Server (user space): Handles file system requests<br>
+        · Network Server (user space): Handles networking<br>
+        · Device Driver Server (user space): Handles hardware<br><br>
+        <strong>Client-Server fashion:</strong> User processes (clients) make requests to server processes using IPC (message passing through the microkernel). Example: Open a file → user process sends message to File Server → File Server accesses disk → sends reply.<br><br>
+        <strong>Advantages:</strong> Fault isolation (File Server crash doesn't kill kernel), portability, easier to extend.<br>
+        <strong>Disadvantages:</strong> More IPC overhead than monolithic kernel (more message passing between user-space servers).<br><br>
+        <strong>Examples:</strong> GNU Hurd, QNX, Mach (used in macOS), Minix.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 04: TIME SERVICES ═══════ -->
+<section class="section" id="timeservices">
+  <div class="section-header"><span class="section-num">04</span><h2 class="section-title">Time Services in Distributed Systems</h2></div>
+  <div class="theory-block">
+    <h3>Why Time Services?</h3>
+    <p>In a distributed system, each machine has its own hardware clock that <strong>drifts</strong> over time. Without synchronization, two events that should have the same timestamp will have different ones — causing ordering problems, transaction failures, and authentication issues.</p>
+    <div class="layman">Imagine every worker in your office sets their own clock. After a week, some are 5 minutes fast, some 3 minutes slow. Now when you look at when documents were created or modified, you can't trust the timestamps. Time Services are like a central clock on the wall that everyone syncs to — so all clocks show the same time.</div>
+
+    <h3>Network Time Protocol (NTP)</h3>
+    <p><span class="hl-v">NTP</span> is the standard internet time synchronization protocol. It synchronizes all clocks on a network to within a few milliseconds of UTC (Coordinated Universal Time).</p>
+    <div class="fbox">
+      <span class="flbl">NTP — Stratum Hierarchy</span>
+      <div class="fl">Stratum 0: Atomic clocks, GPS receivers (nanosecond accuracy)</div>
+      <div class="fl">Stratum 1: Time servers directly connected to Stratum 0 (microsecond accuracy)</div>
+      <div class="fl">Stratum 2: Synchronized from Stratum 1 (millisecond accuracy)</div>
+      <div class="fl">Stratum 3: Synchronized from Stratum 2</div>
+      <div class="fl">...</div>
+      <div class="fl">Your PC: Typically Stratum 3 or 4 (accuracy: ~50ms)</div>
+      <div class="fn">NTP protocol: client sends request with T1 timestamp; server replies with T2 (receive) and T3 (send); client receives at T4. Offset = ((T2-T1)+(T3-T4))/2</div>
+    </div>
+
+    <h3 class="cyan">Berkeley Algorithm (Internal Synchronization)</h3>
+    <p>NTP synchronizes to an external time source. The <span class="hl-v">Berkeley Algorithm</span> synchronizes clocks among machines in a group <em>without</em> an external reference — useful in a closed network.</p>
+    <div class="fbox">
+      <span class="flbl">Berkeley Algorithm — Steps</span>
+      <div class="fl">Step 1: Time daemon (master) polls all machines for their current time</div>
+      <div class="fl">Step 2: Machines send their clock values to the master</div>
+      <div class="fl">Step 3: Master computes the AVERAGE of all clock values</div>
+      <div class="fl">         (ignoring outliers that differ too much)</div>
+      <div class="fl">Step 4: Master sends each machine the DIFFERENCE it should adjust by</div>
+      <div class="fl">         (not the absolute time — to avoid sudden jumps)</div>
+      <div class="fl">Step 5: Machines adjust their clocks accordingly</div>
+      <div class="fn">Key: Machines are told HOW MUCH to adjust, not WHAT TIME IT IS. Avoids clock jumps.</div>
+    </div>
+
+    <h3 class="orange">DCE Distributed Time Service (DTS)</h3>
+    <p>DCE's DTS (covered in Unit 2) provides time synchronization as part of the DCE framework. Key feature: provides a <strong>skew bound</strong> — the guaranteed maximum difference between any two clocks in the system.</p>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Time Services → Logical Clocks (Unit 2)</div>
+        <p>Physical time synchronization (NTP, Berkeley) tries to keep physical clocks close. But even with NTP, there's ±50ms error — too much for distributed transactions. This is EXACTLY why Lamport's logical clocks (Unit 2) were invented: we don't need real time, just event ordering.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 05: LANGUAGE MECHANISMS FOR SYNCHRONIZATION ═══════ -->
+<section class="section" id="synchronization">
+  <div class="section-header"><span class="section-num">05</span><h2 class="section-title">Language Mechanisms for Synchronization</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part C Q2):</strong> "Explain the language mechanisms for synchronization" appeared as Part C Q2 in 2025 (10 marks). Based on the RTU pattern of retaining recent Part C topics, this is HIGH confidence for 2026. Always draw the monitor and semaphore diagrams.</div></div>
+  <div class="theory-block">
+    <h3>Why Language-Level Synchronization?</h3>
+    <p>In concurrent programs, multiple processes/threads access shared resources. Without synchronization, <strong>race conditions</strong> occur — the final result depends on the timing of operations. Language mechanisms provide constructs to control access to shared resources, ensuring correctness.</p>
+    <div class="layman">Imagine a shared Google Doc that two people edit simultaneously. If both read "Hello", both add "World", and both save — only one person's change wins. Synchronization is like a rule that says "only one person can type at a time." Language mechanisms are the different tools (locks, signals, message queues) for enforcing these rules.</div>
+
+    <h3>1. Semaphores</h3>
+    <p>A <span class="hl-v">semaphore</span> is an integer variable used for mutual exclusion and synchronization, accessible only through two atomic operations: <strong>wait (P)</strong> and <strong>signal (V)</strong>.</p>
+    <div class="fbox">
+      <span class="flbl">Semaphore Operations</span>
+      <div class="fl">Semaphore S initialized to some value N</div>
+      <div class="fl"></div>
+      <div class="fl">wait(S) — also called P(S) or down(S):</div>
+      <div class="fl">  while (S == 0) busy_wait; // or block</div>
+      <div class="fl">  S = S - 1;               // atomic</div>
+      <div class="fl"></div>
+      <div class="fl">signal(S) — also called V(S) or up(S):</div>
+      <div class="fl">  S = S + 1;               // atomic</div>
+      <div class="fl">  (wake up a waiting process if any)</div>
+      <div class="fl"></div>
+      <div class="fl">Binary Semaphore (Mutex): S = 0 or 1 → Mutual Exclusion</div>
+      <div class="fl">Counting Semaphore: S = N → Control N concurrent accesses</div>
+      <div class="fn">Example: Printer has 3 units → semaphore S=3. Each user: wait(S) before printing, signal(S) after.</div>
+    </div>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 520 150" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="260" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">Semaphore for Mutual Exclusion (S=1)</text>
+        <!-- P1 -->
+        <rect x="20" y="35" width="110" height="100" rx="6" fill="#0d1122" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="75" y="56" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">Process P1</text>
+        <text x="75" y="72" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">wait(S) → S=0</text>
+        <text x="75" y="87" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">CRITICAL SECTION</text>
+        <text x="75" y="102" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">signal(S) → S=1</text>
+        <!-- Semaphore -->
+        <rect x="200" y="55" width="120" height="50" rx="8" fill="#0d1122" stroke="#f59e0b" stroke-width="2"/>
+        <text x="260" y="78" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="10" font-weight="bold">S = 1</text>
+        <text x="260" y="96" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">Initially 1</text>
+        <!-- P2 -->
+        <rect x="390" y="35" width="110" height="100" rx="6" fill="#0d1122" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="445" y="56" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="9" font-weight="bold">Process P2</text>
+        <text x="445" y="72" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">wait(S) — BLOCKED</text>
+        <text x="445" y="87" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">(S=0, P1 inside CS)</text>
+        <text x="445" y="102" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">unblocks when signal</text>
+        <defs><marker id="as" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#546080" stroke-width="1.5"/></marker></defs>
+        <line x1="130" y1="80" x2="198" y2="80" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#as)"/>
+        <line x1="322" y1="80" x2="388" y2="80" stroke="#ef4444" stroke-width="1.5" marker-end="url(#as)"/>
+        <text x="260" y="140" text-anchor="middle" fill="#2e3a58" font-family="JetBrains Mono" font-size="8">P1 decrements S (S=0) → enters CS. P2 finds S=0, blocks. P1 increments S (S=1) → P2 unblocks.</text>
+      </svg>
+      <div class="diagram-cap">Fig: Binary semaphore for mutual exclusion — only one process can be in the critical section at a time</div>
+    </div>
+
+    <h3 class="cyan">2. Monitors</h3>
+    <p>A <span class="hl-v">monitor</span> is a high-level synchronization construct that encapsulates shared variables, procedures operating on them, and the synchronization needed. Only one process can be active in a monitor at a time — <strong>mutual exclusion is automatic</strong>.</p>
+    <div class="layman">A monitor is like a private meeting room with a key. You can only enter if no one is inside (mutual exclusion is built-in). Inside, you declare all shared data and the operations on it. If you need to wait for a condition (e.g., wait until buffer is not empty), you use a condition variable to sleep and be woken up.</div>
+    <div class="fbox">
+      <span class="flbl">Monitor Structure</span>
+      <div class="fl">monitor MonitorName {</div>
+      <div class="fl">  shared variables;                  // All shared data here</div>
+      <div class="fl">  condition c1, c2;                  // Condition variables for waiting</div>
+      <div class="fl">  procedure P1(...) { ... }          // Only one active at a time</div>
+      <div class="fl">  procedure P2(...) { ... }          // Mutual exclusion automatic</div>
+      <div class="fl">  initialization code;</div>
+      <div class="fl">}</div>
+      <div class="fl"></div>
+      <div class="fl">Condition variable operations:</div>
+      <div class="fl">  c.wait()   : release monitor lock, process sleeps on c</div>
+      <div class="fl">  c.signal() : wake up one process sleeping on c</div>
+      <div class="fn">Monitors vs Semaphores: Monitor = object-oriented, automatic mutual exclusion. Semaphore = low-level, manual. Java synchronized keyword implements a monitor.</div>
+    </div>
+
+    <h3 class="orange">3. Message Passing for Synchronization</h3>
+    <p>In distributed systems without shared memory, <span class="hl-v">message passing</span> is the primary synchronization mechanism. A process synchronizes with another by sending/receiving messages — the act of receiving a message implicitly synchronizes the receiver with the sender's state.</p>
+    <div class="fbox">
+      <span class="flbl">Rendezvous (ADA Programming Language)</span>
+      <div class="fl">Server process declares ENTRY points (like procedures)</div>
+      <div class="fl">Client process calls entry: client.call(Entry_Name, params)</div>
+      <div class="fl">Server accepts with: accept Entry_Name do ... end</div>
+      <div class="fl">Both BLOCK until the other is ready — rendezvous (meeting point)</div>
+      <div class="fl">After rendezvous: both continue independently</div>
+      <div class="fn">ADA's rendezvous combines synchronization + communication in one construct. CSP (Communicating Sequential Processes) uses similar channel-based communication.</div>
+    </div>
+
+    <h3>4. Mutexes and Condition Variables (POSIX)</h3>
+    <p>The most practical synchronization primitives in C/C++/Java concurrent programming:</p>
+    <div class="fbox">
+      <span class="flbl">Mutex Operations</span>
+      <div class="fl">pthread_mutex_lock(&mutex)    // Acquire lock — blocks if held</div>
+      <div class="fl">pthread_mutex_unlock(&mutex)  // Release lock</div>
+      <div class="fl"></div>
+      <div class="fl">Condition Variable Operations (used WITH mutex):</div>
+      <div class="fl">pthread_cond_wait(&cond, &mutex)   // Release mutex + sleep atomically</div>
+      <div class="fl">pthread_cond_signal(&cond)         // Wake one sleeping thread</div>
+      <div class="fl">pthread_cond_broadcast(&cond)      // Wake ALL sleeping threads</div>
+    </div>
+
+    <h3>5. Language Mechanisms Summary (RTU 2025 Part C Q2)</h3>
+    <table class="comp-table">
+      <tr><th>Mechanism</th><th>Level</th><th>Mutual Exclusion</th><th>Language/System</th><th>Key Operation</th></tr>
+      <tr><td><strong>Semaphore</strong></td><td>OS / Low</td><td>Manual (programmer must pair wait/signal)</td><td>C, Unix, POSIX</td><td>wait(S), signal(S)</td></tr>
+      <tr><td><strong>Monitor</strong></td><td>High</td><td>Automatic (compiler enforces)</td><td>Java synchronized, Hoare monitors</td><td>condition.wait(), condition.signal()</td></tr>
+      <tr><td><strong>Mutex</strong></td><td>OS / Low</td><td>Manual (lock/unlock pairs)</td><td>POSIX pthreads, C++</td><td>lock(), unlock()</td></tr>
+      <tr><td><strong>Message Passing</strong></td><td>Language</td><td>Through channel ownership</td><td>CSP, ADA, Go channels</td><td>send(), receive()</td></tr>
+      <tr><td><strong>Rendezvous</strong></td><td>Language</td><td>Built-in (synchronous)</td><td>ADA</td><td>accept entry_name</td></tr>
+    </table>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">10-Mark Answer Structure for Language Mechanisms</div>
+        <p>Introduction: why synchronization needed in concurrent DS (1) + Semaphore with P/V operations + diagram (2.5) + Monitor with structure + condition variables (2.5) + Message Passing / Rendezvous (2) + Comparison table (2) = 10 marks. Draw the semaphore mutual exclusion diagram and monitor structure.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Synchronization</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q2(Part C). Explain the language mechanisms for synchronization.</div>
+      <div class="pyq-meta"><span>2025 Part C Q2 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Language Mechanisms</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Need:</strong> In concurrent DS, multiple processes/threads access shared resources simultaneously — race conditions without synchronization. Language mechanisms provide constructs to prevent this.<br><br>
+        <strong>1. Semaphores (Dijkstra):</strong> Integer variable, operations wait(S) and signal(S). Binary semaphore (S=0/1) for mutual exclusion. Counting semaphore (S=N) for N concurrent accesses. Low-level — programmer must correctly pair wait/signal.<br><br>
+        <strong>2. Monitors:</strong> High-level OO construct. Shared data + procedures + synchronization encapsulated. Only ONE procedure active at a time (automatic mutual exclusion). Condition variables (c.wait(), c.signal()) for process synchronization inside the monitor. Ex: Java synchronized blocks.<br><br>
+        <strong>3. Message Passing:</strong> Primary mechanism in DS (no shared memory). Synchronization through send()/receive() — receiver synchronizes with sender implicitly. Can be synchronous (blocking rendezvous) or asynchronous.<br><br>
+        <strong>4. Rendezvous (ADA):</strong> Server declares ENTRY; client calls entry; server executes ACCEPT; both block until ready to meet — then execute simultaneously.<br><br>
+        <strong>5. Mutex + Condition Variables (POSIX):</strong> Lock mutex before accessing shared data; unlock after. Use cond_wait() to release lock + sleep; cond_signal() to wake sleeper.<br><br>
+        [Draw semaphore diagram + monitor structure for full marks]
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q6. How concurrency is handled in distributed system?</div>
+      <div class="pyq-meta"><span>2023 Part A Q6 · 2 marks ⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Concurrency</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Concurrency in DS</strong> means multiple processes run simultaneously across different nodes, potentially accessing shared resources.<br><br>
+        <strong>Handling mechanisms:</strong><br>
+        1. <strong>Semaphores/Mutexes:</strong> Lock shared resources before access (local within a node)<br>
+        2. <strong>Distributed Locking:</strong> Centralized lock manager or token-based distributed locks<br>
+        3. <strong>Timestamp Ordering:</strong> Each operation gets a global timestamp; conflicts resolved by timestamp order<br>
+        4. <strong>Optimistic Concurrency Control:</strong> Execute without locks; validate at commit; rollback if conflict<br>
+        5. <strong>Message Passing:</strong> No shared memory → each resource has one owner; access via messages (no race conditions possible across nodes)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 06: OBJECT MODEL SERVERS ═══════ -->
+<section class="section" id="objectmodel">
+  <div class="section-header"><span class="section-num">06</span><h2 class="section-title">Object Model Resource Servers</h2></div>
+  <div class="theory-block">
+    <h3>What is an Object Adapter? (2023 Part B Q3)</h3>
+    <p>In distributed object systems (like CORBA), an <span class="hl-v">Object Adapter</span> is the component that connects the ORB (Object Request Broker) to the actual object implementation. It manages the lifetime of objects and dispatches method calls from the ORB to the correct object.</p>
+    <div class="layman">The Object Adapter is like a hotel receptionist for your objects. When a call comes in for "Room 302" (an object ID), the receptionist (object adapter) checks if that room is occupied (object is active), wakes up the guest if needed (activates the object), and directs the caller to the right room (dispatches the call). Without the receptionist, every caller would wander the hotel looking for their contact.</div>
+    <div class="fbox">
+      <span class="flbl">Object Adapter Functions</span>
+      <div class="fl">1. Object Registration: Register objects with the ORB so they can be found</div>
+      <div class="fl">2. Activation/Deactivation: Create/destroy object instances on demand (lazy activation)</div>
+      <div class="fl">3. Request Dispatching: Forward incoming method calls to the correct object + method</div>
+      <div class="fl">4. Object Identity: Assign and manage unique Object IDs (OIDs)</div>
+      <div class="fl">5. Persistence: Optionally persist object state between requests (stateful objects)</div>
+      <div class="fn">CORBA defines the Portable Object Adapter (POA) — a standardized object adapter that works across different ORB implementations.</div>
+    </div>
+
+    <h3 class="cyan">Object Model in Distributed Systems</h3>
+    <p>The <span class="hl-v">distributed object model</span> extends the local object model across a network. Objects have:</p>
+    <ul>
+      <li><strong>Interface:</strong> The set of methods that can be called remotely (defined in IDL for CORBA)</li>
+      <li><strong>Object Reference:</strong> A unique identifier that clients use to invoke methods — acts like a network address for the object</li>
+      <li><strong>Implementation:</strong> The actual code running on the server — hidden from the client</li>
+    </ul>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Object Adapter → CORBA (Unit 6)</div>
+        <p>The Object Adapter is a core CORBA component. When you study CORBA in Unit 6, the POA (Portable Object Adapter) is the standardized object adapter. Understanding the object adapter here makes CORBA architecture much clearer.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Object Model</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3(Part B). What is an object adapter?</div>
+      <div class="pyq-meta"><span>2023 Part B Q3 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Object Adapter</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Object Adapter</strong> is a component in distributed object systems (like CORBA) that connects the ORB to actual object implementations. It acts as an intermediary that handles object lifecycle, dispatch, and registration.<br><br>
+        <strong>Functions:</strong><br>
+        1. <strong>Object Registration:</strong> Registers servant objects with the ORB<br>
+        2. <strong>Activation/Deactivation:</strong> Creates/destroys object instances on demand<br>
+        3. <strong>Request Dispatch:</strong> Routes incoming method calls to the right object instance<br>
+        4. <strong>Object Identity:</strong> Assigns unique Object IDs (OIDs)<br>
+        5. <strong>Persistence:</strong> Can persist object state between invocations<br><br>
+        <strong>CORBA Standard:</strong> POA (Portable Object Adapter) — standardized adapter that works across all CORBA ORB implementations. Defined in CORBA 2.2.<br><br>
+        <strong>How it works:</strong> Client invokes method via object reference → ORB receives request → Object Adapter looks up which servant object handles this OID → dispatches call to servant's method → result returned via ORB to client.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 07: MESSAGE PASSING ═══════ -->
+<section class="section" id="messagepassing">
+  <div class="section-header"><span class="section-num">07</span><h2 class="section-title">Message Passing (IPC)</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part B Q3):</strong> "Explain Inter-Process Communication Mechanism" appeared as Part B Q3 in 2025 and Part A Q3 in 2024. TWO consecutive years. IPC mechanism (especially message passing) is a stable fixture — HIGH confidence for 2026 Part B.</div></div>
+  <div class="theory-block">
+    <h3>What is Message Passing?</h3>
+    <p><span class="hl-v">Message passing</span> is the fundamental communication mechanism in distributed systems. Since processes on different machines cannot share memory, they communicate by explicitly sending and receiving messages over the network. It is the building block for all higher-level protocols (RPC, RMI, message queues).</p>
+    <div class="layman">Message passing is like postal mail between offices. If two offices need to share information, they write a letter (message), put it in an envelope (packet), and send it through the post office (network). The receiver opens their mailbox (socket/queue), reads the letter, and sends a reply. No one needs to physically visit the other office — all communication is through letters.</div>
+
+    <h3>Synchronous vs Asynchronous Message Passing (2024 Part B Q2)</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 200" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">Synchronous vs Asynchronous Communication</text>
+        <!-- Synchronous -->
+        <text x="140" y="40" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">SYNCHRONOUS (Blocking)</text>
+        <line x1="40" y1="55" x2="40" y2="180" stroke="#22d3ee" stroke-width="2"/>
+        <line x1="240" y1="55" x2="240" y2="180" stroke="#10b981" stroke-width="2"/>
+        <text x="40" y="50" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">Sender</text>
+        <text x="240" y="50" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Receiver</text>
+        <defs><marker id="am" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#546080" stroke-width="1.5"/></marker></defs>
+        <line x1="40" y1="80" x2="238" y2="100" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#am)"/>
+        <text x="140" y="88" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="7">send() →</text>
+        <rect x="30" y="80" width="20" height="50" rx="2" fill="rgba(239,68,68,0.2)" stroke="#ef4444" stroke-width="1"/>
+        <text x="18" y="98" fill="#ef4444" font-family="JetBrains Mono" font-size="7">BLK</text>
+        <line x1="240" y1="148" x2="42" y2="148" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#am)"/>
+        <text x="140" y="144" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="7">← reply()</text>
+        <!-- Asynchronous -->
+        <text x="420" y="40" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">ASYNCHRONOUS (Non-blocking)</text>
+        <line x1="320" y1="55" x2="320" y2="180" stroke="#22d3ee" stroke-width="2"/>
+        <line x1="520" y1="55" x2="520" y2="180" stroke="#10b981" stroke-width="2"/>
+        <text x="320" y="50" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">Sender</text>
+        <text x="520" y="50" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Receiver</text>
+        <line x1="320" y1="80" x2="518" y2="100" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#am)"/>
+        <text x="420" y="88" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="7">send() → (returns immediately)</text>
+        <text x="320" y="110" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="7">continues</text>
+        <text x="320" y="122" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="7">other work</text>
+        <text x="320" y="134" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="7">...</text>
+        <rect x="510" y="100" width="20" height="25" rx="2" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="1"/>
+        <text x="536" y="118" fill="#10b981" font-family="JetBrains Mono" font-size="7">buffer</text>
+        <text x="280" y="192" text-anchor="middle" fill="#2e3a58" font-family="JetBrains Mono" font-size="8">Synchronous: both block at rendezvous. Async: sender returns immediately; message buffered.</text>
+      </svg>
+      <div class="diagram-cap">Fig: Synchronous (blocking rendezvous) vs Asynchronous (non-blocking, buffered) communication</div>
+    </div>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Synchronous (Blocking)</th><th>Asynchronous (Non-blocking)</th></tr>
+      <tr><td>send() behavior</td><td>Blocks until receiver acknowledges</td><td>Returns immediately; message buffered</td></tr>
+      <tr><td>receive() behavior</td><td>Blocks until message available</td><td>Returns immediately (null if no message) or with callback</td></tr>
+      <tr><td>Coupling</td><td>Tight — both parties must be ready simultaneously</td><td>Loose — sender and receiver can be at different speeds</td></tr>
+      <tr><td>Complexity</td><td>Simpler to reason about (predictable)</td><td>More complex (race conditions, message ordering)</td></tr>
+      <tr><td>Performance</td><td>Lower — sender waits</td><td>Higher — sender doesn't wait</td></tr>
+      <tr><td>Example</td><td>Traditional RPC (synchronous)</td><td>Email, message queues (Kafka), async REST</td></tr>
+    </table>
+
+    <h3 class="cyan">IPC Mechanisms — Complete Overview (2024 Part A Q3)</h3>
+    <div class="fbox">
+      <span class="flbl">IPC Mechanisms in Distributed Systems</span>
+      <div class="fl">1. PIPES (within same machine):</div>
+      <div class="fl">   Unidirectional byte stream between related processes (parent-child)</div>
+      <div class="fl">   Anonymous pipe: ls | grep .txt (Unix)</div>
+      <div class="fl">   Named pipe (FIFO): works between unrelated processes</div>
+      <div class="fl"></div>
+      <div class="fl">2. MESSAGE QUEUES:</div>
+      <div class="fl">   Ordered queue of messages; decoupled producer/consumer</div>
+      <div class="fl">   Asynchronous; supports persistence; priority ordering</div>
+      <div class="fl">   Examples: Apache Kafka, RabbitMQ, AWS SQS</div>
+      <div class="fl"></div>
+      <div class="fl">3. SHARED MEMORY (same machine):</div>
+      <div class="fl">   Fastest IPC — processes map same physical page into address space</div>
+      <div class="fl">   Requires synchronization (semaphores) to prevent races</div>
+      <div class="fl"></div>
+      <div class="fl">4. SOCKETS:</div>
+      <div class="fl">   Network IPC — works across machines and OS</div>
+      <div class="fl">   TCP sockets: reliable, ordered, connection-oriented</div>
+      <div class="fl">   UDP sockets: unreliable, unordered, connectionless — faster</div>
+      <div class="fl"></div>
+      <div class="fl">5. REMOTE PROCEDURE CALL (RPC):</div>
+      <div class="fl">   Higher-level IPC — makes remote calls look like local calls</div>
+      <div class="fl">   Built on top of sockets; hides all network communication</div>
+      <div class="fl"></div>
+      <div class="fl">6. SIGNALS (within same machine):</div>
+      <div class="fl">   Asynchronous notification to a process (e.g., Ctrl+C → SIGINT)</div>
+      <div class="fn">In distributed systems, sockets → message passing → RPC are the primary IPC mechanisms. Pipes and shared memory are local-only.</div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Message Passing & IPC</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3. Define Inter-process Communication.</div>
+      <div class="pyq-meta"><span>2024 Part A Q3 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">IPC</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>IPC (Inter-process Communication)</strong> is a set of mechanisms that allow processes to communicate and synchronize — within the same machine or across a network.<br><br>
+        <strong>Mechanisms:</strong><br>
+        · <strong>Pipes:</strong> Unidirectional byte stream (Unix: ls | grep)<br>
+        · <strong>Message Queues:</strong> Buffered, decoupled messaging (Kafka, RabbitMQ)<br>
+        · <strong>Shared Memory:</strong> Fastest — processes map same memory region<br>
+        · <strong>Sockets:</strong> Network IPC (TCP/UDP) — works across machines<br>
+        · <strong>Signals:</strong> Asynchronous event notification (SIGKILL, SIGINT)<br>
+        · <strong>RPC/RMI:</strong> High-level remote invocation built on sockets<br><br>
+        <strong>In distributed systems:</strong> Sockets and RPC dominate since no shared memory between nodes.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3(Part B). Explain Inter-Process Communication Mechanism.</div>
+      <div class="pyq-meta"><span>2025 Part B Q3 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">IPC Mechanisms</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>IPC Mechanisms in Distributed Systems:</strong><br><br>
+        <strong>1. Message Passing:</strong> Explicit send()/receive() primitives. Synchronous: both block at rendezvous. Asynchronous: sender returns immediately, message buffered. Foundation of all distributed IPC.<br><br>
+        <strong>2. Sockets:</strong> TCP (reliable, ordered, connection-oriented) or UDP (unreliable, fast, connectionless). Server binds to port; client connects. Low-level but universal.<br><br>
+        <strong>3. Message Queues:</strong> Producer puts messages in queue; consumer reads when ready. Decoupled, asynchronous, persistent. Ex: Kafka, RabbitMQ.<br><br>
+        <strong>4. Remote Procedure Call (RPC):</strong> Hides message passing — programmer writes function calls, RPC framework handles marshalling + sending + receiving + unmarshalling.<br><br>
+        <strong>5. Pipes:</strong> Unidirectional byte stream. Anonymous pipes for parent-child. Named pipes (FIFO) for unrelated processes. Local-only.<br><br>
+        [Draw: Client → Socket → Network → Socket → Server, or IPC mechanism hierarchy diagram]
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q2(Part B). Compare synchronous versus asynchronous execution.</div>
+      <div class="pyq-meta"><span>2024 Part B Q2 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Sync vs Async</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        Use the comparison table above. Additionally:<br><br>
+        <strong>Synchronous Execution:</strong> The calling process BLOCKS until the called process completes. The result is available immediately after the call returns. Simple to program (sequential logic). Lower throughput since caller waits idle. Traditional RPC is synchronous.<br><br>
+        <strong>Asynchronous Execution:</strong> The calling process sends the request and IMMEDIATELY continues other work. It receives the result later via a callback, future/promise, or polling. Higher throughput. More complex programming (must handle result later). Used in modern web APIs (AJAX), message queues, Node.js.<br><br>
+        [Draw the timing diagrams as shown above]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 08: REQUEST/REPLY & TRANSACTIONS ═══════ -->
+<section class="section" id="requestreply">
+  <div class="section-header"><span class="section-num">08</span><h2 class="section-title">Request/Reply and Transaction Communication</h2></div>
+  <div class="theory-block">
+    <h3>Request/Reply Protocol</h3>
+    <p>The <span class="hl-v">request/reply</span> pattern is the simplest distributed communication protocol. A client sends a <strong>request message</strong>; the server processes it and sends a <strong>reply message</strong>. This is the foundation of RPC.</p>
+    <div class="fbox">
+      <span class="flbl">Request/Reply Protocol — 3-Message Pattern</span>
+      <div class="fl">Standard: 2 messages — REQUEST and REPLY</div>
+      <div class="fl">With acknowledgement (for reliable delivery): 3 messages</div>
+      <div class="fl">  1. Client → Server: REQUEST(operationId, params)</div>
+      <div class="fl">  2. Server → Client: REPLY(result)</div>
+      <div class="fl">  3. Client → Server: ACK (if using 3-message protocol)</div>
+      <div class="fl"></div>
+      <div class="fl">Message structure: {messageType, requestId, objectReference, operationId, arguments}</div>
+      <div class="fn">Idempotency: If request is sent twice (retransmission), the result should be the same. GET is idempotent; POST may not be. Use requestId to detect duplicates.</div>
+    </div>
+
+    <h3 class="cyan">Transaction Communication</h3>
+    <p>A <span class="hl-v">transaction</span> is a sequence of operations that are treated as a single unit — either ALL succeed or ALL fail. Distributed transactions require coordination across multiple machines.</p>
+    <div class="fbox">
+      <span class="flbl">ACID Properties (Mandatory for Exam)</span>
+      <div class="fl">A — ATOMICITY: All operations in transaction succeed, or none do (rollback)</div>
+      <div class="fl">C — CONSISTENCY: Transaction moves database from one consistent state to another</div>
+      <div class="fl">I — ISOLATION: Concurrent transactions appear to execute serially (no dirty reads)</div>
+      <div class="fl">D — DURABILITY: Committed transaction persists even if system crashes (write-ahead log)</div>
+    </div>
+
+    <h3 class="orange">Two-Phase Commit (2PC) Protocol</h3>
+    <p>The standard protocol for ensuring atomicity across distributed nodes in a transaction:</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 540 200" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="270" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">Two-Phase Commit (2PC)</text>
+        <!-- Coordinator -->
+        <rect x="200" y="30" width="140" height="40" rx="6" fill="#0d1122" stroke="#8b5cf6" stroke-width="2"/>
+        <text x="270" y="55" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="10" font-weight="bold">Coordinator</text>
+        <!-- Participants -->
+        <rect x="30" y="120" width="120" height="40" rx="6" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="90" y="145" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9">Participant 1</text>
+        <rect x="210" y="120" width="120" height="40" rx="6" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="270" y="145" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9">Participant 2</text>
+        <rect x="390" y="120" width="120" height="40" rx="6" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="450" y="145" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9">Participant 3</text>
+        <!-- Phase 1 arrows -->
+        <defs><marker id="a2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#546080" stroke-width="1.5"/></marker></defs>
+        <line x1="230" y1="70" x2="100" y2="118" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a2)"/>
+        <line x1="260" y1="70" x2="265" y2="118" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a2)"/>
+        <line x1="300" y1="70" x2="440" y2="118" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="155" y="98" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">Phase 1: PREPARE</text>
+        <!-- Phase 2 arrows back -->
+        <line x1="100" y1="120" x2="235" y2="72" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a2)"/>
+        <line x1="270" y1="120" x2="268" y2="72" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a2)"/>
+        <line x1="440" y1="120" x2="305" y2="72" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a2)"/>
+        <text x="155" y="115" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">VOTE (YES/NO) ←</text>
+        <text x="270" y="185" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">Phase 2: All YES → COMMIT. Any NO → ABORT (rollback all)</text>
+      </svg>
+      <div class="diagram-cap">Fig: Two-Phase Commit. Phase 1: Coordinator sends PREPARE to all. Phase 2: If all vote YES → send COMMIT; if any NO → send ABORT.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 09: NAME & DIRECTORY SERVICES ═══════ -->
+<section class="section" id="nameservice">
+  <div class="section-header"><span class="section-num">09</span><h2 class="section-title">Name and Directory Services</h2></div>
+  <div class="theory-block">
+    <h3>Why Naming?</h3>
+    <p>In a distributed system, resources (files, services, processes) can be anywhere on the network. Clients need a way to find them. <span class="hl-v">Naming services</span> provide a mapping from human-readable names to network addresses — just like phone directories map names to phone numbers.</p>
+    <div class="layman">Naming is like your phone's contacts list. You don't remember your friend's phone number — you just search for "Mom" and your phone finds the number. Naming services do this for distributed resources: you say "FileServer1/reports/Q3.pdf" and the name service translates that to an IP address and path.</div>
+
+    <h3>DNS — Domain Name System (The World's Largest Name Service)</h3>
+    <div class="fbox">
+      <span class="flbl">DNS Name Resolution</span>
+      <div class="fl">Name: www.google.com → IP: 142.250.195.4</div>
+      <div class="fl">Hierarchy: com → google.com → www.google.com</div>
+      <div class="fl">Resolution: Local cache → Recursive resolver → Root server → TLD server → Authoritative server</div>
+      <div class="fl">Caching: TTL-based (reduces load — most lookups resolved from cache)</div>
+      <div class="fn">DNS is a distributed, hierarchical, replicated name service — a perfect example of a distributed system solving the naming design issue.</div>
+    </div>
+
+    <h3 class="cyan">LDAP — Lightweight Directory Access Protocol</h3>
+    <p><span class="hl-v">LDAP</span> is a directory service protocol for looking up and managing information about network users and resources. Organized as a hierarchical tree (DIT — Directory Information Tree).</p>
+    <div class="fbox">
+      <span class="flbl">LDAP Directory Entry Example</span>
+      <div class="fl">dn: cn=Mahansh Gaur,ou=students,dc=rtu,dc=ac,dc=in</div>
+      <div class="fl">cn: Mahansh Gaur</div>
+      <div class="fl">mail: mahansh@rtu.ac.in</div>
+      <div class="fl">uid: 2021cs001</div>
+      <div class="fl">userPassword: {SHA}...</div>
+      <div class="fn">Used by: Windows Active Directory, Linux LDAP auth, corporate email systems</div>
+    </div>
+
+    <h3 class="orange">DCE CDS and CORBA Naming Service</h3>
+    <p>Both DCE CDS (Cell Directory Service) and CORBA Naming Service map logical names to object references/addresses. They provide <strong>location transparency</strong> — clients use names, not network addresses.</p>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 10: RPC ═══════ -->
+<section class="section" id="rpc">
+  <div class="section-header"><span class="section-num">10</span><h2 class="section-title">RPC — Remote Procedure Call</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN:</strong> RPC/RMI appeared in ALL THREE papers (2023 Q3, 2024 Q4, 2025 Q3). The most certain Part A topic in DS. Must know: definition, steps in RPC, stub mechanism, and RPC vs RMI difference.</div></div>
+  <div class="theory-block">
+    <h3>What is RPC?</h3>
+    <p><span class="hl-v">Remote Procedure Call (RPC)</span> is a protocol that allows a program to call a procedure (function) on a remote machine as if it were a local call. The programmer writes code using normal function call syntax — the RPC framework handles all the network communication, parameter marshalling, and error handling transparently.</p>
+    <div class="layman">RPC is like using a TV remote control. You press "Volume Up" on your remote (client code). You don't need to know whether the TV uses infrared or Bluetooth signals (the network layer). The TV receives the signal and executes the volume change (server procedure). From your perspective, you just pressed a button and the TV responded — exactly like pressing a button on the TV itself. RPC makes remote function calls feel exactly like local function calls.</div>
+
+    <h3>How RPC Works — The Stub Architecture</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 220" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">RPC — Complete Call Flow</text>
+        <!-- Client side -->
+        <rect x="10" y="30" width="220" height="170" rx="8" fill="#0d1122" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="120" y="50" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">CLIENT MACHINE</text>
+        <rect x="20" y="60" width="200" height="28" rx="4" fill="#111630"/>
+        <text x="120" y="78" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">1. Client calls procedure(args)</text>
+        <rect x="20" y="96" width="200" height="28" rx="4" fill="#111630" stroke="#8b5cf6" stroke-width="1"/>
+        <text x="120" y="114" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="8">2. Client Stub: marshal(args) → bytes</text>
+        <rect x="20" y="132" width="200" height="28" rx="4" fill="#111630"/>
+        <text x="120" y="150" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">3. OS: send bytes over network</text>
+        <rect x="20" y="168" width="200" height="22" rx="4" fill="#111630"/>
+        <text x="120" y="183" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">4. Client BLOCKS (waits for reply)</text>
+        <!-- Network -->
+        <line x1="230" y1="115" x2="330" y2="115" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="280" y="108" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">→ NETWORK →</text>
+        <line x1="330" y1="150" x2="230" y2="150" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="280" y="145" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="8">← RESULT ←</text>
+        <!-- Server side -->
+        <rect x="330" y="30" width="220" height="170" rx="8" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="440" y="50" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">SERVER MACHINE</text>
+        <rect x="340" y="60" width="200" height="28" rx="4" fill="#111630"/>
+        <text x="440" y="78" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">5. OS: receive bytes from network</text>
+        <rect x="340" y="96" width="200" height="28" rx="4" fill="#111630" stroke="#10b981" stroke-width="1"/>
+        <text x="440" y="114" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">6. Server Stub: unmarshal(bytes) → args</text>
+        <rect x="340" y="132" width="200" height="28" rx="4" fill="#111630" stroke="#f97316" stroke-width="1"/>
+        <text x="440" y="150" text-anchor="middle" fill="#f97316" font-family="JetBrains Mono" font-size="8">7. Execute: result = procedure(args)</text>
+        <rect x="340" y="168" width="200" height="22" rx="4" fill="#111630"/>
+        <text x="440" y="183" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">8. Server Stub: marshal(result) → bytes</text>
+        <text x="280" y="210" text-anchor="middle" fill="#2e3a58" font-family="JetBrains Mono" font-size="8">Client stub and Server skeleton generated automatically from IDL by RPC compiler</text>
+      </svg>
+      <div class="diagram-cap">Fig: RPC call flow — programmer only writes steps 1 and 7; everything else is handled by the RPC framework</div>
+    </div>
+
+    <h3 class="orange">RPC Steps in Detail</h3>
+    <div class="fbox">
+      <span class="flbl">8 Steps of RPC Execution</span>
+      <div class="fl">1. CLIENT CALL: Client code calls procedure normally: result = add(3, 4)</div>
+      <div class="fl">2. CLIENT STUB PACKS (Marshalling): Stub packs params into a message</div>
+      <div class="fl">   • Converts data to machine-independent format (XDR — External Data Representation)</div>
+      <div class="fl">   • Handles endianness, type conversion between different architectures</div>
+      <div class="fl">3. CLIENT OS SENDS: Stub sends message to server OS (via socket/UDP)</div>
+      <div class="fl">4. CLIENT BLOCKS: Client process waits for reply</div>
+      <div class="fl">5. SERVER OS RECEIVES: Server OS receives the message</div>
+      <div class="fl">6. SERVER STUB UNPACKS (Unmarshalling): Extracts parameters from message</div>
+      <div class="fl">7. ACTUAL EXECUTION: Server calls the real procedure with unpacked params</div>
+      <div class="fl">8. REPLY SENT BACK: Server stub marshals result → sends back → client stub unpacks → client continues</div>
+      <div class="fn">Binding: Client must first locate the server. Uses a Binder/Name Service (port mapper in Sun RPC) to find server's address.</div>
+    </div>
+
+    <h3 class="cyan">RPC Parameter Passing — Marshalling</h3>
+    <div class="fbox">
+      <span class="flbl">Marshalling (Parameter Serialization)</span>
+      <div class="fl">Problem: Different machines have different:</div>
+      <div class="fl">  • Integer sizes (32-bit vs 64-bit)</div>
+      <div class="fl">  • Byte order (big-endian SPARC vs little-endian x86)</div>
+      <div class="fl">  • Floating point formats (IEEE 754 vs others)</div>
+      <div class="fl">  • String encodings (ASCII vs UTF-8 vs UTF-16)</div>
+      <div class="fl"></div>
+      <div class="fl">Solution: XDR (eXternal Data Representation) — canonical format</div>
+      <div class="fl">  Sender converts to XDR; receiver converts from XDR</div>
+      <div class="fl">  Modern: Protocol Buffers (protobuf), MessagePack, JSON, XML</div>
+      <div class="fn">Marshalling = packing. Unmarshalling = unpacking. Also called serialization/deserialization.</div>
+    </div>
+
+    <h3>RPC Failure Semantics</h3>
+    <p>What happens when the network or server fails during an RPC call? The client may not know if the procedure executed or not. Four possible semantics:</p>
+    <table class="comp-table">
+      <tr><th>Semantic</th><th>Guarantee</th><th>How Achieved</th><th>Use Case</th></tr>
+      <tr><td><strong>Maybe</strong></td><td>RPC may or may not execute</td><td>No retry, no acknowledgement</td><td>Non-critical operations</td></tr>
+      <tr><td><strong>At Least Once</strong></td><td>RPC executes one or more times</td><td>Keep retrying until reply received</td><td>Idempotent operations (read)</td></tr>
+      <tr><td><strong>At Most Once</strong></td><td>RPC executes 0 or 1 times</td><td>Server keeps history; detects duplicates</td><td>Non-idempotent (financial transactions)</td></tr>
+      <tr><td><strong>Exactly Once</strong></td><td>RPC executes exactly once</td><td>Transactions + 2PC; very expensive</td><td>Banking, booking systems</td></tr>
+    </table>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — RPC</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3. Explain working of RPC.</div>
+      <div class="pyq-meta"><span>2023 Part A Q3 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">RPC</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>RPC (Remote Procedure Call)</strong> allows a program to call a function on a remote machine as if it were local. Uses stub architecture to hide network communication.<br><br>
+        <strong>Working (8 steps):</strong><br>
+        1. Client calls procedure — looks like a local call<br>
+        2. Client stub marshals parameters (packs into XDR message)<br>
+        3. OS sends message over network to server<br>
+        4. Client blocks waiting for reply<br>
+        5. Server OS receives message<br>
+        6. Server stub unmarshals parameters<br>
+        7. Server executes the actual procedure<br>
+        8. Reply marshaled → sent back → client stub unpacks → client continues<br><br>
+        [Draw the RPC flow diagram for full marks in Part B/C]
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q2(Part B). Explain transport level communication services for building distributed applications.</div>
+      <div class="pyq-meta"><span>2023 Part B Q2 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Transport Services</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Transport Layer Services for Distributed Applications:</strong><br><br>
+        <strong>1. TCP (Transmission Control Protocol):</strong> Connection-oriented, reliable, ordered, error-checked byte stream. 3-way handshake (SYN → SYN-ACK → ACK). Guarantees delivery and ordering. Used by: HTTP/HTTPS, FTP, RPC (traditional), RMI. Overhead: connection setup, ACKs, retransmission.<br><br>
+        <strong>2. UDP (User Datagram Protocol):</strong> Connectionless, unreliable, unordered datagrams. No handshake. Fast — no overhead. Used by: DNS, streaming (video/audio), gaming, NFS (historically). Application must handle losses/ordering.<br><br>
+        <strong>Services provided by transport layer:</strong><br>
+        · Addressing (port numbers — identify service on a host)<br>
+        · Multiplexing (multiple applications share one IP address)<br>
+        · Error detection (checksum)<br>
+        · Flow control (TCP: don't overwhelm receiver)<br>
+        · Congestion control (TCP: don't overwhelm network)<br><br>
+        <strong>For distributed applications:</strong> RPC typically uses TCP for reliability. Real-time services use UDP for speed and tolerate losses.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 11: RMI ═══════ -->
+<section class="section" id="rmi">
+  <div class="section-header"><span class="section-num">11</span><h2 class="section-title">RMI — Remote Method Invocation</h2></div>
+  <div class="theory-block">
+    <h3>What is RMI?</h3>
+    <p><span class="hl-v">Remote Method Invocation (RMI)</span> is the Java-specific mechanism for calling methods on objects that reside on remote JVMs (Java Virtual Machines). It extends the local Java object model to a distributed setting — you can call a method on a remote Java object exactly as you would on a local object.</p>
+    <div class="layman">If RPC is like calling a function in another building via intercom, RMI is like having a complete remote-controlled robot (Java object) in the other building. You control the robot (remote object) from your side — you can call any of its methods (shoot, walk, pick up) and get back full objects as results (not just simple numbers). The robot uses Java's own internal language (serialization) to communicate with you.</div>
+
+    <h3>Java RMI Architecture</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 220" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">Java RMI Architecture</text>
+        <!-- Client JVM -->
+        <rect x="10" y="28" width="230" height="175" rx="8" fill="#0d1122" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="125" y="48" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">CLIENT JVM</text>
+        <rect x="20" y="58" width="210" height="28" rx="4" fill="#111630"/>
+        <text x="125" y="76" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">Client Code: remoteObj.method()</text>
+        <rect x="20" y="94" width="210" height="28" rx="4" fill="#111630" stroke="#8b5cf6" stroke-width="1"/>
+        <text x="125" y="112" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="8">Stub (Proxy): serialize + send</text>
+        <rect x="20" y="130" width="210" height="28" rx="4" fill="#111630"/>
+        <text x="125" y="148" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">RMI Reference Layer</text>
+        <rect x="20" y="166" width="210" height="28" rx="4" fill="#111630"/>
+        <text x="125" y="184" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">RMI Transport (TCP/IP)</text>
+        <!-- Server JVM -->
+        <rect x="320" y="28" width="230" height="175" rx="8" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="435" y="48" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">SERVER JVM</text>
+        <rect x="330" y="58" width="210" height="28" rx="4" fill="#111630" stroke="#f97316" stroke-width="1"/>
+        <text x="435" y="76" text-anchor="middle" fill="#f97316" font-family="JetBrains Mono" font-size="8">Remote Object: method()</text>
+        <rect x="330" y="94" width="210" height="28" rx="4" fill="#111630" stroke="#10b981" stroke-width="1"/>
+        <text x="435" y="112" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Skeleton: deserialize + dispatch</text>
+        <rect x="330" y="130" width="210" height="28" rx="4" fill="#111630"/>
+        <text x="435" y="148" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">RMI Reference Layer</text>
+        <rect x="330" y="166" width="210" height="28" rx="4" fill="#111630"/>
+        <text x="435" y="184" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">RMI Transport (TCP/IP)</text>
+        <!-- Network arrow -->
+        <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#f59e0b" stroke-width="1.5"/></marker></defs>
+        <line x1="240" y1="108" x2="318" y2="108" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4" marker-end="url(#ar)"/>
+        <line x1="318" y1="135" x2="240" y2="135" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4" marker-end="url(#ar)"/>
+        <text x="280" y="206" text-anchor="middle" fill="#2e3a58" font-family="JetBrains Mono" font-size="8">RMI Registry (port 1099) maps interface names to remote object references</text>
+      </svg>
+      <div class="diagram-cap">Fig: Java RMI Architecture — Stub on client marshals; Skeleton on server unmarshals and dispatches; RMI Registry for lookup</div>
+    </div>
+
+    <h3 class="red">RPC vs RMI — The Definitive Comparison (2025 Q3, CERTAIN 2026)</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>RPC (Remote Procedure Call)</th><th>RMI (Remote Method Invocation)</th></tr>
+      <tr><td><strong>Paradigm</strong></td><td>Procedural (functions)</td><td>Object-Oriented (methods on objects)</td></tr>
+      <tr><td><strong>Language</strong></td><td>Language-neutral (C, C++, COBOL, any)</td><td>Java-specific</td></tr>
+      <tr><td><strong>Parameters</strong></td><td>Primitive types only</td><td>Full Java objects (via serialization)</td></tr>
+      <tr><td><strong>Return values</strong></td><td>Simple types or structs</td><td>Full objects (including remote references)</td></tr>
+      <tr><td><strong>Interface definition</strong></td><td>IDL (Interface Definition Language) e.g., SunRPC IDL</td><td>Java Interface (extends Remote)</td></tr>
+      <tr><td><strong>Binding</strong></td><td>Port mapper / Binder service</td><td>RMI Registry (java.rmi.registry)</td></tr>
+      <tr><td><strong>Stubs</strong></td><td>Generated by rpcgen (client stub + server skeleton)</td><td>Generated by rmic compiler (stub + skeleton, automatic in Java 5+)</td></tr>
+      <tr><td><strong>Age</strong></td><td>Older (1980s, Sun RPC)</td><td>Newer (Java 1.1, 1997)</td></tr>
+      <tr><td><strong>OO support</strong></td><td>Weak (structs, not objects)</td><td>Full OO — inheritance, polymorphism work remotely</td></tr>
+      <tr><td><strong>Example</strong></td><td>Sun RPC, NFS, gRPC, XML-RPC</td><td>Java RMI</td></tr>
+    </table>
+
+    <h3>RMI Steps — How to Set Up Java RMI</h3>
+    <div class="fbox">
+      <span class="flbl">Java RMI Implementation Steps</span>
+      <div class="fl">1. Define Interface (extends java.rmi.Remote):</div>
+      <div class="fl">   interface Calculator extends Remote {</div>
+      <div class="fl">     int add(int a, int b) throws RemoteException;</div>
+      <div class="fl">   }</div>
+      <div class="fl"></div>
+      <div class="fl">2. Implement on Server (extends UnicastRemoteObject):</div>
+      <div class="fl">   class CalculatorImpl extends UnicastRemoteObject implements Calculator {</div>
+      <div class="fl">     public int add(int a, int b) { return a + b; }</div>
+      <div class="fl">   }</div>
+      <div class="fl"></div>
+      <div class="fl">3. Register with RMI Registry:</div>
+      <div class="fl">   Naming.rebind("Calculator", new CalculatorImpl());</div>
+      <div class="fl"></div>
+      <div class="fl">4. Client Lookup and Call:</div>
+      <div class="fl">   Calculator c = (Calculator) Naming.lookup("rmi://server/Calculator");</div>
+      <div class="fl">   int result = c.add(3, 4);  // Looks local, executes remotely!</div>
+      <div class="fn">Java serialization handles object marshalling automatically — pass any Serializable object as parameter or return value.</div>
+    </div>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — RPC vs RMI in 25 words each</div>
+        <p><strong>RPC:</strong> Protocol to call remote functions; language-neutral; uses XDR for marshalling; primitives only; stubs from IDL.<br><strong>RMI:</strong> Java-specific remote method calls; passes full objects via serialization; OO paradigm; uses RMI Registry.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — RMI & RPC vs RMI</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q4. What are RMI and RPC? / Q3. Differentiate between the RPC and RMI.</div>
+      <div class="pyq-meta"><span>2024 Part A Q4 / 2025 Part A Q3 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">RPC vs RMI</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>RPC (Remote Procedure Call):</strong> Allows a process to call a procedure on a remote machine as if local. Language-neutral. Passes primitive types. Uses XDR marshalling. Stubs generated from IDL. Ex: Sun RPC, gRPC.<br><br>
+        <strong>RMI (Remote Method Invocation):</strong> Java-specific mechanism to invoke methods on remote Java objects. Passes full objects via Java serialization. OO paradigm — inheritance and polymorphism work. Uses RMI Registry. Ex: Java RMI.<br><br>
+        <strong>Key difference:</strong> RPC = procedural (functions), language-neutral. RMI = OO (methods on objects), Java-specific. RMI is essentially object-oriented RPC.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 12: SOCKETS ═══════ -->
+<section class="section" id="sockets">
+  <div class="section-header"><span class="section-num">12</span><h2 class="section-title">Sockets &amp; Transport Communication</h2></div>
+  <div class="theory-block">
+    <h3>What is a Socket?</h3>
+    <p>A <span class="hl-v">socket</span> is a software endpoint for sending and receiving data over a network. Every socket is identified by an (IP address, port number) pair. Sockets are the foundation of all network programming — TCP, UDP, RPC, and HTTP are all built on sockets.</p>
+    <div class="layman">A socket is like a telephone line. The IP address is like a country+area code (identifies the building/machine), and the port number is like an extension number (identifies the specific department/service in that building). When you call port 80 on an IP address, you reach the web server. Port 25 reaches the email server. Every service has its own "extension number."</div>
+
+    <h3>TCP vs UDP Sockets</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 200" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="18" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="11" font-weight="bold">TCP Socket Communication (Connection-Oriented)</text>
+        <!-- Client -->
+        <rect x="10" y="30" width="140" height="155" rx="6" fill="#0d1122" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="80" y="50" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">CLIENT</text>
+        <text x="80" y="68" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">socket()</text>
+        <text x="80" y="84" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">connect()</text>
+        <text x="80" y="100" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="8">send(data)</text>
+        <text x="80" y="116" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">recv()</text>
+        <text x="80" y="132" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="8">close()</text>
+        <!-- Server -->
+        <rect x="410" y="30" width="140" height="155" rx="6" fill="#0d1122" stroke="#10b981" stroke-width="1.5"/>
+        <text x="480" y="50" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">SERVER</text>
+        <text x="480" y="68" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">socket()</text>
+        <text x="480" y="84" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">bind(IP, port)</text>
+        <text x="480" y="100" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">listen()</text>
+        <text x="480" y="116" text-anchor="middle" fill="#8b5cf6" font-family="JetBrains Mono" font-size="8">accept() ← blocks</text>
+        <text x="480" y="132" text-anchor="middle" fill="#546080" font-family="JetBrains Mono" font-size="8">recv() / send()</text>
+        <text x="480" y="148" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="8">close()</text>
+        <!-- Arrows -->
+        <defs><marker id="aso" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#f59e0b" stroke-width="1.5"/></marker></defs>
+        <line x1="150" y1="84" x2="408" y2="84" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#aso)"/>
+        <text x="280" y="78" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">→ connect() [3-way handshake]</text>
+        <line x1="150" y1="100" x2="408" y2="100" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#aso)"/>
+        <text x="280" y="95" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">→ DATA</text>
+        <line x1="408" y1="116" x2="150" y2="116" stroke="#10b981" stroke-width="1.5" marker-end="url(#aso)"/>
+        <text x="280" y="111" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">← REPLY</text>
+        <text x="280" y="183" text-anchor="middle" fill="#2e3a58" font-family="JetBrains Mono" font-size="8">Server binds to known port (e.g., 80 for HTTP). Client connects. Both can send/receive. Full-duplex.</text>
+      </svg>
+      <div class="diagram-cap">Fig: TCP Socket — connection-oriented; server binds and listens; client connects; bidirectional data exchange; both close when done</div>
+    </div>
+
+    <h3>Connection-Less Communication Using Sockets — UDP (2023 Part B Q5)</h3>
+    <div class="fbox">
+      <span class="flbl">UDP Socket — Connectionless</span>
+      <div class="fl">No connection establishment (no 3-way handshake)</div>
+      <div class="fl">Client: socket() → sendto(data, server_addr) → recvfrom()</div>
+      <div class="fl">Server: socket() → bind(IP, port) → recvfrom() → sendto(reply, client_addr)</div>
+      <div class="fl"></div>
+      <div class="fl">Characteristics:</div>
+      <div class="fl">  • Each datagram independently addressed and routed</div>
+      <div class="fl">  • No guarantee of delivery, order, or non-duplication</div>
+      <div class="fl">  • Low overhead — no connection state maintained</div>
+      <div class="fl">  • Supports multicast and broadcast (TCP cannot)</div>
+      <div class="fl">  • Application must implement reliability if needed</div>
+      <div class="fn">Use cases: DNS (single query/response), video streaming, SNMP, NFS, real-time gaming, VoIP</div>
+    </div>
+
+    <h3>Well-Known Port Numbers</h3>
+    <table class="comp-table">
+      <tr><th>Port</th><th>Protocol</th><th>Service</th></tr>
+      <tr><td>20, 21</td><td>TCP</td><td>FTP (File Transfer Protocol)</td></tr>
+      <tr><td>22</td><td>TCP</td><td>SSH (Secure Shell)</td></tr>
+      <tr><td>25</td><td>TCP</td><td>SMTP (Email sending)</td></tr>
+      <tr><td>53</td><td>UDP/TCP</td><td>DNS (Domain Name System)</td></tr>
+      <tr><td>80</td><td>TCP</td><td>HTTP (Web)</td></tr>
+      <tr><td>443</td><td>TCP</td><td>HTTPS (Secure Web)</td></tr>
+      <tr><td>1099</td><td>TCP</td><td>Java RMI Registry</td></tr>
+      <tr><td>2049</td><td>TCP/UDP</td><td>NFS (Network File System)</td></tr>
+    </table>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Sockets</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q5(Part B). Discuss connection less communication between client and server using sockets.</div>
+      <div class="pyq-meta"><span>2023 Part B Q5 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">UDP Sockets</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Connectionless Communication using UDP Sockets:</strong><br><br>
+        In connectionless communication, each message (datagram) is independently sent to the destination without establishing a persistent connection first.<br><br>
+        <strong>Server Steps:</strong><br>
+        1. socket(AF_INET, SOCK_DGRAM) — create UDP socket<br>
+        2. bind(IP, port) — bind to well-known port<br>
+        3. recvfrom(&data, &client_addr) — receive datagram (contains sender address)<br>
+        4. Process request<br>
+        5. sendto(&reply, client_addr) — send reply to client's address<br><br>
+        <strong>Client Steps:</strong><br>
+        1. socket(AF_INET, SOCK_DGRAM) — create UDP socket<br>
+        2. sendto(&request, server_addr) — send datagram directly (no connect needed)<br>
+        3. recvfrom(&reply) — receive reply<br><br>
+        <strong>Properties:</strong> No connection overhead, lightweight, supports multicast. Application must handle lost/reordered packets. Example: DNS uses UDP — one query, one reply; no persistent connection needed.<br><br>
+        [Draw client/server with UDP datagrams, no connection line between them]
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div><!-- /layout -->
+
+<!-- ═══════ PREDICTED PAPER 2026 ═══════ -->
+<div class="predicted-section" id="predicted">
+  <div class="pred-inner">
+    <div class="pred-badge-top">🔮 AI Pattern Analysis — DS 2023–2025 + CAO/DIP/ML 2026 Cross-Referenced</div>
+    <div class="pred-sec-title">Predicted Paper 2026 — DS Unit 3</div>
+    <div class="pred-sec-sub">CONCURRENT PROCESSES · IPC · RPC · RMI · SOCKETS · SYNCHRONIZATION</div>
+    <p class="pred-intro">RPC/RMI has appeared in every single DS paper — CERTAIN for 2026. Language Mechanisms for Synchronization appeared at Part C in 2025 — based on the RTU pattern of retaining 2025 Part C anchors, HIGH for 2026. Process vs Thread is a new 2025 anchor confirmed by the retention pattern. IPC Mechanism appeared in both 2024 and 2025 — VERY HIGH for 2026.</p>
+    <div class="disc-box"><span style="font-size:18px;flex-shrink:0;margin-top:2px">⚠️</span><p>Predictions based on historical patterns. Use to prioritise study — do not skip unpredicted topics entirely.</p></div>
+
+    <div class="pred-grid">
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q3)</div>
+          <div class="pred-unit">Unit 3 | Communication</div>
+          <div class="pred-q">Differentiate between RPC and RMI.</div>
+          <div class="pred-reason">Appeared in ALL THREE papers: 2023 Q3 (working of RPC), 2024 Q4 (what are RMI and RPC), 2025 Q3 (differentiate RPC and RMI). The single most consistent Part A question across all DS papers. CERTAIN 2026.</div>
+          <span class="pred-conf high">CERTAIN — 3 consecutive papers</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <div class="pfbox">
+            <div class="fl">RPC: Procedural paradigm · Language-neutral (C, COBOL) · Primitive types only</div>
+            <div class="fl">     Marshalling via XDR · Stubs from IDL · Ex: Sun RPC, gRPC</div>
+            <div class="fl">RMI: Object-Oriented paradigm · Java-specific · Full objects via serialization</div>
+            <div class="fl">     Java Interface extends Remote · RMI Registry for lookup · Ex: Java RMI</div>
+            <div class="fl">Both: remote call looks local; uses stubs + skeletons; hides network details</div>
+            <div class="fn">RMI = Object-Oriented RPC. Key diff: language-neutral vs Java-specific.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q5)</div>
+          <div class="pred-unit">Unit 3 | Processes</div>
+          <div class="pred-q">Differentiate between process and thread.</div>
+          <div class="pred-reason">Appeared in 2025 Part A Q5. New anchor — based on RTU pattern (2026 DIP, ML retain all 2025 Part A topics), VERY HIGH for 2026. Completely absent from 2023 and 2024 — confirms it won't disappear.</div>
+          <span class="pred-conf high">VERY HIGH — 2025 new anchor</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <div class="pfbox">
+            <div class="fl">Process: Own address space · Heavy creation (fork) · Needs IPC · Crash-isolated</div>
+            <div class="fl">Thread:  Shared address space · Lightweight · Shared variables · One crash kills all</div>
+            <div class="fl">Key: Process = private memory. Thread = shared memory + own stack/PC/registers.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q3)</div>
+          <div class="pred-unit">Unit 3 | IPC</div>
+          <div class="pred-q">Explain Inter-Process Communication Mechanism in detail.</div>
+          <div class="pred-reason">IPC appeared as Part A Q3 in 2024 and Part B Q3 in 2025. Two consecutive years with increasing question weight. Very HIGH for 2026 Part B.</div>
+          <span class="pred-conf high">VERY HIGH — 2 consecutive years</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>IPC (Inter-Process Communication)</strong> enables processes to communicate and synchronize.</p>
+          <div class="pfbox">
+            <div class="fl">1. Pipes: Unidirectional byte stream. Anonymous (parent-child) or Named (FIFO)</div>
+            <div class="fl">2. Message Queues: Buffered async messages. Decoupled. Ex: Kafka, RabbitMQ</div>
+            <div class="fl">3. Shared Memory: Fastest IPC — map same physical memory. Needs semaphore.</div>
+            <div class="fl">4. Sockets: TCP (reliable) or UDP (fast). Cross-machine. Foundation of DS comms.</div>
+            <div class="fl">5. RPC/RMI: High-level — hides socket complexity. Looks like local function call.</div>
+            <div class="fl">6. Signals: Async process notification (SIGKILL, SIGINT). Local only.</div>
+            <div class="fn">In DS, sockets → message passing → RPC dominate. Shared memory = local only.</div>
+          </div>
+          <p>[Draw: hierarchy — Signals/Pipes (local) → Shared Mem (local) → Sockets → Message Queues → RPC (distributed)]</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q2)</div>
+          <div class="pred-unit">Unit 3 | Communication</div>
+          <div class="pred-q">Compare synchronous vs asynchronous communication. Give examples of each in distributed systems.</div>
+          <div class="pred-reason">Synchronous vs asynchronous appeared in 2024 Part B Q2. Absent in 2025. Following the 2-year return pattern, HIGH for 2026 Part B. Also connects to models of DS from Unit 2.</div>
+          <span class="pred-conf high">HIGH — 2-year absence = return</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <div class="pfbox">
+            <div class="fl">Synchronous: send() BLOCKS until received; receive() BLOCKS until message arrives</div>
+            <div class="fl">  Tight coupling · Simpler to program · Lower throughput</div>
+            <div class="fl">  Example: Traditional RPC, telephone call</div>
+            <div class="fl"></div>
+            <div class="fl">Asynchronous: send() returns IMMEDIATELY (message buffered); receive() non-blocking</div>
+            <div class="fl">  Loose coupling · Complex (handle result later) · Higher throughput</div>
+            <div class="fl">  Example: Message queues (Kafka), email, async REST/AJAX</div>
+          </div>
+          <p>[Draw timing diagram showing blocking vs non-blocking patterns for full marks]</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q2)</div>
+          <div class="pred-unit">Unit 3 | Synchronization</div>
+          <div class="pred-q">Explain the language mechanisms for synchronization in concurrent distributed systems.</div>
+          <div class="pred-reason">Language mechanisms appeared in 2025 Part C Q2. A strong Part C question. Based on RTU's confirmed pattern (topics in 2025 Part C return in 2026), HIGH confidence for 2026 Part C. Draw semaphore + monitor diagrams.</div>
+          <span class="pred-conf high">HIGH — 2025 Part C anchor</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Need:</strong> Concurrent processes accessing shared resources → race conditions. Language mechanisms prevent incorrect concurrent execution.</p>
+          <p><strong>1. Semaphores (Dijkstra):</strong> Integer variable; wait(S)/signal(S) atomic operations. Binary (mutex); Counting (N resources). P(S): S--; if S&lt;0 block. V(S): S++; wake waiting process.</p>
+          <p><strong>2. Monitors:</strong> High-level OO construct. Shared data + procedures encapsulated. Only ONE active at a time (automatic mutual exclusion). condition.wait() releases monitor + sleeps; condition.signal() wakes one waiter. Java synchronized keyword = monitor.</p>
+          <p><strong>3. Message Passing (for DS without shared memory):</strong> Synchronization through send()/receive(). Receiver synchronizes with sender implicitly. ADA Rendezvous: client calls entry; server accepts; both block until rendezvous; execute together.</p>
+          <p><strong>4. Mutex + Condition Variables (POSIX):</strong> lock(mutex) before CS; unlock(mutex) after. cond_wait() = release lock + sleep atomically; cond_signal() = wake one thread.</p>
+          <div class="pfbox">
+            <div class="fl">Semaphore: low-level, manual pair — error-prone</div>
+            <div class="fl">Monitor: high-level, automatic ME — safer, preferred</div>
+            <div class="fl">Message Passing: for DS (no shared memory) — primary mechanism</div>
+          </div>
+          <p>[Draw: Semaphore binary mutex diagram + Monitor structure diagram — mandatory for full marks]</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (alt Q)</div>
+          <div class="pred-unit">Unit 3 | Communication</div>
+          <div class="pred-q">Explain the working of RPC in detail. Draw and explain the stub architecture. How does RMI differ from RPC?</div>
+          <div class="pred-reason">RPC working appeared in 2023 Part A and 2024 Part C as a combined client-server+RPC question. The complete RPC answer with diagram is a classic 10-mark question. Combined with RMI comparison makes it a 2026 high-confidence Part C question.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>RPC (Remote Procedure Call):</strong> Protocol to call remote functions transparently — programmer writes normal function calls; RPC framework handles network communication.</p>
+          <p><strong>8-Step RPC Flow:</strong></p>
+          <div class="pfbox">
+            <div class="fl">1. Client calls: result = add(3, 4) — looks local</div>
+            <div class="fl">2. Client Stub: marshal(3, 4) → XDR bytes</div>
+            <div class="fl">3. OS: send bytes to server via socket</div>
+            <div class="fl">4. Client: BLOCKS waiting for reply</div>
+            <div class="fl">5. Server OS: receives bytes</div>
+            <div class="fl">6. Server Stub: unmarshal bytes → (3, 4)</div>
+            <div class="fl">7. Server: result = add(3, 4) = 7 (actual execution)</div>
+            <div class="fl">8. Marshal(7) → send → client stub unpacks → returns 7</div>
+          </div>
+          <p>[Draw the full RPC stub architecture diagram for full marks]</p>
+          <p><strong>RPC vs RMI:</strong> RPC = procedural, language-neutral, primitives only. RMI = OO, Java-specific, full objects via serialization.</p>
+        </div>
+      </div>
+
+    </div><!-- /pred-grid -->
+
+    <div class="prep-box">
+      <h3>✅ Quick Prep Strategy — DS Unit 3 for 2026</h3>
+      <p><strong>CERTAIN (must know cold):</strong> RPC/RMI — 8-step RPC flow + stub architecture diagram + RPC vs RMI comparison table (3 consecutive papers). Process vs Thread — comparison table with memory/creation/communication/isolation (2025 anchor).</p>
+      <p><strong>VERY HIGH (Part B level):</strong> IPC Mechanisms — all 6 types with one-line description (2 consecutive years Part A→B escalation). Synchronous vs Asynchronous — timing diagrams + comparison table (2024 Part B, 2-year return). Language Mechanisms for Synchronization — semaphore rules + monitor structure + message passing rendezvous (2025 Part C).</p>
+      <p><strong>HIGH (draw diagrams):</strong> Language Mechanisms — Part C 2025 anchor likely retained. Client/Server model — timing diagram + stateless vs stateful. Multi-threaded server — dispatcher + thread pool diagram. UDP sockets — connectionless communication steps. Two-Phase Commit — ACID properties + 2PC diagram.</p>
+      <p><strong>Part A shortcuts (25 words max):</strong> RPC vs RMI — "RPC=procedural, language-neutral, primitives, XDR. RMI=OO, Java-specific, full objects, serialization. Both use stubs+skeletons." Process vs Thread — "Process=own address space, heavy, IPC needed. Thread=shared memory, lightweight, fast context switch." IPC — "Pipes, sockets, message queues, shared memory, RPC/RMI, signals." Socket — "Software endpoint (IP+port) for network communication. TCP=reliable; UDP=fast, connectionless."</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PYQ MASTER LIST ═══════ -->
+<div class="layout">
+  <div style="width:var(--sidebar-w);min-width:var(--sidebar-w);flex-shrink:0;"></div>
+  <div class="content">
+    <section class="section" id="pyq-master" style="margin-top:40px">
+      <div class="section-header"><span class="section-num">M</span><h2 class="section-title">All PYQs — Unit 3 Master List</h2></div>
+      <div class="pyq-section">
+        <div class="pyq-header">📋 Complete Unit 3 PYQ Coverage (2023–2025)</div>
+        <div class="pyq-item">
+          <div class="pyq-q-text">All Unit 3 Questions by Year — Click to Expand</div>
+          <button class="pyq-toggle" onclick="toggle(this)">▼ Show Full List</button>
+          <div class="answer-content">
+            <strong>2023 Main (Part A):</strong> Q3=Working of RPC, Q6=Concurrency in DS<br>
+            <strong>2023 Main (Part B):</strong> Q1=Micro-kernels in client-server fashion, Q2=Transport level communication services, Q3=Object adapter, Q4=Time-stamping + serializability, Q5=Connectionless communication using sockets, Q7=Distributed shared memory<br>
+            <strong>2023 Main (Part C):</strong> Q2=(a)Side effects in Coda RPC2 (b)Coda file identifier<br><br>
+
+            <strong>2024 Main/Back (Part A):</strong> Q3=Define IPC, Q4=What are RMI and RPC<br>
+            <strong>2024 Main/Back (Part B):</strong> Q2=Synchronous vs asynchronous execution, Q3=Physical vs logical clock, Q5=Concurrency control issues<br>
+            <strong>2024 Main/Back (Part C):</strong> Q2=Client-server communication model on RPC + message passing<br><br>
+
+            <strong>2025 Main/Back (Part A):</strong> Q3=Differentiate RPC and RMI, Q5=Process vs thread<br>
+            <strong>2025 Main/Back (Part B):</strong> Q3=IPC Mechanism<br>
+            <strong>2025 Main/Back (Part C):</strong> Q2=Language mechanisms for synchronization<br><br>
+
+            <strong>KEY PATTERNS:</strong><br>
+            RPC/RMI: EVERY PAPER → <span style="color:#ef4444">CERTAIN 2026 Part A</span><br>
+            IPC Mechanism: 2024 Part A + 2025 Part B → <span style="color:#ef4444">VERY HIGH 2026</span><br>
+            Process vs Thread: 2025 Part A → <span style="color:#ef4444">VERY HIGH 2026</span><br>
+            Language Mechanisms (Sync): 2025 Part C → <span style="color:#ef4444">HIGH 2026</span><br>
+            Synchronous vs Async: 2024 Part B → <span style="color:#ef4444">HIGH 2026 (2-yr absence)</span><br>
+            Client-Server + RPC: 2024 Part C → <span style="color:#ef4444">HIGH 2026</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="openSidebar()">☰</button>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="#">🏠 Home</a>
+    <a href="#">🌐 Unit 2: DS Fundamentals</a>
+    <a href="#">🔄 Unit 3: Processes & IPC (current)</a>
+    <a href="#">📁 Unit 4: Scheduling & DFS</a>
+    <a href="#">🧠 Unit 5: DSM & Computation</a>
+    <a href="#">🛡️ Unit 6: Agreement & CORBA</a>
+    <a href="#predicted" style="color:var(--upred)">🔮 Predicted 2026</a>
+  </div>
+  © 2026 Mahansh Gaur · DS RTU Study Guide · Unit 3 — Concurrent Processes, IPC, RPC & RMI · 6E7136 / 6CS5-11 · Educational use only.
+</footer>
+
+<script>
+function toggle(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function togglePred(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('visible');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+const sections=document.querySelectorAll('.section');
+const navItems=document.querySelectorAll('.nav-item');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navItems.forEach(n=>{
+        n.classList.remove('active');
+        if(n.getAttribute('href')==='#'+e.target.id) n.classList.add('active');
+      });
+    }
+  });
+},{rootMargin:'-15% 0px -70% 0px'});
+sections.forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>
