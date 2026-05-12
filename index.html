@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed Systems — RTU Exam Prep | B.Tech VI Sem</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg:#050c0f;--bg2:#07121a;--surface:#0c1c28;--surface2:#102230;
+  --border:#193344;--border2:#0d1f2e;
+  --ds:#06b6d4;--ds2:#22d3ee;--dsdim:rgba(6,182,212,.12);
+  --u1:#22d3ee;--u2:#f97316;--u3:#ef4444;--u4:#a78bfa;--u5:#10b981;--u6:#3b82f6;
+  --upred:#f59e0b;--gold:#fbbf24;--text:#dde8f2;--dim:#2d4a5e;--dim2:#527890;
+  --mono:'JetBrains Mono',monospace;--head:'Fraunces',serif;--body:'Outfit',sans-serif;
+  --content-max:1440px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;font-size:20px;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.85;overflow-x:hidden;}
+@media(min-width:1400px){html{font-size:21px;}}
+@media(min-width:1800px){html{font-size:22px;}}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* NAV */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(5,12,15,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border2);padding:0 28px;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.topnav::-webkit-scrollbar{display:none;}
+.tnlabel{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ds2);padding:15px 14px 15px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0;}
+.tnlink{font-family:var(--mono);font-size:11.5px;padding:8px 14px;border-radius:6px;text-decoration:none;color:var(--dim2);white-space:nowrap;flex-shrink:0;transition:all .18s;border:1px solid transparent;}
+.tnlink:hover{color:var(--text);background:var(--surface2);}
+.tnlink.active{color:var(--ds2);background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.3);}
+.tnlink.pyq{color:var(--upred);background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.22);}
+
+/* CREDIT */
+.credit-band{background:#060f18;border-bottom:1px solid var(--border2);padding:11px 32px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
+.credit-text{font-family:var(--mono);font-size:11.5px;color:var(--dim2);}
+.credit-text span{color:var(--ds2);font-weight:600;}
+.credit-link{font-family:var(--mono);font-size:11px;padding:4px 14px;border-radius:5px;border:1px solid var(--border);color:var(--dim2);text-decoration:none;transition:all .2s;}
+.credit-link:hover{border-color:var(--ds2);color:var(--ds2);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:78px 5vw 68px;background:var(--bg);}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(6,182,212,.1) 1px,transparent 1px),radial-gradient(circle,rgba(16,185,129,.05) 1px,transparent 1px);background-size:44px 44px,88px 88px;background-position:0 0,22px 22px;animation:dotDrift 32s linear infinite;}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 60% at 10% 50%,rgba(6,182,212,.09) 0%,transparent 65%),radial-gradient(ellipse 50% 45% at 85% 15%,rgba(16,185,129,.05) 0%,transparent 60%);pointer-events:none;}
+@keyframes dotDrift{0%{transform:translate(0,0);}100%{transform:translate(44px,44px);}}
+.hero-inner{position:relative;z-index:1;max-width:var(--content-max);margin:0 auto;}
+.hero-tag{font-family:var(--mono);font-size:12px;color:var(--ds2);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.hero-dot{width:8px;height:8px;border-radius:50%;background:var(--ds2);box-shadow:0 0 14px var(--ds2);animation:blink 2.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.hero h1{font-family:var(--head);font-weight:800;font-size:clamp(38px,6vw,80px);line-height:1.0;color:#fff;letter-spacing:-1.5px;margin-bottom:20px;}
+.hero h1 span{color:var(--ds2);}
+.hero h1 em{color:var(--u5);font-style:normal;}
+.hero-sub{color:var(--dim2);font-size:clamp(17px,1.7vw,21px);max-width:740px;line-height:1.85;margin-bottom:24px;}
+.hero-sub strong{color:var(--text);}
+.hero-badges{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:26px;}
+.badge{font-family:var(--mono);font-size:12px;padding:5px 15px;border-radius:5px;border:1px solid;}
+.badge-c{color:var(--ds2);border-color:rgba(6,182,212,.35);background:rgba(6,182,212,.08);}
+.badge-r{color:var(--u3);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);}
+.badge-g{color:var(--u5);border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.08);}
+.badge-v{color:var(--u4);border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.08);}
+.badge-o{color:var(--u2);border-color:rgba(249,115,22,.35);background:rgba(249,115,22,.08);}
+.badge-gold{color:var(--upred);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08);}
+.crafted-by{display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
+.crafted-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;}
+.crafted-name{font-family:var(--head);font-size:16px;font-weight:700;color:var(--text);font-style:italic;}
+.crafted-links{display:flex;gap:7px;}
+.crafted-link{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;padding:5px 11px;border-radius:5px;text-decoration:none;color:var(--dim2);background:var(--surface);border:1px solid var(--border);transition:all .18s;}
+.crafted-link:hover{color:var(--ds2);border-color:var(--ds2);}
+.crafted-link svg{width:12px;height:12px;fill:currentColor;}
+
+/* PAGE WRAP */
+.page-wrap{max-width:var(--content-max);margin:0 auto;padding:0 clamp(22px,4.5vw,100px);}
+
+/* STATS STRIP */
+.stats-strip{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.stats-inner{max-width:var(--content-max);margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));padding:28px clamp(22px,4.5vw,100px);}
+.stat-item{text-align:center;padding:8px 0;}
+.stat-num{font-family:var(--head);font-size:clamp(28px,4vw,44px);font-weight:800;color:var(--ds2);line-height:1;display:block;margin-bottom:5px;}
+.stat-label{font-family:var(--mono);font-size:10px;color:var(--dim2);text-transform:uppercase;letter-spacing:1.5px;}
+
+/* SECTIONS */
+.section-wrap{padding:60px 0;}
+.section-head{margin-bottom:30px;}
+.section-head h2{font-family:var(--head);font-size:clamp(24px,3.2vw,36px);font-weight:800;color:#fff;margin-bottom:7px;}
+.section-head .sub{font-family:var(--mono);font-size:.73rem;color:var(--dim2);letter-spacing:1.2px;}
+
+/* IMPORTANCE BARS */
+.imp-grid{display:flex;flex-direction:column;gap:14px;}
+.imp-row{display:grid;grid-template-columns:clamp(180px,22vw,265px) 1fr 56px;align-items:center;gap:16px;}
+.imp-label{font-family:var(--mono);font-size:.74rem;color:var(--dim2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.imp-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.imp-bar-fill{height:100%;border-radius:4px;animation:barGrow 1.2s cubic-bezier(.22,1,.36,1) both;animation-delay:var(--bd,0s);}
+@keyframes barGrow{from{width:0!important;}}
+.fill-hot{background:var(--u3);}
+.fill-high{background:var(--ds2);}
+.fill-med{background:var(--upred);}
+.fill-low{background:var(--u5);}
+.imp-pct{font-family:var(--mono);font-size:.74rem;font-weight:700;text-align:right;}
+.pct-hot{color:var(--u3);}
+.pct-high{color:var(--ds2);}
+.pct-med{color:var(--upred);}
+
+/* UNIT CARDS */
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;}
+.unit-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px;text-decoration:none;transition:all .22s;display:block;position:relative;overflow:hidden;}
+.unit-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.unit-card.u1::before{background:var(--ds2);}
+.unit-card.u2::before{background:var(--u5);}
+.unit-card.u3::before{background:var(--u2);}
+.unit-card.u4::before{background:var(--u4);}
+.unit-card.u5::before{background:var(--u3);}
+.unit-card.u6::before{background:var(--upred);}
+.unit-card:hover{transform:translateY(-4px);border-color:var(--ds2);box-shadow:0 12px 44px rgba(6,182,212,.15);}
+.unit-num{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim2);margin-bottom:10px;}
+.unit-name{font-family:var(--head);font-size:clamp(17px,2vw,22px);font-weight:800;color:#fff;margin-bottom:10px;line-height:1.25;}
+.unit-topics{font-size:.87rem;color:var(--dim2);line-height:1.78;margin-bottom:16px;}
+.unit-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border2);}
+.unit-go{font-family:var(--mono);font-size:11px;color:var(--ds2);transition:gap .2s;display:flex;align-items:center;gap:5px;}
+.unit-card:hover .unit-go{gap:9px;}
+.unit-tag{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);}
+.unit-tag.hot{color:var(--u3);border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.07);}
+.unit-tag.mid{color:var(--upred);border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.07);}
+.unit-tag.ok{color:var(--u5);border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.07);}
+
+/* PYQ SECTION */
+.pyq-header-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.pyq-view-all{font-family:var(--mono);font-size:11px;color:var(--upred);text-decoration:none;display:flex;align-items:center;gap:5px;transition:gap .2s;}
+.pyq-view-all:hover{gap:8px;}
+.pyq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:16px;}
+.pyq-card{background:var(--surface);border:1px solid rgba(6,182,212,.22);border-radius:12px;padding:22px;text-decoration:none;transition:all .2s;display:block;}
+.pyq-card:hover{border-color:var(--ds2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(6,182,212,.1);}
+.pyq-card.latest{background:linear-gradient(135deg,var(--surface) 0%,rgba(6,182,212,.05) 100%);}
+.pyq-year-badge{display:inline-block;font-family:var(--mono);font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ds2);margin-bottom:8px;}
+.pyq-title{font-family:var(--head);font-size:clamp(22px,2.5vw,30px);font-weight:800;color:#fff;margin-bottom:6px;line-height:1;}
+.pyq-code{font-family:var(--mono);font-size:.72rem;color:var(--dim2);margin-bottom:10px;}
+.pyq-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.pyq-tag{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px;background:var(--surface2);color:var(--dim2);}
+.pyq-go{font-family:var(--mono);font-size:11px;color:var(--ds2);}
+
+/* STRATEGY BOX */
+.strategy-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:40px;}
+.strategy-box h3{font-family:var(--head);font-size:1.2rem;font-weight:700;color:var(--ds2);margin-bottom:16px;}
+.strat-table{width:100%;border-collapse:collapse;font-size:.86rem;display:block;overflow-x:auto;}
+.strat-table th{background:var(--surface2);padding:10px 14px;text-align:left;font-family:var(--head);font-weight:700;color:var(--ds2);border-bottom:1px solid var(--border);white-space:nowrap;}
+.strat-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.65;}
+.strat-table tr:last-child td{border-bottom:none;}
+.strat-table tr:hover td{background:var(--surface2);}
+
+/* PREDICTED PAPER */
+.predicted-section{background:linear-gradient(135deg,var(--bg2) 0%,rgba(6,182,212,.04) 100%);border-top:1px solid rgba(6,182,212,.2);border-bottom:1px solid rgba(6,182,212,.2);}
+.pred-inner{max-width:var(--content-max);margin:0 auto;padding:68px clamp(22px,4.5vw,100px);}
+.pred-badge{display:inline-block;font-family:var(--mono);font-size:.78rem;color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:5px 14px;border-radius:5px;margin-bottom:14px;}
+.pred-sec-title{font-family:var(--head);font-size:clamp(24px,3.2vw,38px);font-weight:800;color:#fff;margin-bottom:6px;}
+.pred-sec-sub{font-family:var(--mono);font-size:.73rem;color:var(--dim2);letter-spacing:1px;margin-bottom:14px;}
+.pred-intro{font-family:var(--mono);font-size:.79rem;color:var(--dim2);line-height:1.78;margin-bottom:20px;max-width:950px;}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin-top:24px;}
+.pred-card{background:var(--surface);border:1px solid rgba(6,182,212,.2);border-radius:12px;border-top:3px solid var(--ds2);overflow:hidden;}
+.pred-card-head{padding:20px 22px 14px;}
+.pred-part{font-family:var(--mono);font-size:.68rem;color:var(--dim2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-unit{font-family:var(--mono);font-size:.65rem;color:var(--ds2);background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.25);padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:7px;}
+.pred-q{font-family:var(--head);font-size:1rem;font-weight:700;color:#fff;line-height:1.42;margin-bottom:8px;}
+.pred-reason{font-size:.84rem;color:var(--dim2);line-height:1.72;margin-bottom:10px;}
+.pred-conf{font-family:var(--mono);font-size:.7rem;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:14px;}
+.pred-conf.high{color:var(--u3);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);}
+.pred-conf.med{color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);}
+.pred-answer-toggle{width:100%;padding:11px 22px;background:var(--surface2);border:none;border-top:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:.73rem;color:var(--ds2);text-align:left;transition:all .2s;}
+.pred-answer-toggle:hover{background:var(--ds2);color:#000;}
+.pred-answer{display:none;padding:20px 22px;border-top:1px solid var(--border);background:var(--bg);}
+.pred-answer.open{display:block;}
+.pred-answer p{font-size:.89rem;line-height:1.88;margin-bottom:12px;}
+.pred-answer strong{color:var(--ds2);}
+.pred-answer ul,.pred-answer ol{padding-left:22px;margin:8px 0;}
+.pred-answer li{font-size:.89rem;margin-bottom:7px;line-height:1.78;}
+
+/* FORMULA BOXES */
+.fbox{background:#040c12;border:1px solid rgba(6,182,212,.22);border-left:3px solid var(--ds2);border-radius:8px;padding:14px 18px;margin:12px 0;font-family:var(--mono);font-size:.77rem;color:#67e8f9;overflow-x:auto;line-height:1.72;}
+.fbox .flbl{font-size:.63rem;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:block;}
+.fbox .fl{color:#a5f3fc;font-size:.8rem;}
+.fbox .fn{color:var(--dim2);font-size:.72rem;margin-top:6px;display:block;font-style:italic;}
+.dbox{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin:12px 0;text-align:center;overflow-x:auto;}
+.dcap{font-family:var(--mono);font-size:.7rem;color:var(--dim2);margin-top:8px;}
+
+/* TIP BOXES */
+.tip-box{border-radius:8px;padding:14px 16px;margin:12px 0;display:flex;gap:12px;}
+.tip-box.trick{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);}
+.tip-box.note{background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.25);}
+.tip-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+.tip-content p{font-size:.86rem;color:var(--text);margin:0;line-height:1.75;}
+.tip-title{font-family:var(--head);font-size:.76rem;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+.trick .tip-title{color:var(--gold);}
+.note .tip-title{color:var(--ds2);}
+
+/* DISC BOX */
+.disc-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:14px 18px;margin-bottom:22px;display:flex;gap:10px;}
+.disc-box p{font-size:.85rem;color:var(--text);}
+
+/* PREP BOX */
+.prep-box{background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.25);border-radius:10px;padding:24px 28px;margin-top:30px;}
+.prep-box h3{font-family:var(--head);font-size:1.1rem;font-weight:700;color:var(--ds2);margin-bottom:14px;}
+.prep-box p{font-size:.89rem;line-height:1.88;}
+.prep-box strong{color:#fff;}
+
+/* FOOTER */
+.site-footer{background:#030a0d;border-top:1px solid var(--border2);padding:28px 5vw;text-align:center;font-family:var(--mono);font-size:.73rem;color:var(--dim);}
+.site-footer a{color:var(--dim2);text-decoration:none;margin:0 12px;transition:color .2s;}
+.site-footer a:hover{color:var(--ds2);}
+.footer-links{margin-bottom:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;}
+
+/* RESPONSIVE */
+@media(max-width:1000px){.pred-grid{grid-template-columns:1fr;}.unit-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.hero{padding:50px 20px 46px;}.pred-inner{padding:50px 20px;}.section-wrap{padding:40px 0;}.imp-row{grid-template-columns:1fr 1fr 50px;}.imp-label{white-space:normal;overflow:visible;text-overflow:unset;font-size:.71rem;}}
+@media(max-width:600px){html{font-size:18px;}.page-wrap{padding:0 18px;}.stats-inner{padding:22px 18px;}.pyq-grid{grid-template-columns:1fr;}}
+@media(max-width:480px){.hero h1{font-size:clamp(32px,11vw,48px);}}
+@media(max-width:900px) and (orientation:landscape){.hero{padding:36px 5vw;}.hero h1{font-size:clamp(28px,7vw,46px);}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <span class="tnlabel">DS · RTU</span>
+  <a class="tnlink" href="index.html">🏠 Home</a>
+  <a class="tnlink active" href="unit2.html">🌐 U2: DS Fundamentals</a>
+  <a class="tnlink" href="unit3.html">⚙️ U3: Processes & IPC</a>
+  <a class="tnlink" href="unit4.html">📁 U4: Scheduling & DFS</a>
+  <a class="tnlink" href="unit5.html">🧠 U5: DSM & Computation</a>
+  <a class="tnlink" href="unit6.html">🛡️ U6: Agreement & CORBA</a>
+  <a class="tnlink pyq" href="pyq.html">📋 Solved PYQs</a>
+</nav>
+
+<!-- CREDIT -->
+<div class="credit-band">
+  <div class="credit-text">Crafted by <span>Mahansh Gaur</span> · B.Tech RTU Jaipur</div>
+  <a class="credit-link" href="https://www.instagram.com/mahaanshgaur_6513" target="_blank">📸 @mahaanshgaur_6513</a>
+  <a class="credit-link" href="https://github.com/mahanshstarktech" target="_blank">🐙 GitHub</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="hero-dot"></span>🌐 B.Tech VI Sem · RTU Kota · 6E7136 / 6CS5-11 (El-I)</div>
+    <h1><span>Distributed</span><br>Systems <em>Exam Guide</em></h1>
+    <p class="hero-sub">A <strong>complete exam-ready guide</strong> — Lamport's Clock, Vector Clock, Deadlock Handling, Byzantine Agreement, RPC/RMI, Distributed File Systems, DSM, CORBA — explained from scratch with all RTU PYQs 2023–2025 solved + predicted 2026 paper with full answers.</p>
+    <div class="hero-badges">
+      <span class="badge badge-r">🔥 Architecture Models — Every Paper</span>
+      <span class="badge badge-gold">🔮 2026 Predicted + Full Answers</span>
+      <span class="badge badge-c">Lamport + Vector Clocks — Solved</span>
+      <span class="badge badge-g">Byzantine Agreement — Deep Dive</span>
+      <span class="badge badge-v">DSM, DFS, CORBA</span>
+      <span class="badge badge-o">Layman Explanations + Diagrams</span>
+    </div>
+    <div class="crafted-by">
+      <span class="crafted-label">crafted by</span>
+      <span class="crafted-name">Mahansh Gaur</span>
+      <div class="crafted-links">
+        <a class="crafted-link" href="https://github.com/mahanshstarktech" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub
+        </a>
+        <a class="crafted-link" href="https://www.instagram.com/mahaanshgaur_6513" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item"><span class="stat-num">6</span><span class="stat-label">Units Covered</span></div>
+    <div class="stat-item"><span class="stat-num">3</span><span class="stat-label">Years PYQs</span></div>
+    <div class="stat-item"><span class="stat-num">45+</span><span class="stat-label">PYQ Solutions</span></div>
+    <div class="stat-item"><span class="stat-num">100%</span><span class="stat-label">Architecture — Every Paper</span></div>
+    <div class="stat-item"><span class="stat-num">15+</span><span class="stat-label">Diagrams Covered</span></div>
+    <div class="stat-item"><span class="stat-num">70</span><span class="stat-label">Max Marks</span></div>
+  </div>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="page-wrap">
+
+<!-- IMPORTANCE BARS -->
+<div class="section-wrap">
+  <div class="section-head">
+    <h2>Topic Importance — RTU DS Exam</h2>
+    <div class="sub">BASED ON 3-YEAR PYQ ANALYSIS (2023–2025) · 6E7136 / 6CS5-11 (ELECTIVE-I)</div>
+  </div>
+  <div class="imp-grid">
+    <div class="imp-row"><span class="imp-label">Architecture Models + Design Issues</span><div class="imp-bar"><div class="imp-bar-fill fill-hot" style="width:100%;--bd:.05s"></div></div><span class="imp-pct pct-hot">100% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Lamport's Clock + Vector Clock</span><div class="imp-bar"><div class="imp-bar-fill fill-hot" style="width:96%;--bd:.1s"></div></div><span class="imp-pct pct-hot">96% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Byzantine Agreement</span><div class="imp-bar"><div class="imp-bar-fill fill-hot" style="width:93%;--bd:.15s"></div></div><span class="imp-pct pct-hot">93% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">RPC — Remote Procedure Call</span><div class="imp-bar"><div class="imp-bar-fill fill-hot" style="width:92%;--bd:.2s"></div></div><span class="imp-pct pct-hot">92% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Distributed File System (DFS)</span><div class="imp-bar"><div class="imp-bar-fill fill-high" style="width:88%;--bd:.25s"></div></div><span class="imp-pct pct-high">88% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Distributed Deadlock Handling</span><div class="imp-bar"><div class="imp-bar-fill fill-high" style="width:87%;--bd:.3s"></div></div><span class="imp-pct pct-high">87% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Distributed Shared Memory (DSM)</span><div class="imp-bar"><div class="imp-bar-fill fill-high" style="width:85%;--bd:.35s"></div></div><span class="imp-pct pct-high">85% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Load Balancing / Process Scheduling</span><div class="imp-bar"><div class="imp-bar-fill fill-high" style="width:83%;--bd:.4s"></div></div><span class="imp-pct pct-high">83%</span></div>
+    <div class="imp-row"><span class="imp-label">CORBA Architecture + RMI</span><div class="imp-bar"><div class="imp-bar-fill fill-high" style="width:80%;--bd:.45s"></div></div><span class="imp-pct pct-high">80% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Distributed System Goals + Features</span><div class="imp-bar"><div class="imp-bar-fill fill-high" style="width:78%;--bd:.5s"></div></div><span class="imp-pct pct-high">78%</span></div>
+    <div class="imp-row"><span class="imp-label">Client-Server Model + Message Passing</span><div class="imp-bar"><div class="imp-bar-fill fill-high" style="width:76%;--bd:.55s"></div></div><span class="imp-pct pct-high">76%</span></div>
+    <div class="imp-row"><span class="imp-label">Distributed Mutual Exclusion</span><div class="imp-bar"><div class="imp-bar-fill fill-med" style="width:74%;--bd:.6s"></div></div><span class="imp-pct pct-med">74%</span></div>
+    <div class="imp-row"><span class="imp-label">Memory Consistency Models</span><div class="imp-bar"><div class="imp-bar-fill fill-med" style="width:72%;--bd:.65s"></div></div><span class="imp-pct pct-med">72% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">IPC — Interprocess Communication</span><div class="imp-bar"><div class="imp-bar-fill fill-med" style="width:70%;--bd:.7s"></div></div><span class="imp-pct pct-med">70%</span></div>
+    <div class="imp-row"><span class="imp-label">Data Replication + Replicated Data Management</span><div class="imp-bar"><div class="imp-bar-fill fill-med" style="width:68%;--bd:.75s"></div></div><span class="imp-pct pct-med">68% 🔮</span></div>
+    <div class="imp-row"><span class="imp-label">Distributed Process Implementation</span><div class="imp-bar"><div class="imp-bar-fill fill-med" style="width:65%;--bd:.8s"></div></div><span class="imp-pct pct-med">65%</span></div>
+  </div>
+</div>
+
+<!-- EXAM STRATEGY -->
+<div class="section-wrap" style="padding-top:0">
+  <div class="strategy-box">
+    <h3>⚡ Paper Structure &amp; Exam Strategy — DS</h3>
+    <table class="strat-table">
+      <tr><th>Part</th><th>Questions</th><th>Marks</th><th>Total</th><th>Strategy for DS</th></tr>
+      <tr><td><strong>Part A</strong></td><td>10 compulsory</td><td>2 each</td><td>20</td><td>≤25 words. Define + layman in one sentence + 1 example. DS Q1 is always "what is distributed system" — memorise the 3-line definition cold.</td></tr>
+      <tr><td><strong>Part B</strong></td><td>Attempt 5 of 7</td><td>4 each</td><td>20</td><td>For algorithms (Lamport's clock, mutual exclusion) — show the algorithm step-by-step. Always draw a diagram for architecture questions.</td></tr>
+      <tr><td><strong>Part C</strong></td><td>Attempt 3 of 5</td><td>10 each</td><td>30</td><td>Full structured answer. Architecture diagram + algorithm steps + comparison table = full marks. Byzantine Agreement: always explain with the "faulty generals" example.</td></tr>
+    </table>
+    <div class="tip-box trick" style="margin-top:14px">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <p><strong>DS Diagram Rule:</strong> For Lamport's clock → draw the event diagram with timestamps. For Architecture Models → draw Client-Server + Peer-to-Peer + Three-tier diagrams. For DSM → draw the memory topology. For Byzantine Agreement → draw the generals scenario with faulty general crossed out. Every diagram earns 2–3 marks even with brief text around it.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UNIT CARDS -->
+<div class="section-wrap" style="padding-top:0">
+  <div class="section-head">
+    <h2>All Units at a Glance</h2>
+    <div class="sub">CLICK ANY UNIT TO OPEN THE FULL STUDY GUIDE WITH PYQS AND DIAGRAMS</div>
+  </div>
+  <div class="unit-grid">
+    <a class="unit-card u1" href="unit2.html">
+      <div class="unit-num">Units 01–02 — Foundation</div>
+      <div class="unit-name">Introduction + System Architecture</div>
+      <div class="unit-topics">What is a Distributed System? · Features + Goals · Types of OS (Centralized/Network/Distributed) · Design Issues · Goals + Transparency · Architecture Models · DCE · Notions of Time and State · Logical Clocks · Recording State</div>
+      <div class="unit-footer"><span class="unit-go">Open guide →</span><span class="unit-tag hot">🔥 100% importance</span></div>
+    </a>
+    <a class="unit-card u2" href="unit3.html">
+      <div class="unit-num">Unit 03 — Communication</div>
+      <div class="unit-name">Concurrent Processes + IPC</div>
+      <div class="unit-topics">Processes vs Threads · Client/Server Model · Language Mechanisms for Synchronization · Object Model · Message Passing · Request/Reply · Transaction Communication · Name and Directory Services · RPC + RMI Case Studies</div>
+      <div class="unit-footer"><span class="unit-go">Open guide →</span><span class="unit-tag hot">🔥 RPC = Every Paper</span></div>
+    </a>
+    <a class="unit-card u3" href="unit4.html">
+      <div class="unit-num">Unit 04 — Scheduling + DFS</div>
+      <div class="unit-name">Process Scheduling + Distributed File Systems</div>
+      <div class="unit-topics">Performance Model · Static Process Scheduling · Dynamic Load Sharing + Balancing · Distributed Process Implementation · DFS Transparencies · DFS Design + Implementation · Concurrency Control · Data + File Replication · Sun NFS, Coda</div>
+      <div class="unit-footer"><span class="unit-go">Open guide →</span><span class="unit-tag mid">88% importance</span></div>
+    </a>
+    <a class="unit-card u4" href="unit5.html">
+      <div class="unit-num">Unit 05 — DSM + Computation</div>
+      <div class="unit-name">Distributed Shared Memory + Computation Models</div>
+      <div class="unit-topics">NUMA Architectures · Memory Consistency Models · Multiprocessor Cache · DSM Implementation · Causality · Distributed Snapshots · Failures · Mutual Exclusion · Election · Deadlock Handling · Termination Detection</div>
+      <div class="unit-footer"><span class="unit-go">Open guide →</span><span class="unit-tag hot">🔥 85% importance</span></div>
+    </a>
+    <a class="unit-card u5" href="unit6.html">
+      <div class="unit-num">Unit 06 — Agreement + CORBA</div>
+      <div class="unit-name">Distributed Agreement + Replicated Data</div>
+      <div class="unit-topics">Concept of Faults + Failure + Recovery · Byzantine Faults · Adversaries · Byzantine Agreement · Impossibility of Consensus · Randomized Agreement · Replicated Data Management · Atomic Multicast · CORBA Architecture + RMI + Services</div>
+      <div class="unit-footer"><span class="unit-go">Open guide →</span><span class="unit-tag hot">🔥 Byzantine — Every Paper</span></div>
+    </a>
+    <a class="unit-card" href="pyq.html" style="border-color:rgba(245,158,11,.3);">
+      <div class="unit-num" style="color:var(--upred)">Solved PYQs</div>
+      <div class="unit-name">Previous Year Questions — Fully Solved</div>
+      <div class="unit-topics">May 2025 · 2024 · July 2023 · Step-by-step solutions · Lamport/Vector Clock worked examples · Byzantine explained · Deadlock strategies</div>
+      <div class="unit-footer"><span class="unit-go" style="color:var(--upred)">Open PYQs →</span><span class="unit-tag mid">📋 3 Papers</span></div>
+    </a>
+  </div>
+</div>
+
+<!-- PYQ QUICK-PICK -->
+<div class="section-wrap" style="padding-top:0">
+  <div class="pyq-header-row">
+    <div class="section-head" style="margin-bottom:0"><h2>Previous Year Papers — Quick Access</h2></div>
+    <a class="pyq-view-all" href="pyq.html">View all solutions →</a>
+  </div>
+  <div class="pyq-grid">
+    <a class="pyq-card latest" href="pyq.html#2025">
+      <div class="pyq-year-badge">LATEST · 2025</div>
+      <div class="pyq-title">2025</div>
+      <div class="pyq-code">6E7136 · May 2025 · CS/IT</div>
+      <div class="pyq-tags">
+        <span class="pyq-tag">Distributed System</span>
+        <span class="pyq-tag">RPC vs RMI</span>
+        <span class="pyq-tag">Architecture Models</span>
+        <span class="pyq-tag">DSM Implementation</span>
+        <span class="pyq-tag">Byzantine Agreement</span>
+      </div>
+      <div class="pyq-go">Open solved paper →</div>
+    </a>
+    <a class="pyq-card" href="pyq.html#2024">
+      <div class="pyq-year-badge">2024</div>
+      <div class="pyq-title">2024</div>
+      <div class="pyq-code">6E7136 · 2024 · CS/IT</div>
+      <div class="pyq-tags">
+        <span class="pyq-tag">DS Definition + DCE</span>
+        <span class="pyq-tag">Physical vs Logical Clock</span>
+        <span class="pyq-tag">Byzantine Agreement</span>
+        <span class="pyq-tag">CORBA IDL</span>
+        <span class="pyq-tag">Concurrency Control</span>
+      </div>
+      <div class="pyq-go">Open solved paper →</div>
+    </a>
+    <a class="pyq-card" href="pyq.html#2023">
+      <div class="pyq-year-badge">2023</div>
+      <div class="pyq-title">2023</div>
+      <div class="pyq-code">6E7136 · July 2023 · CS/IT</div>
+      <div class="pyq-tags">
+        <span class="pyq-tag">DS Goals</span>
+        <span class="pyq-tag">Logical Clocks</span>
+        <span class="pyq-tag">Lamport's Clock</span>
+        <span class="pyq-tag">Deadlock Prevention</span>
+        <span class="pyq-tag">CORBA Naming Service</span>
+      </div>
+      <div class="pyq-go">Open solved paper →</div>
+    </a>
+  </div>
+</div>
+</div><!-- /page-wrap -->
+
+<!-- ══════ PREDICTED PAPER 2026 ══════ -->
+<div class="predicted-section">
+  <div class="pred-inner">
+    <div class="pred-badge">🔮 AI-Powered Analysis — DIP 2026, ML 2026, CAO 2026, ISS 2026, CC 2026 Cross-Referenced</div>
+    <div class="pred-sec-title">Predicted Paper — Distributed Systems 2026</div>
+    <div class="pred-sec-sub">BASED ON 3-YEAR DS PYQ ANALYSIS (2023–2025) + RTU 2026 PAPER SKIP-YEAR PATTERNS · 6E7136</div>
+    <p class="pred-intro">Analysis of 3 DS papers (2023–2025) cross-referenced with the 2026 DIP, ML, CAO, ISS, and CC papers confirms RTU's rotation rules. Distributed system definition and architecture models appear in every paper. Lamport's clock + vector clock appeared in 2023 and skipped 2024 — back in 2026. Byzantine Agreement has appeared in 2024 and 2025 — certain for 2026. DSM implementation appeared fresh in 2025 — retained in 2026.</p>
+    <div class="disc-box">
+      <span style="font-size:18px;flex-shrink:0;">⚠️</span>
+      <p>Predictions are based on historical patterns. Actual paper may differ. Use this to prioritise study time — do not skip unpredicted topics entirely.</p>
+    </div>
+
+    <div class="pred-grid">
+
+      <!-- PART A -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q1)</div>
+          <div class="pred-unit">Unit 2 | Introduction</div>
+          <div class="pred-q">What is a Distributed System? (🔮 PREDICTED)</div>
+          <div class="pred-reason">Asked at Q1 in 2024 and Q1 in 2025 — two consecutive years. This is the strongest Part A anchor in DS. All 2026 RTU papers confirmed that Q1 is always the subject definition. CERTAIN.</div>
+          <span class="pred-conf high">CERTAIN</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>A <strong>Distributed System</strong> is a collection of independent computers (nodes) connected by a network that appears to users as a single coherent system. Each node has its own processor and memory — there is no shared clock or shared memory across nodes.</p>
+          <div class="fbox">
+            <span class="flbl">Formal Definition (Tanenbaum)</span>
+            <div class="fl">"A distributed system is one in which the failure of a computer</div>
+            <div class="fl"> you didn't even know existed can render your own computer unusable."</div>
+            <div class="fl">Key: Independent machines → appear as one → transparency to user</div>
+          </div>
+          <p><strong>Layman:</strong> When you use Google Docs, your document is stored on hundreds of servers worldwide. You see one document, but behind the scenes thousands of computers work together. That's a distributed system — many machines, one experience.</p>
+          <p><strong>Examples:</strong> World Wide Web, Google Search, ATM networks, airline reservation systems, WhatsApp messaging infrastructure.</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q2)</div>
+          <div class="pred-unit">Unit 2 | Introduction</div>
+          <div class="pred-q">What are the key features of a distributed system? (🔮 PREDICTED)</div>
+          <div class="pred-reason">Key features asked in 2025 Q2. Features/characteristics/goals alternate at Q2 slot — 2023 had goals, 2025 had features. 2026 will test one of these — features is most likely given the 2025 phrasing.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>Key features of a Distributed System:</p>
+          <ul>
+            <li><strong>Transparency:</strong> Hides the distributed nature from users — they see one system (location, replication, failure transparency)</li>
+            <li><strong>Scalability:</strong> Can grow by adding more nodes without disrupting existing service</li>
+            <li><strong>Fault Tolerance:</strong> System continues working even when some components fail</li>
+            <li><strong>Concurrency:</strong> Multiple processes execute simultaneously across nodes</li>
+            <li><strong>No shared clock:</strong> Each node has its own clock — no global time (Lamport's clocks solve this)</li>
+            <li><strong>No shared memory:</strong> Nodes communicate only by message passing over the network</li>
+            <li><strong>Heterogeneity:</strong> Nodes can be different hardware/OS — connected by middleware</li>
+            <li><strong>Openness:</strong> Can be extended and accessed using standard protocols and interfaces</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q3)</div>
+          <div class="pred-unit">Unit 3 | IPC</div>
+          <div class="pred-q">Differentiate between RPC and RMI. (🔮 PREDICTED)</div>
+          <div class="pred-reason">RPC appeared in 2023 Q3, RMI+RPC together in 2024 Q4, and "differentiate RPC vs RMI" in 2025 Q3. Present in all three papers — permanent Part A fixture. The differentiation phrasing from 2025 is likely to repeat.</div>
+          <span class="pred-conf high">CERTAIN</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <div class="fbox">
+            <span class="flbl">RPC vs RMI — Key Differences</span>
+            <div class="fl">Feature         | RPC                      | RMI</div>
+            <div class="fl">────────────────────────────────────────────────</div>
+            <div class="fl">Full form        | Remote Procedure Call    | Remote Method Invocation</div>
+            <div class="fl">Language         | Language-independent (C) | Java-specific</div>
+            <div class="fl">Paradigm         | Procedural programming   | Object-oriented programming</div>
+            <div class="fl">What is called   | Remote procedure/function| Method on remote object</div>
+            <div class="fl">Object passing   | Cannot pass objects      | Can pass objects by value/ref</div>
+            <div class="fl">Protocol         | Uses stubs/skeletons     | Uses stubs/skeletons + ORB</div>
+            <div class="fl">Example          | Sun RPC, DCE RPC         | Java RMI, CORBA</div>
+          </div>
+          <p><strong>Layman:</strong> RPC = calling a function on another machine (like pressing a remote button that triggers something far away). RMI = calling a method on an object that lives on another machine — more powerful because you work with complete objects, not just functions.</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q4)</div>
+          <div class="pred-unit">Unit 4 | Process Scheduling</div>
+          <div class="pred-q">Define Load Balancing in a distributed system. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Load balancing appeared in 2025 Q4 as a new Part A question. RTU 2026 patterns (CAO, ISS, CC) all confirmed that new 2025 Part A topics are retained. Load balancing is also a core DS concept — very likely to stay.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Load Balancing</strong> in a distributed system is the process of distributing computational workload evenly across multiple nodes so that no single node is overloaded while others are idle. It maximises resource utilisation and minimises response time.</p>
+          <div class="fbox">
+            <div class="fl">Goal: Distribute work so all nodes have approximately equal load</div>
+            <div class="fl">Metric: CPU utilisation, queue length, response time</div>
+            <div class="fl">Types:</div>
+            <div class="fl">  Static: Workload assigned at compile/start time (no runtime adjustment)</div>
+            <div class="fl">  Dynamic: Workload redistributed at runtime based on current load (more flexible)</div>
+            <div class="fn">Layman: Like a restaurant manager who monitors all tables — when one waiter is overwhelmed, they reassign customers to an idle waiter. Result: all waiters equally busy, customers served faster.</div>
+          </div>
+          <p><strong>Algorithms:</strong> Round Robin, Least Loaded First, Sender-Initiated (busy node pushes work out), Receiver-Initiated (idle node pulls work in).</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q5)</div>
+          <div class="pred-unit">Unit 3 | Concurrent Processes</div>
+          <div class="pred-q">Differentiate between Process and Thread. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Process vs Thread appeared in 2025 Q5. The 2026 DIP, CAO, ISS patterns all show that new 2025 topics at Q5 slot return in 2026. This topic is fundamental to distributed OS design — almost certain.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <div class="fbox">
+            <span class="flbl">Process vs Thread — Key Differences</span>
+            <div class="fl">Feature        | Process                  | Thread</div>
+            <div class="fl">───────────────────────────────────────────────</div>
+            <div class="fl">Definition     | Independent program unit  | Lightweight unit within process</div>
+            <div class="fl">Memory         | Own address space         | Shares process address space</div>
+            <div class="fl">Creation cost  | Heavy — expensive to create| Light — cheap to create</div>
+            <div class="fl">Communication  | IPC needed (expensive)    | Shared memory (fast)</div>
+            <div class="fl">Context switch | Slow (full state saved)   | Fast (less state to save)</div>
+            <div class="fl">Fault isolation| Crash isolated to process | Thread crash can kill all threads</div>
+            <div class="fl">DS use case    | Multi-node processes       | Server handles many clients via threads</div>
+          </div>
+          <p><strong>In Distributed Systems:</strong> Web servers use threads to handle multiple simultaneous client requests within one server process — threads share the server's memory and connection pool efficiently.</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q6)</div>
+          <div class="pred-unit">Unit 4 | Process Scheduling</div>
+          <div class="pred-q">List two advantages of dynamic load sharing. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Dynamic load sharing appeared in 2025 Q6. RTU tends to follow new topics with follow-up questions. 2026 may continue with this topic in Part A — advantages are a natural continuation from defining it.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Dynamic Load Sharing</strong> allows processes to be moved between nodes at runtime based on current system load. Advantages:</p>
+          <ul>
+            <li><strong>Adaptive response:</strong> Responds to changing workloads in real-time — if a node becomes overloaded, tasks are immediately moved to lighter nodes. No pre-planning needed.</li>
+            <li><strong>Better resource utilisation:</strong> Prevents nodes from being idle while others are overloaded — maximises use of available CPU across the entire cluster.</li>
+            <li><strong>Improved throughput:</strong> Reduces job completion time by avoiding bottlenecks — jobs finish faster when load is spread evenly.</li>
+            <li><strong>No prior knowledge needed:</strong> Works without knowing task execution times in advance — unlike static scheduling which needs this information.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q7)</div>
+          <div class="pred-unit">Unit 5 | DSM</div>
+          <div class="pred-q">What is Distributed Shared Memory (DSM)? (🔮 PREDICTED)</div>
+          <div class="pred-reason">DSM appeared in 2023 Q7 (NUMA), 2025 Q7, and 2025 Q8. Two of three papers have DSM in Q7/Q8 slot. The 2026 DIP/CC patterns confirm: Unit 5 DSM topics are tested every year in Part A. CERTAIN for 2026.</div>
+          <span class="pred-conf high">CERTAIN</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Distributed Shared Memory (DSM)</strong> is an abstraction that gives processes on different nodes the illusion of a single shared memory address space, even though physically each node has its own local memory and they communicate over a network.</p>
+          <div class="fbox">
+            <div class="fl">Physical reality: Node A has RAM A, Node B has RAM B — separate memory</div>
+            <div class="fl">DSM illusion:    Both nodes see one big shared virtual address space</div>
+            <div class="fl">Access: If Node A reads address X that lives on Node B → network fetch</div>
+            <div class="fn">Layman: DSM is like pretending all the books in different libraries are on ONE big shared shelf. When you want a book from another library, the librarian secretly fetches it — you don't need to go there yourself.</div>
+          </div>
+          <p><strong>Advantage:</strong> Simplifies programming — programmers don't need to write explicit message passing code. <strong>Disadvantage:</strong> Network accesses for non-local data are much slower than local memory access.</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q8)</div>
+          <div class="pred-unit">Unit 5 | DSM</div>
+          <div class="pred-q">How does Distributed Shared Memory improve system performance? (🔮 PREDICTED)</div>
+          <div class="pred-reason">Appeared in 2025 Q8 — directly paired with Q7's DSM definition. RTU frequently pairs definition (Q7) with advantages/how-it-works (Q8). Memory consistency models appeared at Q5 in 2025 and are also strong candidates for Q8 in 2026.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>DSM improves performance through several mechanisms:</p>
+          <ul>
+            <li><strong>Caching:</strong> Frequently accessed shared data is cached locally at each node — reduces expensive network fetches. A page accessed repeatedly stays in the local cache.</li>
+            <li><strong>Replication:</strong> Read-only pages can be replicated across multiple nodes — each node serves read requests locally without network communication.</li>
+            <li><strong>Coherence protocol optimisation:</strong> Smart invalidation protocols (like MESI) minimise coherence traffic — only notify nodes that actually have a copy when a write occurs.</li>
+            <li><strong>False sharing reduction:</strong> Grouping related data on the same page reduces the need to transfer pages between nodes.</li>
+            <li><strong>Simplified programming model:</strong> Programmers write shared-memory code — the DSM system handles communication automatically, often more efficiently than hand-coded message passing.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q9)</div>
+          <div class="pred-unit">Unit 5 + 6 | Computation + Agreement</div>
+          <div class="pred-q">What is the concept of Faults in a distributed system? (🔮 PREDICTED)</div>
+          <div class="pred-reason">Faults appeared in 2023 Q9 (faults in distributed agreement) and 2025 Q9. Present in 2 of 3 papers. Faults/failures directly lead to Byzantine Agreement (the most tested Part C topic) — RTU pairs these topics consistently.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>In distributed systems, <strong>faults</strong>, <strong>errors</strong>, and <strong>failures</strong> form a causal chain:</p>
+          <div class="fbox">
+            <span class="flbl">Fault → Error → Failure Chain</span>
+            <div class="fl">Fault:   Root cause — the defect (hardware bug, software error, cosmic ray)</div>
+            <div class="fl">Error:   Manifestation — incorrect system state caused by the fault</div>
+            <div class="fl">Failure: Observable effect — system deviates from specified behaviour</div>
+            <div class="fl">Example: Bad memory chip (fault) → corrupted data (error) → wrong output (failure)</div>
+          </div>
+          <p><strong>Types of Faults in DS:</strong></p>
+          <ul>
+            <li><strong>Transient:</strong> Occurs once and disappears — cosmic ray flipping a bit</li>
+            <li><strong>Intermittent:</strong> Occurs, disappears, recurs — loose connector</li>
+            <li><strong>Permanent:</strong> Persists until repaired — burned-out chip</li>
+            <li><strong>Byzantine (Arbitrary):</strong> Node fails in completely unpredictable ways — may send conflicting messages to different nodes (the hardest to tolerate)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q10)</div>
+          <div class="pred-unit">Unit 6 | Replicated Data</div>
+          <div class="pred-q">What are the key issues in managing replicated data? (🔮 PREDICTED)</div>
+          <div class="pred-reason">Replicated data issues appeared in 2025 Q10 — new topic. RTU 2026 patterns confirmed Q10 anchors persist year to year (CC had "layers + service models" at Q10 both 2025 and 2026 predictions). Replicated data is core Unit 6 — CERTAIN.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>Key issues in managing replicated data:</p>
+          <ul>
+            <li><strong>Consistency:</strong> All replicas must show the same value — when one is updated, others must be updated too. Strong consistency = all reads see latest write (expensive). Eventual consistency = replicas converge over time (cheaper).</li>
+            <li><strong>Update propagation:</strong> How quickly should updates reach all replicas? Synchronous (immediate, slower) vs asynchronous (delayed, faster)?</li>
+            <li><strong>Conflict resolution:</strong> When two nodes update the same data simultaneously, whose update wins? (Last-writer-wins, merge, application-specific logic)</li>
+            <li><strong>Replica placement:</strong> Where to place replicas for optimal access time and fault tolerance?</li>
+            <li><strong>Failure handling:</strong> If a replica becomes unavailable, how do the remaining replicas continue to serve requests?</li>
+            <li><strong>Read vs Write trade-off:</strong> More replicas = faster reads but more complex writes (more replicas to update)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PART B -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q1)</div>
+          <div class="pred-unit">Unit 2 | OS Types</div>
+          <div class="pred-q">Discuss different types of operating systems used in a distributed system. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Types of operating systems appeared in 2025 Part B Q1. RTU retained new 2025 Part B Q1 topics in subsequent years (CAO, CC confirmed). OS types (centralized, network, distributed, cooperative) are directly from the syllabus Unit 2.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>Four types of operating systems related to distributed systems:</p>
+          <ul>
+            <li><strong>Centralised OS:</strong> One powerful computer with all resources centralised. Users access via terminals. Examples: Mainframe OS. Simple to manage, but single point of failure. No distribution — all in one place.</li>
+            <li><strong>Network OS (NOS):</strong> Each machine has its own OS. Resources shared over network but NOT transparent — users must explicitly know where files/printers are. Examples: Windows Server, Novell NetWare. Not truly distributed — just networked.</li>
+            <li><strong>Distributed OS:</strong> Single OS image across multiple machines — users see one unified system. Resources are transparently shared. Examples: Amoeba, Plan 9. Tight coupling — looks like one machine.</li>
+            <li><strong>Cooperative Autonomous Systems:</strong> Independent systems that cooperate to solve problems. Each has full autonomy but coordinates with others. Examples: Grid computing, SETI@home. Loosely coupled — each machine is fully independent.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q2)</div>
+          <div class="pred-unit">Unit 2 | DCE</div>
+          <div class="pred-q">Explain the role of Distributed Computing Environment (DCE). (🔮 PREDICTED)</div>
+          <div class="pred-reason">DCE appeared in 2024 Q2 as "define DCE" and 2025 Part B Q2 as "explain role". Two consecutive years — confirmed anchor. 2026 DIP/CC patterns show two-consecutive-year Part B topics are certain for 2026.</div>
+          <span class="pred-conf high">CERTAIN</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>DCE (Distributed Computing Environment)</strong> is a middleware framework developed by the Open Software Foundation (OSF) that provides services and tools for building distributed applications across heterogeneous networks. DCE's role is to be the "glue" that connects different computers and operating systems so applications can work transparently.</p>
+          <p><strong>Key Components and their roles:</strong></p>
+          <ul>
+            <li><strong>Threads Service:</strong> Portable thread management across different OS platforms — enables concurrent programming in distributed apps</li>
+            <li><strong>RPC (Remote Procedure Call):</strong> Core mechanism for distributed communication — allows calling procedures on remote machines transparently</li>
+            <li><strong>Directory Service (Cell Directory Service — CDS):</strong> Naming service — clients locate remote services by name without knowing their network address</li>
+            <li><strong>Security Service:</strong> Authentication + authorisation + encryption — Kerberos-based security across the distributed environment</li>
+            <li><strong>Distributed File Service (DFS):</strong> Unified file system view across all machines — location transparency</li>
+            <li><strong>Time Service (DTS):</strong> Synchronises clocks across distributed nodes — essential for event ordering and consistency</li>
+          </ul>
+          <div class="fbox">
+            <div class="fl">DCE Architecture (layers, bottom to top):</div>
+            <div class="fl">Hardware → OS → DCE Middleware → Distributed Applications</div>
+            <div class="fn">DCE hides heterogeneity — apps talk to DCE, not directly to different OS types</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q3)</div>
+          <div class="pred-unit">Unit 3 | IPC</div>
+          <div class="pred-q">Explain Inter-Process Communication (IPC) mechanism in detail. (🔮 PREDICTED)</div>
+          <div class="pred-reason">IPC appeared in 2025 Part B Q3. IPC is fundamental to ALL distributed system communication — it cannot be absent from a DS exam. The 2025 phrasing "explain IPC mechanism" is predicted to return or appear in a closely related form.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>IPC (Inter-Process Communication)</strong> refers to mechanisms that allow processes on the same or different machines to communicate, coordinate, and share data.</p>
+          <p><strong>IPC Mechanisms in Distributed Systems:</strong></p>
+          <ul>
+            <li><strong>Message Passing:</strong> Processes exchange discrete messages — send() and receive() primitives. Can be synchronous (blocking — sender waits for receiver) or asynchronous (non-blocking — sender continues immediately). Foundation of all distributed communication.</li>
+            <li><strong>Remote Procedure Call (RPC):</strong> Higher-level abstraction over message passing — makes remote communication look like local procedure calls. Client stub marshals parameters → sends to server → server stub unmarshals → executes → returns result.</li>
+            <li><strong>Sockets:</strong> Low-level communication endpoint — identified by (IP address, port number). TCP sockets = connection-oriented (reliable). UDP sockets = connectionless (fast, unreliable).</li>
+            <li><strong>Shared Memory (in DSM):</strong> Virtual shared address space — processes communicate by reading/writing shared memory locations. Fast but requires synchronisation.</li>
+            <li><strong>Request/Reply:</strong> Client sends request message → server processes → returns reply. Simple, stateless interaction — basis of HTTP.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q4)</div>
+          <div class="pred-unit">Unit 5 | Computation Models</div>
+          <div class="pred-q">What is distributed deadlock handling? Explain the three strategies. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Deadlock handling appeared in 2023 Part C Q3 (all three strategies) and 2025 Part B Q4. Moving from Part C to Part B format is a common RTU pattern. 2026 likely tests deadlock in Part B with the three strategies (prevention, avoidance, detection + recovery).</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Distributed Deadlock</strong> occurs when two or more processes in a distributed system are each waiting for resources held by the other, creating a circular wait with no progress possible.</p>
+          <p><strong>Three Strategies for Deadlock Handling:</strong></p>
+          <ul>
+            <li><strong>1. Deadlock Prevention:</strong> Eliminate one of the four Coffman conditions (mutual exclusion, hold and wait, no preemption, circular wait). Example: Require processes to request ALL resources at once (eliminates hold-and-wait) — simple but wasteful.</li>
+            <li><strong>2. Deadlock Avoidance (Banker's Algorithm):</strong> Before granting a resource, check if the system remains in a "safe state" — a state from which all processes can eventually complete. If granting the resource leads to an unsafe state, deny the request. Requires knowing maximum resource needs in advance.</li>
+            <li><strong>3. Deadlock Detection and Recovery:</strong> Allow deadlocks to occur, detect them using Wait-For Graphs (WFG), then break the deadlock by aborting one or more processes. In distributed systems, each node maintains a local WFG; a coordinator combines all local WFGs to detect global cycles.</li>
+          </ul>
+          <div class="fbox">
+            <div class="fl">Wait-For Graph (WFG): Directed graph where P→Q means "P is waiting for Q to release resource"</div>
+            <div class="fl">Deadlock = cycle in WFG</div>
+            <div class="fl">Example: P1→P2→P3→P1 = deadlock (circular wait)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q5)</div>
+          <div class="pred-unit">Unit 4 | DFS</div>
+          <div class="pred-q">Explain the distributed process implementation. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Distributed process implementation appeared in 2025 Part B Q5. 2026 DIP/CAO patterns confirm new Part B topics from 2025 persist. Process implementation covers how processes are created, managed, and migrated across nodes.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Distributed Process Implementation</strong> refers to how processes are created, placed, and managed across multiple nodes in a distributed system.</p>
+          <p><strong>Key aspects:</strong></p>
+          <ul>
+            <li><strong>Process Creation:</strong> When a new process is needed, the system decides which node should run it (static assignment) or the process is created locally and may migrate later (dynamic assignment).</li>
+            <li><strong>Process Migration:</strong> Moving a running process from one node to another — reasons: load balancing, better resource access, fault tolerance. Requires transferring the full process state (registers, memory, open files, network connections).</li>
+            <li><strong>Static Process Scheduling:</strong> Process-to-node assignment decided before execution begins, based on communication patterns. Tasks that communicate frequently are placed on the same or nearby nodes — reduces network overhead.</li>
+            <li><strong>Dynamic Load Sharing:</strong> Processes may be sent from heavily loaded nodes to lightly loaded nodes at runtime. Two approaches: sender-initiated (overloaded node pushes work out) and receiver-initiated (idle node pulls work in).</li>
+            <li><strong>Process Representation:</strong> Processes described by their code + data + execution state. Process Graph Models show dependencies between processes — used for scheduling decisions.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q6)</div>
+          <div class="pred-unit">Unit 5 | Computation Models</div>
+          <div class="pred-q">Explain the concept of memory consistency models. Why are they important? (🔮 PREDICTED)</div>
+          <div class="pred-reason">Memory consistency appeared in 2025 Part B Q6. This directly relates to DSM — you cannot understand DSM without understanding consistency models. RTU tests both DSM and consistency in tandem. Very likely for 2026.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>A <strong>memory consistency model</strong> defines the order in which memory operations (reads and writes) appear to execute to different processors in a shared memory or DSM system. It answers the question: "If process A writes to memory location X, when will process B's read of X see the updated value?"</p>
+          <p><strong>Why they are important:</strong> Without a defined model, programmers cannot reason about the correctness of their concurrent programs. Different models offer different trade-offs between consistency strength and performance.</p>
+          <p><strong>Key Consistency Models:</strong></p>
+          <ul>
+            <li><strong>Strict Consistency:</strong> All writes are immediately visible to all processes. Like a single-processor — ideal but impossible in distributed systems (requires global clock).</li>
+            <li><strong>Sequential Consistency (Lamport):</strong> The result of execution is the same as if all operations were executed in some sequential order, and each process's operations appear in program order. Achievable but expensive.</li>
+            <li><strong>Causal Consistency:</strong> Writes that are causally related must be seen in the same order by all processes. Concurrent writes may be seen in different orders. Better performance than sequential.</li>
+            <li><strong>Eventual Consistency:</strong> If no new updates occur, all replicas eventually converge to the same value. Used by Amazon DynamoDB, DNS. High availability, low consistency.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q7)</div>
+          <div class="pred-unit">Unit 6 | Agreement</div>
+          <div class="pred-q">Discuss the Randomized Distributed Agreement approach and its advantages. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Randomized distributed agreement appeared in 2025 Part B Q7. This is a direct syllabus topic (Unit 6). RTU tends to repeat exact Part B Q7 topics — 2026 DIP, CC patterns confirmed B-Q7 persistence. High confidence.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>The <strong>Randomized Distributed Agreement</strong> approach uses probabilistic algorithms to achieve consensus in distributed systems, especially in the presence of Byzantine faults where deterministic consensus is impossible (FLP impossibility theorem).</p>
+          <p><strong>Why randomisation?</strong> The FLP (Fischer-Lynch-Paterson) theorem proves that deterministic consensus is impossible in an asynchronous distributed system with even one crash failure. Randomisation circumvents this impossibility by allowing probabilistic termination — the algorithm may not terminate with probability 1 in finite time, but terminates with high probability.</p>
+          <p><strong>Randomized Agreement Algorithm (Ben-Or Protocol):</strong></p>
+          <ul>
+            <li>Each process proposes a value (0 or 1)</li>
+            <li>Processes broadcast their proposed values and collect votes</li>
+            <li>If a majority agrees on one value → adopt it. If split → randomly choose a value and retry</li>
+            <li>Eventually all processes converge on the same value with probability 1</li>
+          </ul>
+          <p><strong>Advantages of Randomized Approach:</strong></p>
+          <ul>
+            <li>Circumvents FLP impossibility — achieves consensus that deterministic algorithms cannot</li>
+            <li>Tolerates Byzantine failures without requiring synchrony assumptions</li>
+            <li>Simple to implement compared to deterministic Byzantine agreement algorithms</li>
+            <li>Expected termination in O(1) rounds for benign failures</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PART C -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q1)</div>
+          <div class="pred-unit">Unit 2 | Architecture</div>
+          <div class="pred-q">Explain the Architecture Models of a Distributed System. How do design issues affect system performance? (🔮 PREDICTED)</div>
+          <div class="pred-reason">Architecture Models appeared in Part C Q1 in 2025. "Need of DS + characteristics" appeared in Part C Q1 in 2024. "Client-server + RPC" appeared in Part C Q2 in 2024. Architecture is the most tested Part C topic. CERTAIN for 2026 Q1.</div>
+          <span class="pred-conf high">CERTAIN — Every Paper in some form</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Full Answer with Diagram</button>
+        <div class="pred-answer">
+          <p><strong>Architecture Models</strong> define how components of a distributed system are structured, interact, and are organised across machines. The architecture directly determines performance, scalability, and fault tolerance.</p>
+          <p><strong>Major Architecture Models:</strong></p>
+          <ul>
+            <li><strong>Client-Server Model:</strong> Most common. Server provides services; clients consume them. Client sends request → server processes → returns response. Centralised service management. Examples: Web servers, database servers, email servers.</li>
+            <li><strong>Peer-to-Peer (P2P):</strong> All nodes are equal — each can be both client and server. Highly scalable, no single point of failure. Examples: BitTorrent, Bitcoin, Gnutella.</li>
+            <li><strong>Three-Tier Architecture:</strong> Presentation layer (client) + Application layer (middle tier/server) + Data layer (database). Separates concerns — scales each tier independently. Examples: Web applications.</li>
+            <li><strong>Multi-tier (N-tier):</strong> Extension of three-tier with more separation. Enterprise applications often use 4+ tiers.</li>
+            <li><strong>Mobile Code Model:</strong> Code moves from server to client and executes there. Example: Java applets, JavaScript. Reduces server load, but raises security concerns.</li>
+          </ul>
+          <div class="dbox">
+            <svg viewBox="0 0 540 220" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+              <text x="10" y="18" fill="#06b6d4" font-family="JetBrains Mono" font-size="10" font-weight="bold">Architecture Models — Client-Server vs Peer-to-Peer</text>
+              <!-- Client-Server -->
+              <rect x="10" y="30" width="240" height="170" rx="6" fill="#0c1c28" stroke="#06b6d4" stroke-width="1.5"/>
+              <text x="130" y="48" text-anchor="middle" fill="#06b6d4" font-family="JetBrains Mono" font-size="9" font-weight="bold">CLIENT-SERVER</text>
+              <rect x="80" y="58" width="100" height="32" rx="4" fill="#152432" stroke="#22d3ee" stroke-width="2"/>
+              <text x="130" y="78" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9">SERVER</text>
+              <rect x="20" y="115" width="60" height="26" rx="3" fill="#0c1c28" stroke="#10b981" stroke-width="1.5"/>
+              <text x="50" y="132" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Client 1</text>
+              <rect x="90" y="115" width="60" height="26" rx="3" fill="#0c1c28" stroke="#10b981" stroke-width="1.5"/>
+              <text x="120" y="132" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Client 2</text>
+              <rect x="160" y="115" width="60" height="26" rx="3" fill="#0c1c28" stroke="#10b981" stroke-width="1.5"/>
+              <text x="190" y="132" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Client 3</text>
+              <line x1="130" y1="90" x2="50" y2="115" stroke="#6090a8" stroke-width="1.5"/>
+              <line x1="130" y1="90" x2="120" y2="115" stroke="#6090a8" stroke-width="1.5"/>
+              <line x1="130" y1="90" x2="190" y2="115" stroke="#6090a8" stroke-width="1.5"/>
+              <text x="130" y="165" text-anchor="middle" fill="#6090a8" font-family="JetBrains Mono" font-size="8">Centralised control</text>
+              <text x="130" y="180" text-anchor="middle" fill="#6090a8" font-family="JetBrains Mono" font-size="8">Single point of failure</text>
+              <!-- P2P -->
+              <rect x="280" y="30" width="250" height="170" rx="6" fill="#0c1c28" stroke="#a78bfa" stroke-width="1.5"/>
+              <text x="405" y="48" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">PEER-TO-PEER</text>
+              <rect x="360" y="58" width="70" height="26" rx="3" fill="#152432" stroke="#a78bfa" stroke-width="1.5"/>
+              <text x="395" y="75" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">Peer A</text>
+              <rect x="290" y="100" width="70" height="26" rx="3" fill="#152432" stroke="#a78bfa" stroke-width="1.5"/>
+              <text x="325" y="117" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">Peer B</text>
+              <rect x="430" y="100" width="70" height="26" rx="3" fill="#152432" stroke="#a78bfa" stroke-width="1.5"/>
+              <text x="465" y="117" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">Peer C</text>
+              <rect x="360" y="140" width="70" height="26" rx="3" fill="#152432" stroke="#a78bfa" stroke-width="1.5"/>
+              <text x="395" y="157" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">Peer D</text>
+              <line x1="395" y1="84" x2="325" y2="100" stroke="#6090a8" stroke-width="1.5"/>
+              <line x1="395" y1="84" x2="465" y2="100" stroke="#6090a8" stroke-width="1.5"/>
+              <line x1="325" y1="126" x2="395" y2="140" stroke="#6090a8" stroke-width="1.5"/>
+              <line x1="465" y1="126" x2="395" y2="140" stroke="#6090a8" stroke-width="1.5"/>
+              <line x1="325" y1="113" x2="465" y2="113" stroke="#6090a8" stroke-width="1.5"/>
+              <text x="405" y="185" text-anchor="middle" fill="#6090a8" font-family="JetBrains Mono" font-size="8">No central server — all equal</text>
+            </svg>
+            <div class="dcap">Fig — Left: Client-Server (centralised, single point of failure) vs Right: P2P (decentralised, highly fault-tolerant)</div>
+          </div>
+          <p><strong>Design Issues and their impact on performance:</strong></p>
+          <ul>
+            <li><strong>Communication latency:</strong> Network delays add overhead — design must minimise network round trips (batching requests, caching)</li>
+            <li><strong>Naming and location transparency:</strong> Finding resources efficiently impacts throughput — poor naming = slow lookups</li>
+            <li><strong>Fault tolerance:</strong> Replication improves availability but adds consistency overhead — trade-off between availability and performance</li>
+            <li><strong>Scalability:</strong> Centralised components become bottlenecks — distributed design avoids hot-spots</li>
+            <li><strong>Synchronisation:</strong> Coordinating processes adds overhead — minimise synchronisation points</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q2)</div>
+          <div class="pred-unit">Unit 3 | Synchronization</div>
+          <div class="pred-q">Explain the language mechanisms for synchronization in distributed systems. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Language mechanisms for synchronization appeared in 2025 Part C Q2 — a new Part C topic. Based on 2026 CC/ISS pattern of retaining new Part C topics, this is predicted for 2026. Covers semaphores, monitors, message passing for synchronization.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Full Answer</button>
+        <div class="pred-answer">
+          <p><strong>Language mechanisms for synchronization</strong> are programming language constructs and runtime primitives that enable concurrent processes to coordinate access to shared resources and communicate safely.</p>
+          <p><strong>1. Semaphores:</strong> Integer variable with two atomic operations — wait(S) and signal(S). Oldest synchronisation mechanism.</p>
+          <div class="fbox">
+            <div class="fl">wait(S):   if S > 0 then S-- else block the process</div>
+            <div class="fl">signal(S): if waiting processes exist then wake one else S++</div>
+            <div class="fn">Problem: Semaphores are low-level — easy to misuse, leads to deadlocks if wait/signal are in wrong order</div>
+          </div>
+          <p><strong>2. Monitors (Hoare):</strong> High-level synchronisation construct — a module that encapsulates shared data with procedures that provide mutually exclusive access. Only one process can be active in a monitor at a time. Condition variables (wait and signal) allow blocking within the monitor.</p>
+          <p><strong>3. Conditional Critical Regions:</strong> A region of code that can only execute when a specific condition is true AND the shared variable is not in use. Compiler ensures mutual exclusion automatically.</p>
+          <p><strong>4. Message Passing:</strong> In distributed systems where shared memory doesn't exist, synchronisation is achieved through message passing — send() and receive() serve as synchronisation points. Rendezvous synchronisation: sender and receiver both block until the other is ready.</p>
+          <p><strong>5. Mutex (Mutual Exclusion Object):</strong> Binary semaphore with ownership — only the process that locked it can unlock it. Used to protect critical sections in multi-threaded distributed servers.</p>
+          <p><strong>6. Barrier Synchronisation:</strong> All participating processes must reach the barrier point before any can proceed — used in parallel computations to ensure all partial results are ready before combining them.</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q3)</div>
+          <div class="pred-unit">Unit 4 | DFS</div>
+          <div class="pred-q">Discuss the design and implementation of a Distributed File System. (🔮 PREDICTED)</div>
+          <div class="pred-reason">DFS appeared in 2023 Part A Q4, 2024 Part A Q5, and 2025 Part C Q3. Present in every paper across different parts. Part C Q3 is its natural slot for 2026 — covers the full DFS design (naming, caching, replication, consistency, failure handling).</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Full Answer</button>
+        <div class="pred-answer">
+          <p>A <strong>Distributed File System (DFS)</strong> provides transparent file storage and access across multiple nodes — users and applications access files as if they were local, regardless of their actual physical location.</p>
+          <p><strong>Transparencies that DFS must provide:</strong></p>
+          <ul>
+            <li><strong>Location transparency:</strong> Users don't know which server stores the file — access by name, not location</li>
+            <li><strong>Access transparency:</strong> Local and remote files accessed the same way — same API</li>
+            <li><strong>Replication transparency:</strong> Multiple copies may exist — users see one file</li>
+            <li><strong>Failure transparency:</strong> If one server fails, another serves the file — users unaffected</li>
+          </ul>
+          <p><strong>DFS Design Components:</strong></p>
+          <ul>
+            <li><strong>Naming and Location Service:</strong> Maps file names to physical locations. Flat name space vs hierarchical. Example: /home/user/file.txt → located on Server 3, block 42.</li>
+            <li><strong>Client Caching:</strong> Clients cache recently accessed files locally — reduces network traffic. Cache consistency challenge: local cache must be validated before use (write-through vs write-back).</li>
+            <li><strong>File Replication:</strong> Multiple copies stored on different servers — improves availability and read performance. Primary-backup replication or quorum-based replication.</li>
+            <li><strong>Concurrency Control:</strong> Multiple clients may access the same file — locking or optimistic concurrency (read-modify-write with version check).</li>
+            <li><strong>Stateful vs Stateless servers:</strong> Stateless (like NFS v2) = server doesn't remember client state — simpler crash recovery. Stateful = server remembers open files — better performance.</li>
+          </ul>
+          <p><strong>Case Study — Andrew File System (AFS):</strong> Developed at CMU. Whole-file caching on client. Files cached locally for the entire session — dramatically reduces server load. Callback mechanism: server notifies clients when a cached file is modified by another client.</p>
+          <p><strong>Case Study — Coda File System:</strong> Extension of AFS. Supports disconnected operation — laptop users can work offline using cached copies. When reconnected, changes are propagated back (reintegration). Uses volume storage groups for replication.</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q4)</div>
+          <div class="pred-unit">Unit 5 | DSM</div>
+          <div class="pred-q">Explain the implementation of Distributed Shared Memory (DSM) systems. (🔮 PREDICTED)</div>
+          <div class="pred-reason">DSM implementation appeared in 2025 Part C Q4. Based on CC and ISS 2026 patterns, new 2025 Part C topics are almost always retained in 2026. DSM implementation (page-based, object-based, coherence protocols) is core Unit 5 material.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Full Answer</button>
+        <div class="pred-answer">
+          <p><strong>DSM Implementation</strong> creates the illusion of shared memory across multiple nodes that physically have separate memories. The implementation must handle: where data is located, how it's accessed, and how consistency is maintained.</p>
+          <p><strong>Implementation Approaches:</strong></p>
+          <ul>
+            <li><strong>Page-Based DSM:</strong> Memory divided into pages (like virtual memory). When a process accesses a page not in local memory, a page fault occurs — the DSM runtime fetches the page from the remote node that owns it. Example: IVY system. Simple (reuses VM hardware) but causes false sharing — two variables on same page force unnecessary page transfers.</li>
+            <li><strong>Object-Based DSM:</strong> Shared objects (not pages) are the unit of sharing. Objects migrate when accessed remotely. Finer granularity than page-based — less false sharing. Example: Emerald language.</li>
+            <li><strong>Variable-Based DSM:</strong> Individual shared variables tracked — finest granularity but highest overhead.</li>
+          </ul>
+          <p><strong>Coherence Protocols (managing consistency):</strong></p>
+          <ul>
+            <li><strong>MESI Protocol (for pages/cache lines):</strong>
+              <ul>
+                <li>Modified (M): Page locally modified, only copy</li>
+                <li>Exclusive (E): Unmodified, only copy</li>
+                <li>Shared (S): Unmodified, multiple copies exist</li>
+                <li>Invalid (I): Page is stale — must fetch fresh copy</li>
+              </ul>
+            </li>
+            <li><strong>Invalidation protocol:</strong> When a write occurs, all other copies are invalidated. Next reader must fetch fresh copy. Simple but generates many messages on write-sharing.</li>
+            <li><strong>Update protocol:</strong> When a write occurs, all copies are updated simultaneously. All copies stay fresh. Better for frequently-shared read-mostly data.</li>
+          </ul>
+          <div class="fbox">
+            <div class="fl">Page-Based DSM Access Flow:</div>
+            <div class="fl">Process on Node A accesses address X → not in local memory → PAGE FAULT</div>
+            <div class="fl">DSM runtime: "Which node owns page containing X?" → ask directory</div>
+            <div class="fl">Directory: "Node B owns it" → send request to Node B</div>
+            <div class="fl">Node B: transfers page to Node A, marks its copy Invalid</div>
+            <div class="fl">Node A: maps page into local memory → process resumes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q5)</div>
+          <div class="pred-unit">Unit 6 | Agreement</div>
+          <div class="pred-q">What is Byzantine Agreement? Explain different approaches to solve it. (🔮 PREDICTED)</div>
+          <div class="pred-reason">Byzantine Agreement appeared in Part C in 2024 (Q5) and 2025 (Q5) — TWO CONSECUTIVE YEARS in the SAME SLOT. This is the most certain Part C prediction in DS — identical to A* in AI and Booth's in CAO. Always explain with the "Generals" analogy + the f < n/3 condition.</div>
+          <span class="pred-conf high">CERTAIN — 2 consecutive years Part C Q5</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="toggle(this)">▼ Show Full Answer</button>
+        <div class="pred-answer">
+          <p><strong>Byzantine Agreement (Byzantine Generals Problem)</strong> was formulated by Lamport, Shostak, and Pease (1982). It asks: how can distributed processes reach consensus (agree on the same value) when some processes may be faulty and behave arbitrarily — including sending different values to different processes (Byzantine fault)?</p>
+          <p><strong>The Generals Analogy:</strong> Imagine N generals surrounding a city, communicating only by messengers. They must agree unanimously whether to attack or retreat. Some generals may be traitors who send conflicting orders. The problem: achieve consensus among loyal generals despite traitors.</p>
+          <div class="fbox">
+            <span class="flbl">Byzantine Agreement Conditions</span>
+            <div class="fl">Validity:    If all correct processes propose v, then all correct processes decide v</div>
+            <div class="fl">Agreement:   All correct processes decide the same value</div>
+            <div class="fl">Termination: All correct processes eventually decide</div>
+            <div class="fl">Key result: Need at least n ≥ 3f + 1 processes to tolerate f Byzantine faults</div>
+            <div class="fn">Meaning: If 1 in 4 nodes is faulty (f=1, n=4) → can tolerate Byzantine failures. With only 3 nodes and 1 faulty → impossible!</div>
+          </div>
+          <p><strong>Approach 1 — Oral Messages (OM) Algorithm:</strong></p>
+          <ul>
+            <li>Commander sends its value v to all lieutenants</li>
+            <li>Each lieutenant forwards received value to all others</li>
+            <li>Each lieutenant uses majority voting on received values</li>
+            <li>Requires n ≥ 3f + 1 processes and f+1 rounds</li>
+            <li>Works if message content can be changed (no authentication)</li>
+          </ul>
+          <p><strong>Approach 2 — Written Messages (Signed Messages) Algorithm:</strong></p>
+          <ul>
+            <li>Messages are digitally signed — recipients can verify authenticity and detect alterations</li>
+            <li>Requires only n ≥ f + 2 processes (much better than 3f+1)</li>
+            <li>Requires Public Key Infrastructure (PKI) for signatures</li>
+          </ul>
+          <p><strong>Approach 3 — Practical Byzantine Fault Tolerance (PBFT):</strong></p>
+          <ul>
+            <li>Efficient algorithm for distributed systems with n ≥ 3f+1 replicas</li>
+            <li>Uses three-phase protocol: Pre-prepare → Prepare → Commit</li>
+            <li>O(n²) message complexity — used in blockchain systems</li>
+          </ul>
+          <p><strong>Approach 4 — Randomized Byzantine Agreement:</strong></p>
+          <ul>
+            <li>Uses random coin flips to break symmetry and achieve probabilistic agreement</li>
+            <li>Circumvents FLP impossibility theorem — terminates with probability 1</li>
+            <li>Ben-Or protocol: If all agree → commit; else → flip a coin and retry</li>
+          </ul>
+          <p><strong>Real-world application:</strong> Blockchain (Bitcoin uses proof-of-work, Ethereum uses PBFT-variants) — Byzantine Agreement ensures all nodes agree on the same transaction history even with malicious nodes attempting to double-spend.</p>
+        </div>
+      </div>
+
+    </div><!-- /pred-grid -->
+
+    <div class="prep-box">
+      <h3>✅ Quick Preparation Strategy — Distributed Systems 2026</h3>
+      <p><strong>CERTAIN (must prepare with diagrams and worked examples):</strong> Byzantine Agreement (all 4 approaches, n≥3f+1 condition, Generals analogy — 2 consecutive Part C Q5 years). Architecture Models (Client-Server, P2P, Three-tier diagrams — every paper). Lamport's Clock + Vector Clock (with timestamp examples and event diagrams — appeared 2023, due to return 2026). DFS design + Coda/AFS case study — every year. DSM implementation (MESI, page-based, coherence protocols — 2025 Part C, retained 2026).<br><br>
+      <strong>VERY HIGH confidence Part B:</strong> DCE (components + role — 2 consecutive years). Deadlock handling (3 strategies + WFG). IPC mechanisms (all 5 types). Memory consistency models (5 models from strict to eventual). Randomized Distributed Agreement (Ben-Or protocol + advantages). Distributed process implementation.<br><br>
+      <strong>Part A (≤25 words — definition + layman + one example each):</strong> Distributed System definition (CERTAIN Q1 every year), Key features (CERTAIN), RPC vs RMI differentiation (CERTAIN), Load Balancing definition, Process vs Thread, Dynamic load sharing advantages, DSM definition, DSM performance improvement, Concept of faults (fault→error→failure chain), Key issues in replicated data management.</p>
+    </div>
+  </div>
+</div><!-- /predicted-section -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="index.html">🏠 Home</a>
+    <a href="unit2.html">🌐 U2: Intro + DCE</a>
+    <a href="unit3.html">📡 U3: IPC + RPC</a>
+    <a href="unit4.html">⚙️ U4: Scheduling + DFS</a>
+    <a href="unit5.html">🧠 U5: DSM + Computation</a>
+    <a href="unit6.html">🤝 U6: Agreement + CORBA</a>
+    <a href="pyq.html" style="color:var(--upred)">📋 Solved PYQs</a>
+  </div>
+  © 2026 Mahansh Gaur · Distributed Systems RTU Study Guide · 6E7136 / 6CS5-11 · Educational use only.
+</footer>
+
+<script>
+function toggle(btn){
+  const ans = btn.nextElementSibling;
+  if(ans.classList.contains('open')){
+    ans.classList.remove('open');
+    btn.textContent = btn.textContent.replace('▲','▼');
+  } else {
+    ans.classList.add('open');
+    btn.textContent = btn.textContent.replace('▼','▲');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS Unit 2 — Distributed Systems Fundamentals | RTU Exam Prep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#040d10;--surface:#081820;--surface2:#0c2030;
+  --border:#133040;--border2:#0a1e2c;
+  --cc:#10b981;--cc2:#6ee7b7;--cc3:#d1fae5;
+  --u1:#22d3ee;--u2:#f97316;--u3:#ef4444;--u4:#a78bfa;--u5:#10b981;--u6:#3b82f6;
+  --upred:#f59e0b;--gold:#fbbf24;--text:#dde8f2;--dim:#2a4858;--dim2:#5a8aa0;
+  --mono:'JetBrains Mono',monospace;--head:'Fraunces',serif;--body:'Outfit',sans-serif;
+  --sidebar-w:300px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.82;overflow-x:hidden;}
+
+/* ── RESPONSIVE FONT SCALING ── */
+html{font-size:clamp(18px,1.4vw,22px);}
+@media(min-width:1200px){html{font-size:clamp(19px,1.35vw,22px);}}
+@media(min-width:1600px){html{font-size:clamp(20px,1.25vw,24px);}}
+@media(min-width:1900px){html{font-size:clamp(21px,1.15vw,25px);}}
+@media(max-width:900px){html{font-size:18px;}}
+@media(max-width:600px){html{font-size:17px;}}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── LAYOUT ── */
+.layout{display:flex;max-width:100%;}
+.content{flex:1;padding:clamp(28px,3.5vw,60px) clamp(24px,4.5vw,90px);max-width:calc(100% - var(--sidebar-w));overflow-x:hidden;min-width:0;}
+@media(min-width:1600px){.content{padding:clamp(36px,3vw,64px) clamp(40px,5.5vw,120px);}}
+
+/* ── TOP NAV ── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(4,13,16,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border2);padding:0 28px;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.topnav::-webkit-scrollbar{display:none;}
+.tnlabel{font-family:var(--mono);font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--cc);padding:15px 14px 15px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0;}
+.tnlink{font-family:var(--mono);font-size:.7rem;padding:8px 14px;border-radius:6px;text-decoration:none;color:var(--dim2);white-space:nowrap;flex-shrink:0;transition:all .18s;border:1px solid transparent;}
+.tnlink:hover{color:var(--text);background:var(--surface2);}
+.tnlink.active{color:var(--cc);background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);}
+.tnlink.pred{color:var(--upred);background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);font-weight:600;}
+
+/* ── CREDIT BAND ── */
+.credit-band{background:#030c12;border-bottom:1px solid var(--border2);padding:11px 32px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
+.credit-text{font-family:var(--mono);font-size:.7rem;color:var(--dim2);}
+.credit-text span{color:var(--cc);font-weight:600;}
+.credit-link{font-family:var(--mono);font-size:.68rem;padding:4px 14px;border-radius:5px;border:1px solid var(--border);color:var(--dim2);text-decoration:none;transition:all .2s;}
+.credit-link:hover{border-color:var(--cc);color:var(--cc);}
+
+/* ── HERO ── */
+.hero{position:relative;overflow:hidden;padding:clamp(50px,6vw,90px) clamp(24px,5vw,90px) clamp(44px,5vw,72px);background:var(--bg);}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(16,185,129,.08) 1px,transparent 1px),radial-gradient(circle,rgba(34,211,238,.04) 1px,transparent 1px);background-size:44px 44px,88px 88px;background-position:0 0,22px 22px;animation:dotDrift 30s linear infinite;}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 55% at 10% 50%,rgba(16,185,129,.09) 0%,transparent 65%),radial-gradient(ellipse 45% 50% at 85% 15%,rgba(34,211,238,.05) 0%,transparent 60%);pointer-events:none;}
+@keyframes dotDrift{0%{transform:translate(0,0);}100%{transform:translate(44px,44px);}}
+.hero-inner{position:relative;z-index:1;max-width:1700px;margin:0 auto;}
+.hero-tag{font-family:var(--mono);font-size:.7rem;color:var(--cc);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.hero-dot{width:8px;height:8px;border-radius:50%;background:var(--cc);box-shadow:0 0 14px var(--cc);animation:blink 2.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.hero h1{font-family:var(--head);font-weight:800;font-size:clamp(34px,5.5vw,78px);line-height:1.02;color:#fff;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero h1 span{color:var(--cc);}
+.hero h1 em{color:var(--u1);font-style:normal;}
+.hero-sub{color:var(--dim2);font-size:clamp(16px,1.6vw,22px);max-width:820px;line-height:1.8;margin-bottom:22px;}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{font-family:var(--mono);font-size:.68rem;padding:5px 14px;border-radius:5px;border:1px solid;}
+.badge-r{color:var(--u3);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);}
+.badge-v{color:var(--cc);border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.08);}
+.badge-g{color:var(--u1);border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.08);}
+.badge-gold{color:var(--upred);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08);}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);padding:28px 18px;border-right:1px solid var(--border);position:sticky;top:44px;height:calc(100vh - 44px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;flex-shrink:0;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sidebar-title{font-family:var(--mono);font-size:.62rem;color:var(--cc);letter-spacing:2px;text-transform:uppercase;}
+.sidebar-close{display:none;background:none;border:1px solid var(--border);border-radius:4px;color:var(--dim2);cursor:pointer;padding:2px 9px;font-family:var(--mono);font-size:.68rem;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:7px;cursor:pointer;font-family:var(--head);font-size:.9rem;font-weight:600;color:var(--dim2);transition:all .2s;margin-bottom:3px;text-decoration:none;line-height:1.3;}
+.nav-item:hover,.nav-item.active{background:var(--surface2);color:var(--text);}
+.nav-item.active{color:var(--cc);border-left:2px solid var(--cc);padding-left:10px;}
+.nav-imp{margin-left:auto;font-family:var(--mono);font-size:.62rem;padding:2px 7px;border-radius:3px;background:var(--surface2);white-space:nowrap;}
+.nav-imp.high{color:var(--u3);}
+.nav-imp.med{color:var(--upred);}
+.sidebar-toggle{display:none;position:fixed;bottom:22px;right:22px;z-index:1000;width:52px;height:52px;border-radius:50%;background:var(--cc);border:none;cursor:pointer;font-size:22px;color:#fff;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(16,185,129,.45);transition:transform .2s;}
+.sidebar-toggle:hover{transform:scale(1.1);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:98;backdrop-filter:blur(3px);}
+.sidebar-overlay.visible{display:block;}
+
+/* ── CONTENT SECTIONS ── */
+.section{margin-bottom:80px;scroll-margin-top:64px;}
+.section-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.section-num{font-family:var(--mono);font-size:.7rem;color:var(--cc);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);padding:5px 10px;border-radius:5px;min-width:40px;text-align:center;}
+.section-title{font-family:var(--head);font-size:clamp(22px,2.8vw,34px);font-weight:800;color:#fff;}
+
+/* ── THEORY BLOCKS ── */
+.theory-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:clamp(22px,3vw,36px) clamp(24px,3.5vw,42px);margin-bottom:22px;}
+.theory-block h3{font-family:var(--head);font-size:clamp(18px,1.9vw,25px);font-weight:700;color:var(--cc);margin-bottom:14px;}
+.theory-block h3.orange{color:var(--u2);}
+.theory-block h3.red{color:var(--u3);}
+.theory-block h3.cyan{color:var(--u1);}
+.theory-block h3.purple{color:var(--u4);}
+.theory-block h3.blue{color:var(--u6);}
+.theory-block p{margin-bottom:14px;font-size:1rem;line-height:1.9;}
+.theory-block p:last-child{margin-bottom:0;}
+.theory-block ul,.theory-block ol{padding-left:26px;margin:12px 0;}
+.theory-block li{margin-bottom:10px;font-size:1rem;line-height:1.8;}
+h4{font-family:var(--head);font-size:1.05rem;font-weight:700;color:var(--text);margin:20px 0 10px;}
+
+/* ── LAYMAN BOX ── */
+.layman{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-left:3px solid var(--cc);border-radius:8px;padding:16px 20px;font-family:var(--mono);font-size:.82rem;color:#a7f3d0;margin:16px 0;line-height:1.78;}
+.layman::before{content:'💬 LAYMAN: ';color:var(--cc);font-weight:700;font-size:.84rem;}
+
+/* ── FORMULA BOX ── */
+.fbox{background:#030c14;border:1px solid rgba(16,185,129,.22);border-left:3px solid var(--cc);border-radius:9px;padding:18px 22px;margin:18px 0;font-family:var(--mono);font-size:.82rem;color:#6ee7b7;overflow-x:auto;line-height:1.72;}
+.fbox .flbl{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:block;}
+.fbox .fl{color:#a7f3d0;font-size:.86rem;display:block;}
+.fbox .fn{color:var(--dim2);font-size:.75rem;margin-top:8px;display:block;font-style:italic;}
+
+/* ── TIP BOXES ── */
+.tip-box{border-radius:9px;padding:18px 20px;margin:16px 0;display:flex;gap:14px;}
+.tip-box.trick{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);}
+.tip-box.connect{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.25);}
+.tip-box.warning{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);}
+.tip-box.pred-tip{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);}
+.tip-icon{font-size:21px;flex-shrink:0;margin-top:3px;}
+.tip-content{flex:1;}
+.tip-title{font-family:var(--head);font-size:.84rem;font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.tip-box.trick .tip-title{color:var(--gold);}
+.tip-box.connect .tip-title{color:var(--u1);}
+.tip-box.warning .tip-title{color:var(--u3);}
+.tip-box.pred-tip .tip-title{color:var(--upred);}
+.tip-content p{font-size:.92rem;color:var(--text);margin:0;line-height:1.78;}
+
+/* ── TABLES ── */
+.comp-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.9rem;display:block;overflow-x:auto;}
+.comp-table th{background:var(--surface2);padding:12px 16px;text-align:left;font-family:var(--head);font-weight:700;color:var(--cc);border-bottom:1px solid var(--border);white-space:nowrap;}
+.comp-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:var(--surface2);}
+
+/* ── PYQ SECTION ── */
+.pyq-section{background:#06101a;border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:clamp(20px,3vw,30px) clamp(22px,3.5vw,36px);margin-top:26px;}
+.pyq-header{font-family:var(--head);font-size:1rem;font-weight:700;color:var(--upred);margin-bottom:18px;}
+.pyq-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:18px 20px;margin-bottom:16px;}
+.pyq-q-text{font-family:var(--head);font-size:1rem;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.45;}
+.pyq-meta{font-family:var(--mono);font-size:.68rem;color:var(--dim2);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;}
+.topic-tag{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:var(--cc);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pred-tag{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--upred);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.unit-tag{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:var(--u1);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pyq-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 16px;cursor:pointer;font-family:var(--mono);font-size:.73rem;color:var(--upred);margin-top:12px;transition:all .2s;}
+.pyq-toggle:hover{background:var(--upred);color:#000;}
+.answer-content{display:none;margin-top:16px;font-size:.95rem;line-height:1.9;}
+.answer-content.open{display:block;}
+.answer-content strong{color:var(--cc2);}
+.answer-content ul,.answer-content ol{padding-left:22px;margin:10px 0;}
+.answer-content li{margin-bottom:8px;}
+
+/* ── PRED BANNER ── */
+.pred-banner{background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(245,158,11,.03));border:1px solid rgba(245,158,11,.35);border-left:3px solid var(--upred);border-radius:9px;padding:14px 18px;margin:16px 0;font-family:var(--mono);font-size:.8rem;color:var(--upred);display:flex;gap:12px;align-items:flex-start;}
+.pred-banner .pb-text{line-height:1.7;}
+
+/* ── IMPORTANCE BARS ── */
+.imp-bar-wrap{margin-bottom:12px;}
+.imp-bar-label{font-family:var(--mono);font-size:.75rem;color:var(--dim2);margin-bottom:5px;display:flex;justify-content:space-between;}
+.imp-bar{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.imp-bar-fill{height:100%;border-radius:4px;}
+.ibf-hot{background:var(--u3);}
+.ibf-high{background:var(--cc);}
+.ibf-med{background:var(--upred);}
+
+/* ── DIAGRAM WRAP ── */
+.diagram-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin:18px 0;text-align:center;overflow-x:auto;}
+.diagram-cap{font-family:var(--mono);font-size:.72rem;color:var(--dim2);margin-top:12px;}
+
+/* ── HIGHLIGHT HELPERS ── */
+.hl-v{color:var(--cc2);font-weight:600;}
+.hl-o{color:var(--u2);font-weight:600;}
+.hl-r{color:var(--u3);font-weight:600;}
+.hl-g{color:var(--cc);font-weight:600;}
+.hl-c{color:var(--u1);font-weight:600;}
+.hl-p{color:var(--u4);font-weight:600;}
+code{font-family:var(--mono);background:var(--surface2);padding:2px 7px;border-radius:4px;font-size:.8rem;color:var(--cc2);}
+
+/* ── PREDICTED SECTION ── */
+.predicted-section{background:linear-gradient(135deg,rgba(4,13,16,1) 0%,rgba(16,185,129,.04) 100%);border-top:1px solid rgba(16,185,129,.2);border-bottom:1px solid rgba(16,185,129,.2);}
+.pred-inner{max-width:100%;margin:0 auto;padding:clamp(40px,5vw,72px) clamp(24px,4.5vw,90px);}
+@media(min-width:1600px){.pred-inner{padding:clamp(50px,4vw,80px) clamp(50px,5.5vw,120px);}}
+.pred-badge{display:inline-block;font-family:var(--mono);font-size:.75rem;color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:5px 14px;border-radius:5px;margin-bottom:14px;}
+.pred-sec-title{font-family:var(--head);font-size:clamp(24px,3.5vw,40px);font-weight:800;color:#fff;margin-bottom:6px;}
+.pred-sec-sub{font-family:var(--mono);font-size:.72rem;color:var(--dim2);letter-spacing:1px;margin-bottom:14px;}
+.pred-intro{font-family:var(--mono);font-size:.78rem;color:var(--dim2);max-width:960px;line-height:1.75;margin-bottom:18px;}
+.disc-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:14px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-start;}
+.disc-box p{font-size:.86rem;color:var(--text);}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,370px),1fr));gap:18px;margin-top:24px;}
+.pred-card{background:var(--surface);border:1px solid rgba(245,158,11,.2);border-radius:12px;border-top:3px solid var(--upred);overflow:hidden;}
+.pred-card-head{padding:20px 22px 14px;}
+.pred-part{font-family:var(--mono);font-size:.67rem;color:var(--dim2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-unit{font-family:var(--mono);font-size:.67rem;color:var(--u1);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-q{font-family:var(--head);font-size:clamp(.95rem,1.08vw,1.12rem);font-weight:700;color:#fff;line-height:1.4;margin-bottom:8px;}
+.pred-reason{font-size:clamp(.82rem,.94vw,.96rem);color:var(--dim2);line-height:1.7;margin-bottom:10px;}
+.pred-conf{font-family:var(--mono);font-size:.68rem;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:14px;}
+.pred-conf.high{color:var(--u3);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);}
+.pred-conf.med{color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);}
+.pred-answer-toggle{width:100%;padding:10px 22px;background:var(--surface2);border:none;border-top:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:.72rem;color:var(--cc);text-align:left;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.pred-answer-toggle:hover{background:var(--cc);color:#000;}
+.pred-answer{display:none;padding:20px 22px;border-top:1px solid var(--border);background:var(--bg);}
+.pred-answer.open{display:block;}
+.pred-answer p{font-size:.92rem;line-height:1.9;margin-bottom:12px;}
+.pred-answer strong{color:var(--cc2);}
+.pred-answer ul,.pred-answer ol{padding-left:22px;margin:10px 0;}
+.pred-answer li{margin-bottom:8px;font-size:.9rem;}
+.fbox.inside-pred{background:#030c14;border:1px solid rgba(16,185,129,.22);border-left:3px solid var(--cc);border-radius:8px;padding:14px 18px;margin:10px 0;font-family:var(--mono);font-size:.78rem;color:#6ee7b7;overflow-x:auto;line-height:1.7;}
+.fbox.inside-pred .fl{color:#a7f3d0;display:block;}
+.fbox.inside-pred .fn{color:var(--dim2);font-size:.7rem;margin-top:6px;display:block;font-style:italic;}
+.dbox{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin:14px 0;overflow-x:auto;}
+.dcap{font-family:var(--mono);font-size:.7rem;color:var(--dim2);margin-top:8px;text-align:center;}
+
+/* ── PREP BOX ── */
+.prep-box{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:22px 26px;margin-top:28px;}
+.prep-box h3{font-family:var(--head);font-size:clamp(1rem,1.2vw,1.28rem);font-weight:700;color:var(--cc);margin-bottom:14px;}
+.prep-box p{font-size:.92rem;line-height:1.88;margin-bottom:10px;}
+.prep-box strong{color:#fff;}
+
+/* ── FOOTER ── */
+.site-footer{background:#030b10;border-top:1px solid var(--border2);padding:28px 5vw;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--dim);}
+.site-footer a{color:var(--dim2);text-decoration:none;margin:0 12px;transition:color .2s;}
+.site-footer a:hover{color:var(--cc);}
+.footer-links{margin-bottom:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;}
+
+/* ── MOBILE ── */
+@media(max-width:1100px){:root{--sidebar-w:270px;}}
+@media(max-width:900px){
+  .sidebar{position:fixed;top:0;left:0;height:100vh;z-index:99;background:var(--bg);transform:translateX(-100%);border-right:1px solid var(--border);transition:transform .3s ease;width:var(--sidebar-w);}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.9);}
+  .sidebar-close{display:block;}
+  .sidebar-toggle{display:flex;}
+  .content{max-width:100%;padding:28px 22px;}
+  .pred-inner{padding:44px 20px;}
+  .pred-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){.hero{padding:44px 18px 40px;}.theory-block{padding:20px 18px;}.pyq-section{padding:18px;}}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="tnlabel">DS · RTU</span>
+  <a class="tnlink" href="index.html">🏠 Home</a>
+  <a class="tnlink active" href="unit2.html">🌐 U2: DS Fundamentals</a>
+  <a class="tnlink" href="unit3.html">⚙️ U3: Processes & IPC</a>
+  <a class="tnlink" href="unit4.html">📁 U4: Scheduling & DFS</a>
+  <a class="tnlink" href="unit5.html">🧠 U5: DSM & Computation</a>
+  <a class="tnlink" href="unit6.html">🛡️ U6: Agreement & CORBA</a>
+  <a class="tnlink pred" href="#predicted">🔮 Predicted 2026</a>
+</nav>
+
+<div class="credit-band">
+  <div class="credit-text">Crafted by <span>Mahansh Gaur</span> · B.Tech RTU Jaipur</div>
+  <a class="credit-link" href="https://www.instagram.com/mahaanshgaur_6513" target="_blank">📸 @mahaanshgaur_6513</a>
+  <a class="credit-link" href="https://github.com/mahanshstarktech" target="_blank">🐙 GitHub</a>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="hero-dot"></span>🖧 B.Tech VI Sem · RTU · DS 6CS5-11 / 6E7136 · Unit 2</div>
+    <h1>Distributed <span>Systems</span><br><em>Fundamentals &amp; Architecture</em></h1>
+    <p class="hero-sub">Complete Unit 2 coverage — Features, Types of OS, Goals, Transparency, Architecture Models, DCE, and Theoretical Issues (Clocks, Time, Snapshots). All RTU PYQs 2023–2025 solved. Full 2026 Predicted Paper with answers.</p>
+    <div class="hero-badges">
+      <span class="badge badge-r">🔥 DS Definition + Goals — CERTAIN every year Part A</span>
+      <span class="badge badge-gold">🔮 Architecture Models — CERTAIN 2026 Part C Q1</span>
+      <span class="badge badge-g">DCE — VERY HIGH Part B (2024 anchor)</span>
+      <span class="badge badge-v">Types of OS — HIGH 2026 Part B Q1</span>
+    </div>
+  </div>
+</section>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="layout">
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Unit 2 Topics</div>
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <a class="nav-item" href="#overview">📊 Importance Overview</a>
+  <a class="nav-item" href="#intro">🌐 Intro to DS<span class="nav-imp high">95%</span></a>
+  <a class="nav-item" href="#features">✅ Features of DS<span class="nav-imp high">90%</span></a>
+  <a class="nav-item" href="#paradigms">⚡ Computation Paradigms<span class="nav-imp med">70%</span></a>
+  <a class="nav-item" href="#models">🗺️ Models of DS<span class="nav-imp med">72%</span></a>
+  <a class="nav-item" href="#os-types">🖥️ Types of OS<span class="nav-imp high">85%</span></a>
+  <a class="nav-item" href="#design-issues">🔧 Design Issues<span class="nav-imp high">82%</span></a>
+  <a class="nav-item" href="#goals">🎯 Goals & Transparency<span class="nav-imp high">88%</span></a>
+  <a class="nav-item" href="#arch-models">🏛️ Architecture Models<span class="nav-imp high">92%</span></a>
+  <a class="nav-item" href="#dce">🌐 DCE<span class="nav-imp high">85%</span></a>
+  <a class="nav-item" href="#time">🕐 Time & Clocks<span class="nav-imp high">88%</span></a>
+  <a class="nav-item" href="#snapshots">📷 Recording State<span class="nav-imp med">75%</span></a>
+  <a class="nav-item" href="#predicted">🔮 2026 Predicted Paper</a>
+  <a class="nav-item" href="#pyq-master">📝 All PYQs</a>
+</nav>
+
+<main class="content">
+
+<!-- ═══════════ SECTION 00: OVERVIEW ═══════════ -->
+<section class="section" id="overview">
+  <div class="section-header"><span class="section-num">00</span><h2 class="section-title">Topic Importance — Unit 2</h2></div>
+  <div class="theory-block">
+    <p>Unit 2 forms the foundation of the entire DS paper. The definition/goals of a DS and RPC/RMI appear in <strong>every single paper's Part A</strong>. Architecture Models jumped to Part C in 2025 (10 marks). Types of OS appeared as a new Part B anchor in 2025. Understanding these topics at depth ensures marks across all three parts.</p>
+    <div class="imp-bar-wrap" style="margin-top:18px">
+      <div class="imp-bar-label"><span>DS Definition + Goals (Q1/Q2 every year)</span><span style="color:#ef4444">95% 🔮 CERTAIN Part A</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:95%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Architecture Models + Design Issues</span><span style="color:#ef4444">92% 🔮 CERTAIN Part C 2026</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:92%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Goals + Transparency</span><span style="color:#ef4444">88% 🔮 VERY HIGH</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:88%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Logical Clocks + Lamport/Vector Clocks</span><span style="color:#ef4444">88% 🔮 VERY HIGH (2yr absence)</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:88%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Types of OS (Centralized / NOS / DOS)</span><span style="color:#06b6d4">85% — 2025 anchor</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:85%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>DCE (Distributed Computing Environment)</span><span style="color:#06b6d4">85% — 2024 anchor</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:85%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Design Issues in Distributed OS</span><span style="color:#06b6d4">82%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:82%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Distributed Snapshots (Chandy-Lamport)</span><span style="color:#f59e0b">75%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:75%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Models of DS + Computation Paradigms</span><span style="color:#f59e0b">72%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:72%"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 01: INTRO ═══════════ -->
+<section class="section" id="intro">
+  <div class="section-header"><span class="section-num">01</span><h2 class="section-title">Introduction to Distributed Systems</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN (Part A Q1):</strong> "What is a distributed system?" or "What are the goals of a distributed system?" has appeared in ALL THREE papers (2023 Q1, 2024 Q1, 2025 Q1). In 2023 it asked "goals", in 2024 it asked "definition", in 2025 it asked "definition" again. 2026 will likely combine both — "What is a DS? Write its goals." Based on the confirmed RTU pattern from CAO and ML papers. CERTAIN.</div></div>
+  <div class="theory-block">
+    <h3>What is a Distributed System?</h3>
+    <p>A <span class="hl-v">Distributed System</span> is a collection of <strong>autonomous computers</strong> linked by a network and equipped with distributed system software that enables the computers to <strong>coordinate their activities and share resources</strong> — hardware, software, and data — such that users perceive the system as a <strong>single integrated computing facility</strong>.</p>
+    <p>— Definition by <em>Tanenbaum & Van Steen</em> (the standard RTU answer)</p>
+    <div class="layman">Imagine a team of workers in different cities all working on one project. Each person has their own computer and internet connection. They don't share one giant computer — they are all independent. But they communicate and coordinate so well that to the client, it looks like ONE big office is handling everything. That's a distributed system. Your phone, the internet server, and the database server are all separate computers working together to show you Instagram — that's a distributed system in action.</div>
+    <div class="fbox">
+      <span class="flbl">Key Properties (Write in Exam — 5 Points)</span>
+      <div class="fl">1. Multiple autonomous computers (each with its own CPU, memory, OS)</div>
+      <div class="fl">2. Connected via a communication network (LAN, WAN, Internet)</div>
+      <div class="fl">3. No shared memory between nodes (message passing only)</div>
+      <div class="fl">4. No common physical clock (clocks may drift)</div>
+      <div class="fl">5. Appears as a single coherent system to users</div>
+      <div class="fn">Memory: "MNCNA" — Multiple computers, Network, No shared memory, No common clock, Appears single</div>
+    </div>
+    <h3>Goals of a Distributed System</h3>
+    <p>The four primary goals of building a distributed system are captured in the acronym <span class="hl-v">ROST</span>:</p>
+    <ul>
+      <li><strong>Resource Sharing:</strong> Hardware (printers, disks), software (files, databases), and data accessible across the network. Example: Cloud storage like Google Drive — files stored on remote servers but feel local.</li>
+      <li><strong>Openness:</strong> Offer services according to standard rules (protocols) so components can easily be extended or replaced by others. Example: REST APIs allow any client (Android, iOS, Web) to communicate with one server.</li>
+      <li><strong>Scalability:</strong> The system should remain effective as the number of users, processors, and geographic distance increases. Scalable in size (more users), geography (more locations), and administration.</li>
+      <li><strong>Transparency:</strong> Hide the complexity of distribution from users and programmers. The system should feel like one unified machine even though it's many.</li>
+    </ul>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Part A Answer (25 words max)</div>
+        <p>"A distributed system is a collection of autonomous computers linked by a network that appears to users as a single coherent system. Goals: resource sharing, openness, scalability, transparency."</p>
+      </div>
+    </div>
+    <h3>Nodes of a Distributed System</h3>
+    <p>Each computer (node) in a distributed system can play different roles:</p>
+    <ul>
+      <li><strong>Client Node:</strong> Requests services from servers. Example: Your browser requesting a webpage.</li>
+      <li><strong>Server Node:</strong> Provides services to clients. Example: Apache web server, database server.</li>
+      <li><strong>Peer Node:</strong> Acts as both client and server simultaneously. Example: BitTorrent node — downloads from peers (client) while uploading to others (server).</li>
+      <li><strong>Worker/Compute Node:</strong> Executes tasks in a distributed computation framework. Example: Hadoop DataNode running MapReduce tasks.</li>
+    </ul>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 220" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="20" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="12" font-weight="bold">Distributed System — Basic Structure</text>
+        <!-- Node A -->
+        <rect x="20" y="40" width="120" height="70" rx="8" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="80" y="68" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="10" font-weight="bold">Node A</text>
+        <text x="80" y="83" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">CPU | Memory | OS</text>
+        <text x="80" y="98" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Client</text>
+        <!-- Node B -->
+        <rect x="220" y="40" width="120" height="70" rx="8" fill="#081820" stroke="#22d3ee" stroke-width="2"/>
+        <text x="280" y="68" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">Node B</text>
+        <text x="280" y="83" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">CPU | Memory | OS</text>
+        <text x="280" y="98" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Server</text>
+        <!-- Node C -->
+        <rect x="420" y="40" width="120" height="70" rx="8" fill="#081820" stroke="#a78bfa" stroke-width="2"/>
+        <text x="480" y="68" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="10" font-weight="bold">Node C</text>
+        <text x="480" y="83" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">CPU | Memory | OS</text>
+        <text x="480" y="98" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Peer</text>
+        <!-- Network bus -->
+        <rect x="20" y="155" width="520" height="36" rx="6" fill="#040d10" stroke="#133040" stroke-width="1.5"/>
+        <text x="280" y="177" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="10" font-weight="bold">COMMUNICATION NETWORK (LAN / WAN / Internet)</text>
+        <!-- Connectors -->
+        <line x1="80" y1="110" x2="80" y2="153" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4"/>
+        <line x1="280" y1="110" x2="280" y2="153" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4"/>
+        <line x1="480" y1="110" x2="480" y2="153" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="280" y="208" text-anchor="middle" fill="#2a4858" font-family="JetBrains Mono" font-size="9">Each node has its own CPU, memory, and OS — NO shared memory between nodes</text>
+      </svg>
+      <div class="diagram-cap">Fig: A Distributed System — multiple autonomous nodes connected via a network. Each node is completely independent yet they cooperate.</div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — DS Introduction</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1. What are the goals of a distributed system?</div>
+      <div class="pyq-meta"><span>2023 Part A Q1 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Goals</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Goals of a Distributed System (ROST):</strong><br><br>
+        1. <strong>Resource Sharing:</strong> Share hardware, software, and data across the network. Ex: shared printer, cloud files.<br>
+        2. <strong>Openness:</strong> Use standard protocols so components can be easily extended or replaced.<br>
+        3. <strong>Scalability:</strong> Remain effective as users/nodes/geography increases without redesign.<br>
+        4. <strong>Transparency:</strong> Hide distribution — access, location, replication, failure — from users.<br><br>
+        Additional goals: Fault Tolerance (continue despite partial failure), Performance (efficiency), Security.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1. What is a distributed system?</div>
+      <div class="pyq-meta"><span>2024 Part A Q1 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Definition</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed System</strong> is a collection of autonomous computers linked by a network with distributed system software enabling coordination and resource sharing, appearing to users as a single integrated computing facility.<br><br>
+        <strong>Key properties:</strong> Multiple autonomous computers · Connected via network · No shared memory · No common clock · Single coherent appearance to users.<br><br>
+        <strong>Examples:</strong> Internet, World Wide Web, cloud computing platforms (AWS), banking systems, airline reservation systems.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1. What is distributed system? Q2. What are the key features of distributed system?</div>
+      <div class="pyq-meta"><span>2025 Part A Q1+Q2 · 2+2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Definition + Features</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Q1 — Definition:</strong> A distributed system is a collection of autonomous computers connected through a network, coordinating their activities via message passing, appearing as one coherent system to users.<br><br>
+        <strong>Q2 — Key Features:</strong><br>
+        1. <strong>No shared memory</strong> — nodes communicate via message passing only<br>
+        2. <strong>No common clock</strong> — each node has its own local clock that may drift<br>
+        3. <strong>Concurrency</strong> — multiple processes run simultaneously across nodes<br>
+        4. <strong>Partial failures</strong> — some nodes can fail while others continue<br>
+        5. <strong>Heterogeneity</strong> — different hardware, OS, programming languages<br>
+        6. <strong>Scalability</strong> — easily add more nodes to increase capacity<br>
+        7. <strong>Openness</strong> — standard interfaces allow interoperability
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1(Part C). Explain the need of Distributed system and also explain its characteristics with example.</div>
+      <div class="pyq-meta"><span>2024 Part C Q1 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Need + Characteristics</span><span class="pred-tag">🔮 VERY HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Need for Distributed Systems:</strong><br>
+        1. <strong>Resource Sharing:</strong> Expensive resources (supercomputers, specialized printers) shared across users<br>
+        2. <strong>Reliability:</strong> No single point of failure — if one node crashes, others continue<br>
+        3. <strong>Speed:</strong> Parallel computation across many nodes solves large problems faster<br>
+        4. <strong>Geographic Distribution:</strong> Serve users near their location — reduced latency<br>
+        5. <strong>Economics:</strong> Connecting many cheap PCs is more cost-effective than one supercomputer<br>
+        6. <strong>Inherent Distribution:</strong> Some applications are inherently distributed (banking: branches nationwide)<br><br>
+        <strong>Characteristics of Distributed Systems:</strong><br>
+        1. <strong>Transparency:</strong> Access, location, migration, replication, concurrency, failure, persistence transparencies — all hide the distributed nature from users. <em>Example: Google Drive — you access a file without knowing which server holds it (location transparency).</em><br>
+        2. <strong>Scalability:</strong> Size scalability (more users), geographic scalability (wider area), administrative scalability (multiple organizations). <em>Example: Netflix scales from 100 to 10 million viewers seamlessly.</em><br>
+        3. <strong>Openness:</strong> System can be extended with new components; standard protocols used. <em>Example: Any browser can access any web server using HTTP.</em><br>
+        4. <strong>Fault Tolerance:</strong> System continues despite partial failures using redundancy. <em>Example: RAID storage — disk fails but data is accessible from replica.</em><br>
+        5. <strong>Concurrency:</strong> Multiple clients use shared resources simultaneously with coordination. <em>Example: Multiple users editing different Google Docs files simultaneously.</em><br>
+        6. <strong>Heterogeneity:</strong> Different hardware (Intel/ARM), OS (Linux/Windows), languages (Java/Python) interconnected.<br><br>
+        <strong>Challenges:</strong> Network failures, clock synchronization, security, consistency of shared data, coordination of concurrent access.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 02: FEATURES ═══════════ -->
+<section class="section" id="features">
+  <div class="section-header"><span class="section-num">02</span><h2 class="section-title">Features of Distributed Systems</h2></div>
+  <div class="theory-block">
+    <h3>Features vs Challenges — Two Sides of the Same Coin</h3>
+    <p>Every <strong>feature</strong> of a distributed system comes with a corresponding <strong>challenge</strong>. Understanding this duality is key to answering exam questions that ask about both.</p>
+    <div class="layman">Think of building a restaurant chain. The benefit is you can serve more customers (scalability). But the challenge is: how do you keep all branches consistent? How do you handle a fire in one branch without shutting everything down? Features = the benefits of going distributed. Challenges = the headaches that come with it.</div>
+    <table class="comp-table">
+      <tr><th>Feature</th><th>Benefit</th><th>Challenge</th><th>Example</th></tr>
+      <tr><td><strong>No Shared Memory</strong></td><td>True independence — no memory bottleneck</td><td>All communication must be explicit messages</td><td>Two ATMs don't share RAM; they message the bank server</td></tr>
+      <tr><td><strong>No Global Clock</strong></td><td>No clock synchronization hardware needed</td><td>Hard to establish "happened before" relationship</td><td>Two transactions on different servers — which came first?</td></tr>
+      <tr><td><strong>Concurrency</strong></td><td>Multiple tasks proceed simultaneously</td><td>Race conditions, deadlocks, inconsistency</td><td>Two users booking the last airline seat simultaneously</td></tr>
+      <tr><td><strong>Partial Failure</strong></td><td>System continues despite node crashes</td><td>Hard to know if remote node crashed or is just slow</td><td>Google stays up even when one data centre fails</td></tr>
+      <tr><td><strong>Heterogeneity</strong></td><td>Use best tool for each job (different OS, hardware)</td><td>Interoperability — different systems must understand each other</td><td>iPhone app talking to Windows server via REST API</td></tr>
+      <tr><td><strong>Scalability</strong></td><td>Grow by adding nodes, not replacing hardware</td><td>Performance bottlenecks at shared components (central coordinator)</td><td>Adding AWS EC2 instances under high load</td></tr>
+    </table>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Features → Why These Specific Goals</div>
+        <p>The "No shared memory" feature is WHY we need message passing (IPC — Unit 3). "No global clock" is WHY we need logical clocks (Lamport, Vector — this unit). "Partial failure" is WHY we need fault tolerance and Byzantine Agreement (Unit 6). Every later topic directly addresses one of these fundamental challenges.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 03: COMPUTATION PARADIGMS ═══════════ -->
+<section class="section" id="paradigms">
+  <div class="section-header"><span class="section-num">03</span><h2 class="section-title">Distributed Computation Paradigms</h2></div>
+  <div class="theory-block">
+    <h3>What are Computation Paradigms?</h3>
+    <p>A <span class="hl-v">computation paradigm</span> is a style or pattern of organizing distributed computation — how tasks are divided, how processes communicate, and how results are collected. Different paradigms suit different problem types.</p>
+    <div class="layman">Just like there are different styles of teamwork (everyone does the same job vs. everyone does a specialized job vs. one person coordinates all others), there are different styles of distributed computation. The paradigm is the "work style" of your distributed system.</div>
+    <div class="fbox">
+      <span class="flbl">6 Key Distributed Computation Paradigms</span>
+      <div class="fl">1. CLIENT-SERVER (most common):</div>
+      <div class="fl">   Clients request; servers respond. Asymmetric roles. Stateless or stateful.</div>
+      <div class="fl">   Example: Web browser (client) ↔ Apache web server</div>
+      <div class="fl"></div>
+      <div class="fl">2. PEER-TO-PEER (P2P):</div>
+      <div class="fl">   All nodes are equal — each acts as both client and server.</div>
+      <div class="fl">   No central authority. Example: BitTorrent, blockchain</div>
+      <div class="fl"></div>
+      <div class="fl">3. MESSAGE PASSING:</div>
+      <div class="fl">   Processes communicate via explicit send/receive primitives.</div>
+      <div class="fl">   Foundation of all distributed communication. Example: MPI (Message Passing Interface)</div>
+      <div class="fl"></div>
+      <div class="fl">4. SHARED MEMORY (virtual):</div>
+      <div class="fl">   Software creates illusion of shared memory across nodes (DSM).</div>
+      <div class="fl">   Familiar programming model. Example: TreadMarks DSM system</div>
+      <div class="fl"></div>
+      <div class="fl">5. DATAFLOW:</div>
+      <div class="fl">   Computation triggered when all input data is available.</div>
+      <div class="fl">   Good for stream processing. Example: Apache Spark streaming</div>
+      <div class="fl"></div>
+      <div class="fl">6. MOBILE AGENTS:</div>
+      <div class="fl">   Code migrates to data rather than data to code.</div>
+      <div class="fl">   Agent travels to nodes, executes, returns result. Example: web crawlers</div>
+      <div class="fn">Most exam questions focus on Client-Server and P2P. Message Passing connects to Unit 3.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 04: MODELS ═══════════ -->
+<section class="section" id="models">
+  <div class="section-header"><span class="section-num">04</span><h2 class="section-title">Models of Distributed Systems</h2></div>
+  <div class="theory-block">
+    <h3>Why Do We Need Models?</h3>
+    <p>A model is an abstraction that helps us reason about a distributed system's behavior, especially regarding failures, timing, and communication. RTU syllabus focuses on <strong>three key models</strong>.</p>
+    <div class="fbox">
+      <span class="flbl">Three Models of Distributed Systems</span>
+      <div class="fl">1. INTERACTION MODEL (Timing/Communication):</div>
+      <div class="fl">   Defines assumptions about message delivery time and process speed.</div>
+      <div class="fl">   → Synchronous Model: Known bounds on time (message delivery, process steps)</div>
+      <div class="fl">     Easier to reason about; can detect failures by timeout</div>
+      <div class="fl">   → Asynchronous Model: No timing bounds (the internet is asynchronous!)</div>
+      <div class="fl">     More realistic but harder — can't use timeouts to detect failures</div>
+      <div class="fl"></div>
+      <div class="fl">2. FAILURE MODEL:</div>
+      <div class="fl">   Defines what types of failures can occur.</div>
+      <div class="fl">   → Crash-stop: Process crashes and stops forever (simplest)</div>
+      <div class="fl">   → Omission: Process fails to send/receive messages</div>
+      <div class="fl">   → Byzantine: Process behaves arbitrarily (worst case — Unit 6)</div>
+      <div class="fl"></div>
+      <div class="fl">3. SECURITY MODEL:</div>
+      <div class="fl">   Defines threats: unauthorized access, eavesdropping, Trojan horses.</div>
+      <div class="fl">   Assumes an adversary may intercept or modify messages.</div>
+      <div class="fn">In exam: Synchronous vs Asynchronous is tested in Part B (2024 Q2: "Compare synchronous vs asynchronous execution")</div>
+    </div>
+    <h3>Synchronous vs Asynchronous — Key Comparison (2024 Part B Q2)</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Synchronous Model</th><th>Asynchronous Model</th></tr>
+      <tr><td>Message delivery time</td><td>Known upper bound</td><td>Unbounded (may take any time)</td></tr>
+      <tr><td>Process step time</td><td>Known bounds</td><td>No bounds</td></tr>
+      <tr><td>Failure detection</td><td>Easy — use timeout</td><td>Impossible to distinguish crash from slow</td></tr>
+      <tr><td>Real-world fit</td><td>Rare (special hardware)</td><td>The Internet, most real systems</td></tr>
+      <tr><td>Algorithm design</td><td>Easier</td><td>Harder — must handle all timing cases</td></tr>
+      <tr><td>Example</td><td>Real-time avionics network</td><td>TCP/IP internet communication</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 05: TYPES OF OS ═══════════ -->
+<section class="section" id="os-types">
+  <div class="section-header"><span class="section-num">05</span><h2 class="section-title">Types of Operating Systems</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part B Q1):</strong> "Discuss different types of operating systems used in distributed system" appeared as Part B Q1 in 2025 — a new anchor question. RTU's pattern confirms new Part B anchors persist for 2-3 years (confirmed by GAE in CC Unit 3). The 2023 paper tested NOS vs DOS in Part A Q2. VERY HIGH confidence for 2026.</div></div>
+  <div class="theory-block">
+    <h3>Overview</h3>
+    <p>There are four types of operating systems relevant to distributed systems, evolving from centralized to fully distributed. Understanding the difference between Network OS and Distributed OS is a common exam trap.</p>
+    <div class="layman">Imagine how an office can be organized: (1) One computer, everyone sits at terminals (centralized). (2) Everyone has their own PC but shares files over network drives (Network OS — you know it's on a remote machine). (3) A magical office where data appears from wherever it is, you can't tell what's local or remote (Distributed OS — transparent). (4) Many expert departments that work independently but share info when needed (Cooperative Autonomous).</div>
+
+    <h3>Type 1: Centralized OS</h3>
+    <p>A <span class="hl-v">Centralized OS</span> runs on a single processor (or tightly coupled multiprocessors) and manages all resources on that one machine. All processing happens centrally; users access via terminals.</p>
+    <ul>
+      <li><strong>Example:</strong> Early mainframe systems — IBM System/360. Users connect via dumb terminals.</li>
+      <li><strong>Advantage:</strong> Simple management, consistent view of all resources.</li>
+      <li><strong>Disadvantage:</strong> Single point of failure. Cannot scale. Not suitable for distributed applications.</li>
+    </ul>
+    <div class="fbox">
+      <div class="fl">User Terminals → Mainframe (Single CPU) → All Resources</div>
+      <div class="fn">Think: One brain, many arms. Modern equivalent: A powerful AWS EC2 instance that all users SSH into.</div>
+    </div>
+
+    <h3 class="cyan">Type 2: Network Operating System (NOS)</h3>
+    <p>A <span class="hl-v">Network Operating System</span> provides networking capabilities on top of individual machines. Each machine runs its own standalone OS; the NOS adds utilities for file sharing, printer sharing, and remote login. Users are <strong>aware</strong> of the network — they explicitly connect to specific machines.</p>
+    <ul>
+      <li><strong>Example:</strong> Windows Server with file shares, Novell NetWare, early Unix with NFS.</li>
+      <li><strong>Key Distinction:</strong> NOT transparent. User must know machine names (e.g., <code>\\FileServer\SharedDocs</code>).</li>
+      <li><strong>Services:</strong> File sharing, shared printing, user authentication (Active Directory), email.</li>
+      <li><strong>Advantage:</strong> Easy to understand and manage. Individual machines still work standalone.</li>
+      <li><strong>Disadvantage:</strong> No transparency. Moving files changes addresses. User must manage location.</li>
+    </ul>
+
+    <h3 class="orange">Type 3: Distributed Operating System (DOS)</h3>
+    <p>A <span class="hl-v">Distributed OS</span> provides a single, coherent view of all resources across all connected machines. Users and programs interact with a single OS interface — the distribution is completely hidden (transparent). The OS manages all nodes as if they were one computer.</p>
+    <ul>
+      <li><strong>Example:</strong> Amoeba OS (Tanenbaum's research OS), Plan 9 from Bell Labs, Sprite, V-System.</li>
+      <li><strong>Key Distinction:</strong> Full transparency. User never sees different machines — just one system.</li>
+      <li><strong>Components needed:</strong> Process migration, global naming, distributed memory management, global scheduling.</li>
+      <li><strong>Advantage:</strong> Highest transparency and ease of use. Best resource utilization.</li>
+      <li><strong>Disadvantage:</strong> Extremely complex to build. Few production systems achieve true DOS.</li>
+    </ul>
+
+    <h3 class="purple">Type 4: Cooperative Autonomous Systems</h3>
+    <p><span class="hl-v">Cooperative Autonomous Systems</span> are collections of independently managed systems that cooperate to accomplish tasks. Each system retains its own autonomy and administration but shares services with others when needed.</p>
+    <ul>
+      <li><strong>Example:</strong> The Internet itself — independent ISPs, universities, and companies cooperating via standard protocols. Grid computing (SETI@home). Service-oriented architectures (SOA) where independent microservices cooperate.</li>
+      <li><strong>Key feature:</strong> No central authority. Cooperation is voluntary and standards-based.</li>
+      <li><strong>Advantage:</strong> Scales globally. Each system maintains independence.</li>
+      <li><strong>Disadvantage:</strong> Harder to guarantee Quality of Service (QoS) across autonomous systems.</li>
+    </ul>
+
+    <h3 class="red">NOS vs DOS — The Classic Exam Trap (2023 Part A Q2)</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Network OS (NOS)</th><th>Distributed OS (DOS)</th></tr>
+      <tr><td>Transparency</td><td>❌ NO — user knows about different machines</td><td>✅ YES — single system image</td></tr>
+      <tr><td>User awareness</td><td>Must explicitly choose machines</td><td>Never sees individual machines</td></tr>
+      <tr><td>Process migration</td><td>Manual (FTP, SSH)</td><td>Automatic, transparent</td></tr>
+      <tr><td>Resource view</td><td>Each machine separate</td><td>All resources as one pool</td></tr>
+      <tr><td>Complexity</td><td>Simple to build</td><td>Very complex to implement</td></tr>
+      <tr><td>Real examples</td><td>Windows Server, NetWare</td><td>Amoeba, Plan 9 (research)</td></tr>
+      <tr><td>Failure isolation</td><td>One machine fails → that share unavailable</td><td>System-wide fault tolerance</td></tr>
+    </table>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Memory Trick — The KEY difference NOS vs DOS</div>
+        <p><strong>NOS:</strong> You know you're connecting to "FileServer" — like calling a specific person's phone. <strong>DOS:</strong> You just ask for "the file" and it appears — like shouting "call Mom!" to Alexa without knowing which device or phone number is used. <strong>Transparency = DOS. No transparency = NOS.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Types of OS</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q2. State the difference between distributed operating system and network operating system.</div>
+      <div class="pyq-meta"><span>2023 Part A Q2 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">NOS vs DOS</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Network OS (NOS):</strong> Provides networking capabilities on top of individual standalone OSes. Users are aware of different machines and must explicitly connect to them. No single system image. Ex: Windows Server.<br><br>
+        <strong>Distributed OS (DOS):</strong> Provides a single coherent system image across all nodes. Users see ONE system — distribution is transparent. Manages all nodes as one computer. Ex: Amoeba OS, Plan 9.<br><br>
+        <strong>Key difference:</strong> NOS = aware of distribution (no transparency). DOS = unaware of distribution (full transparency).
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1(Part B). Discuss different types of operating systems used in distributed system.</div>
+      <div class="pyq-meta"><span>2025 Part B Q1 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Types of OS</span><span class="pred-tag">🔮 VERY HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Four Types of OS in Distributed Systems:</strong><br><br>
+        <strong>1. Centralized OS:</strong> Single processor manages all resources. Users connect via terminals. Simple but single point of failure. Ex: Mainframe IBM System/360.<br><br>
+        <strong>2. Network OS (NOS):</strong> Each machine has its own OS; NOS adds networking services (file sharing, printing). User must know machine names — NOT transparent. Ex: Windows Server, NetWare.<br><br>
+        <strong>3. Distributed OS (DOS):</strong> Single coherent view across all nodes — completely transparent. OS manages all nodes as one system. Complex to implement. Ex: Amoeba, Plan 9.<br><br>
+        <strong>4. Cooperative Autonomous Systems:</strong> Independently managed systems that cooperate via standard protocols without central authority. Ex: Internet, Grid computing.<br><br>
+        [Draw a spectrum diagram: Centralized → NOS → DOS → Cooperative, with transparency increasing left to right]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 06: DESIGN ISSUES ═══════════ -->
+<section class="section" id="design-issues">
+  <div class="section-header"><span class="section-num">06</span><h2 class="section-title">Design Issues in Distributed OS</h2></div>
+  <div class="theory-block">
+    <h3>Overview</h3>
+    <p>Building a distributed OS involves solving fundamentally harder problems than a centralized OS. These are the core <span class="hl-v">design challenges</span> every distributed system designer faces — and every RTU examiner expects you to know.</p>
+    <div class="layman">Building a distributed OS is like managing a company with offices in 100 different cities with no phone or internet (just postal mail). You need to figure out: How do departments communicate? How do you give things a name that works everywhere? How do you handle an office burning down? How do you make sure two offices don't both sell the same item? These are the design issues.</div>
+    <div class="fbox">
+      <span class="flbl">8 Core Design Issues (RTU expects all 8)</span>
+      <div class="fl">1. NAMING AND TRANSPARENCY:</div>
+      <div class="fl">   How to identify resources (files, processes, nodes) uniquely across the system?</div>
+      <div class="fl">   Challenge: Same name must work regardless of location (location transparency)</div>
+      <div class="fl">   Solution: Distributed name service (DNS, LDAP, CORBA Naming Service)</div>
+      <div class="fl"></div>
+      <div class="fl">2. COMMUNICATION:</div>
+      <div class="fl">   No shared memory — all interaction via message passing over network</div>
+      <div class="fl">   Challenge: Messages can be lost, delayed, duplicated, or reordered</div>
+      <div class="fl">   Solution: Reliable transport protocols, RPC, message queues</div>
+      <div class="fl"></div>
+      <div class="fl">3. FAULT TOLERANCE AND RELIABILITY:</div>
+      <div class="fl">   Partial failures possible — how does system continue and recover?</div>
+      <div class="fl">   Challenge: Can't tell if remote node crashed or is just slow (asynchrony)</div>
+      <div class="fl">   Solution: Replication, checkpointing, distributed agreement protocols</div>
+      <div class="fl"></div>
+      <div class="fl">4. SYNCHRONIZATION AND CONCURRENCY CONTROL:</div>
+      <div class="fl">   Multiple processes access shared resources simultaneously</div>
+      <div class="fl">   Challenge: Race conditions, deadlocks in distributed setting</div>
+      <div class="fl">   Solution: Distributed locks, timestamps, optimistic concurrency control</div>
+      <div class="fl"></div>
+      <div class="fl">5. SCALABILITY:</div>
+      <div class="fl">   System must handle 10x users without redesign</div>
+      <div class="fl">   Challenge: Central bottlenecks, global data structures</div>
+      <div class="fl">   Solution: Decentralized algorithms, hierarchical structures</div>
+      <div class="fl"></div>
+      <div class="fl">6. SECURITY:</div>
+      <div class="fl">   Messages pass through untrusted networks — eavesdropping, forgery</div>
+      <div class="fl">   Challenge: Authentication without shared secret; secure communication</div>
+      <div class="fl">   Solution: Public-key cryptography, SSL/TLS, Kerberos</div>
+      <div class="fl"></div>
+      <div class="fl">7. HETEROGENEITY:</div>
+      <div class="fl">   Different hardware, OS, languages, data representations</div>
+      <div class="fl">   Challenge: A Java int (big-endian) differs from a C int (little-endian)</div>
+      <div class="fl">   Solution: Middleware (CORBA, JEE), standardized data formats (XML, JSON)</div>
+      <div class="fl"></div>
+      <div class="fl">8. PROCESS MANAGEMENT AND SCHEDULING:</div>
+      <div class="fl">   How to distribute processes across nodes for load balancing?</div>
+      <div class="fl">   Challenge: Dynamic workload, process migration cost</div>
+      <div class="fl">   Solution: Load balancing algorithms (sender-initiated, receiver-initiated)</div>
+      <div class="fn">RTU exam tip: "Design issues" questions — mention all 8 with a 1-line explanation each to fill pages.</div>
+    </div>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Design Issues → Entire Syllabus</div>
+        <p>Every remaining unit addresses one design issue: Communication → Unit 3 (RPC, IPC). Fault Tolerance → Unit 6 (Byzantine). Synchronization → Units 3,5 (Logical Clocks, DME). Process Management → Unit 4 (Scheduling). Naming → Unit 4 (DFS). Security → Cross-cutting. This is why design issues are foundational!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 07: GOALS & TRANSPARENCY ═══════════ -->
+<section class="section" id="goals">
+  <div class="section-header"><span class="section-num">07</span><h2 class="section-title">Goals, Transparency &amp; Services</h2></div>
+  <div class="theory-block">
+    <h3>Transparency in Distributed Systems — The 8 Types (EXAM CRITICAL)</h3>
+    <p><span class="hl-v">Transparency</span> is the concept of hiding the implementation details of the distributed system from users and applications. The ANSA/ISO Reference Model identifies 8 forms of transparency — RTU commonly asks for 5-6 of these.</p>
+    <div class="layman">Transparency in DS is like a great hotel concierge. You just say "I need a taxi" — you don't know which taxi company they call, whether they use an app or phone, or where the taxi is. The complexity is hidden from you. Each type of transparency hides a different kind of complexity from the user.</div>
+    <div class="fbox">
+      <span class="flbl">8 Types of Transparency — ALRMFCPP</span>
+      <div class="fl">1. ACCESS Transparency: Hide differences in data representation and invocation</div>
+      <div class="fl">   Example: Access a Unix file and a Windows file using same API</div>
+      <div class="fl"></div>
+      <div class="fl">2. LOCATION Transparency: Resource can be accessed without knowing physical location</div>
+      <div class="fl">   Example: www.google.com — same URL regardless of which data centre responds</div>
+      <div class="fl"></div>
+      <div class="fl">3. REPLICATION Transparency: Multiple copies of resource exist; user sees one</div>
+      <div class="fl">   Example: DNS is replicated worldwide; you never ask "which DNS copy?"</div>
+      <div class="fl"></div>
+      <div class="fl">4. MIGRATION (Relocation) Transparency: Resource can move without user noticing</div>
+      <div class="fl">   Example: Google migrates your file between data centres — URL unchanged</div>
+      <div class="fl"></div>
+      <div class="fl">5. FAILURE Transparency: System continues despite failures; user unaware</div>
+      <div class="fl">   Example: Netflix continues streaming when one server fails (CDN reroutes)</div>
+      <div class="fl"></div>
+      <div class="fl">6. CONCURRENCY Transparency: Multiple users access same resource; each feels alone</div>
+      <div class="fl">   Example: 1000 users edit different Google Sheets; no user sees others' lock waits</div>
+      <div class="fl"></div>
+      <div class="fl">7. PERFORMANCE Transparency: System can be reconfigured to improve performance</div>
+      <div class="fl">   Example: Cloud auto-scaling — 10x load handled without user noticing delay</div>
+      <div class="fl"></div>
+      <div class="fl">8. PERSISTENCE Transparency: Volatile/non-volatile nature of resource hidden</div>
+      <div class="fl">   Example: Object database — object saved/loaded transparently without File I/O</div>
+      <div class="fn">Memory trick: "ALRMFCPP" — Access, Location, Replication, Migration, Failure, Concurrency, Performance, Persistence</div>
+    </div>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Most Important Transparencies (Pick 5 if 4-mark)</div>
+        <p>RTU's most frequently tested: <strong>Location, Replication, Failure, Migration, Concurrency</strong> — these 5 cover all exam scenarios. For a 2-mark answer: "Key forms: location (no need to know where), replication (multiple copies hidden), failure (continues despite crashes), migration (resource can move), concurrency (multiple simultaneous users)."</p>
+      </div>
+    </div>
+
+    <h3 class="orange">Scalability Challenges and Solutions</h3>
+    <p>Scalability has three dimensions and corresponding solutions:</p>
+    <table class="comp-table">
+      <tr><th>Dimension</th><th>Challenge</th><th>Solution</th></tr>
+      <tr><td><strong>Size Scalability</strong></td><td>More users → central server overloaded</td><td>Decentralize: peer-to-peer, content distribution networks (CDN)</td></tr>
+      <tr><td><strong>Geographical Scalability</strong></td><td>High latency across continents</td><td>Replicate data near users; cache at edge locations</td></tr>
+      <tr><td><strong>Administrative Scalability</strong></td><td>Multiple organizations with conflicting policies</td><td>Federated administration; standard interfaces (REST, SOAP)</td></tr>
+    </table>
+
+    <h3 class="purple">Services in Distributed Systems</h3>
+    <p>Services are the fundamental units of functionality provided in a distributed system. A service has a <strong>well-defined interface</strong> — the service user doesn't need to know how the service is implemented.</p>
+    <div class="fbox">
+      <span class="flbl">Key Service Categories</span>
+      <div class="fl">Naming Service: Translates names to addresses (like DNS)</div>
+      <div class="fl">Time Service: Provides synchronized time across nodes (NTP)</div>
+      <div class="fl">Transaction Service: ACID guarantees for distributed operations</div>
+      <div class="fl">Security Service: Authentication, authorization, encryption</div>
+      <div class="fl">Directory Service: Look up users, resources, services (LDAP)</div>
+      <div class="fl">File Service: Distributed file access (NFS, AFS)</div>
+      <div class="fn">Service + Standard Interface = Service-Oriented Architecture (SOA) — the foundation of cloud computing</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 08: ARCHITECTURE MODELS ═══════════ -->
+<section class="section" id="arch-models">
+  <div class="section-header"><span class="section-num">08</span><h2 class="section-title">Architecture Models of Distributed Systems</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN (Part C Q1):</strong> "Explain the Architecture Models. How design issue affect the system performance?" appeared as Part C Q1 in 2025 (10 marks). Based on RTU's pattern of carrying important new Part C topics into the next year (confirmed by DS 2023, 2024 Part C consistency), Architecture Models is CERTAIN for 2026 Part C. Draw ALL diagrams for full marks.</div></div>
+  <div class="theory-block">
+    <h3>What are Architecture Models?</h3>
+    <p>An <span class="hl-v">architecture model</span> defines how the components of a distributed system are organized, how they interact with each other, and where they are placed. It provides a blueprint for building the system.</p>
+    <div class="layman">Architecture models are like city planning blueprints. They decide: Will the city have one giant central hub (Client-Server), or lots of equal neighborhoods (P2P)? Will there be specialized districts (multi-tier)? The blueprint doesn't build the city — it defines the structure. In distributed systems, the architecture model defines which machines talk to which, who has power, and who does what.</div>
+
+    <h3>1. Client-Server Architecture</h3>
+    <p>The most common model. <span class="hl-v">Clients</span> make requests; <span class="hl-v">servers</span> provide responses. Roles are fixed and asymmetric.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 520 180" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="260" y="18" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">Client-Server Architecture</text>
+        <!-- Clients -->
+        <rect x="10" y="40" width="100" height="45" rx="6" fill="#081820" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="60" y="66" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">Client 1</text>
+        <rect x="10" y="100" width="100" height="45" rx="6" fill="#081820" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="60" y="126" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">Client 2</text>
+        <!-- Server -->
+        <rect x="310" y="55" width="140" height="65" rx="8" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="380" y="84" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="10" font-weight="bold">SERVER</text>
+        <text x="380" y="100" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Files, DB, Web</text>
+        <!-- Arrows -->
+        <line x1="110" y1="62" x2="308" y2="82" stroke="#5a8aa0" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+        <line x1="110" y1="122" x2="308" y2="99" stroke="#5a8aa0" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+        <defs><marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#5a8aa0" stroke-width="1.5"/></marker></defs>
+        <text x="200" y="60" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">REQUEST →</text>
+        <text x="200" y="130" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">← RESPONSE</text>
+        <text x="260" y="165" text-anchor="middle" fill="#2a4858" font-family="JetBrains Mono" font-size="8">Fixed roles: Server provides service; Clients request it. Simple but server is bottleneck.</text>
+      </svg>
+      <div class="diagram-cap">Fig: Client-Server — asymmetric, well-understood, but server is a single point of failure</div>
+    </div>
+    <ul>
+      <li><strong>Advantages:</strong> Simple, well-understood, easy to secure (control at server), centralized management.</li>
+      <li><strong>Disadvantages:</strong> Server is a bottleneck and single point of failure. Does not scale well.</li>
+      <li><strong>Example:</strong> Web (browser ↔ Apache server), Email (Outlook ↔ Exchange), FTP.</li>
+    </ul>
+
+    <h3 class="cyan">2. Peer-to-Peer (P2P) Architecture</h3>
+    <p>All nodes are <span class="hl-v">peers</span> — equal in role. Each node can act as both client and server. No central coordinator.</p>
+    <ul>
+      <li><strong>Advantages:</strong> No single point of failure. Scales naturally. Fault tolerant.</li>
+      <li><strong>Disadvantages:</strong> Hard to manage, secure, and control quality. Finding resources is complex.</li>
+      <li><strong>Example:</strong> BitTorrent, blockchain (Bitcoin), Napster (original music sharing), Gnutella.</li>
+    </ul>
+
+    <h3 class="orange">3. Multi-Tier (N-Tier) Architecture</h3>
+    <p>Extends client-server by separating functionality into <span class="hl-v">multiple layers</span>, each deployed on separate machines. The classic is 3-tier:</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 520 170" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="260" y="18" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">3-Tier Architecture</text>
+        <rect x="10" y="38" width="140" height="55" rx="8" fill="#081820" stroke="#22d3ee" stroke-width="2"/>
+        <text x="80" y="62" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">Tier 1: Client</text>
+        <text x="80" y="78" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Presentation Layer</text>
+        <text x="80" y="90" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Browser, Mobile App</text>
+        <rect x="190" y="38" width="140" height="55" rx="8" fill="#081820" stroke="#f59e0b" stroke-width="2"/>
+        <text x="260" y="62" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="10" font-weight="bold">Tier 2: App Server</text>
+        <text x="260" y="78" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Business Logic</text>
+        <text x="260" y="90" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Node.js, Java EE</text>
+        <rect x="370" y="38" width="140" height="55" rx="8" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="440" y="62" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="10" font-weight="bold">Tier 3: DB Server</text>
+        <text x="440" y="78" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Data Layer</text>
+        <text x="440" y="90" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">MySQL, PostgreSQL</text>
+        <defs><marker id="ar2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#5a8aa0" stroke-width="1.5"/></marker></defs>
+        <line x1="150" y1="65" x2="188" y2="65" stroke="#5a8aa0" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <line x1="330" y1="65" x2="368" y2="65" stroke="#5a8aa0" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <text x="260" y="130" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Each tier independently scalable. Tier 2 handles business logic; neither client nor DB needs to change.</text>
+        <text x="260" y="148" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Example: E-commerce: Browser ↔ Product/Cart Logic ↔ Product Database</text>
+      </svg>
+      <div class="diagram-cap">Fig: 3-Tier Architecture — Presentation, Business Logic, and Data layers independently deployable and scalable</div>
+    </div>
+    <ul>
+      <li><strong>Advantages:</strong> Each tier can be scaled independently. Separation of concerns — change business logic without touching DB or UI. Better security.</li>
+      <li><strong>Disadvantages:</strong> More complex deployment. Network latency between tiers.</li>
+      <li><strong>Example:</strong> Every major web application — Amazon, Flipkart, banking portals.</li>
+    </ul>
+
+    <h3 class="purple">4. Service-Oriented Architecture (SOA)</h3>
+    <p>Applications built from loosely coupled, independently deployable <span class="hl-v">services</span> communicating via standard protocols (REST, SOAP). Each service has a well-defined interface.</p>
+    <ul>
+      <li><strong>Advantages:</strong> Reusability, interoperability, independent updates.</li>
+      <li><strong>Disadvantages:</strong> Service discovery overhead, governance complexity.</li>
+      <li><strong>Example:</strong> AWS offers 200+ independent services; each is a separate SOA service.</li>
+    </ul>
+
+    <h3>How Design Issues Affect System Performance (2025 Part C Q1)</h3>
+    <table class="comp-table">
+      <tr><th>Design Issue</th><th>Performance Impact</th><th>Mitigation</th></tr>
+      <tr><td>Communication Latency</td><td>Network delay dominates all operations — every remote call is 100x slower than local</td><td>Minimize round trips; use batching; place computation near data</td></tr>
+      <tr><td>Heterogeneity</td><td>Data marshalling/unmarshalling overhead at every boundary</td><td>Efficient serialization (Protocol Buffers, MessagePack instead of XML/JSON)</td></tr>
+      <tr><td>Fault Tolerance</td><td>Replication adds consistency overhead; 2PC adds latency</td><td>Use weaker consistency (eventual) where possible; async replication</td></tr>
+      <tr><td>Scalability</td><td>Central coordinator becomes bottleneck under load</td><td>Shard data, decentralize coordination, use consistent hashing</td></tr>
+      <tr><td>Security</td><td>Encryption (TLS) adds CPU overhead; authentication adds latency</td><td>Session tokens (JWT) avoid repeated auth; hardware acceleration for crypto</td></tr>
+    </table>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Full 10-Mark Answer Structure for Architecture Models</div>
+        <p>Introduction (1) + Client-Server diagram (2) + 3-Tier diagram (2) + P2P (1) + SOA (1) + Design issues table (3) = 10 marks. Always draw BOTH the client-server and 3-tier diagrams — examiners specifically check for them.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Architecture Models</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1(Part C). Explain the Architecture Models. How design issue affect the system performance?</div>
+      <div class="pyq-meta"><span>2025 Part C Q1 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Architecture Models</span><span class="pred-tag">🔮 CERTAIN 2026 Part C</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Architecture Models</strong> define how components of a distributed system are placed and interact:<br><br>
+        <strong>1. Client-Server:</strong> Clients request, servers respond. Asymmetric roles. Simple but server is bottleneck. Ex: web browsers + Apache server. [Draw Client→Server diagram]<br><br>
+        <strong>2. Peer-to-Peer:</strong> All nodes equal — each is both client and server. No single point of failure. Ex: BitTorrent, blockchain.<br><br>
+        <strong>3. Multi-Tier (3-Tier):</strong> Presentation (client) + Business Logic (app server) + Data (DB server). Each tier independently scalable. Ex: Amazon.com — browser, product logic server, database. [Draw 3-tier diagram]<br><br>
+        <strong>4. Service-Oriented (SOA):</strong> Loosely coupled services with standard interfaces (REST, SOAP). Reusable, interoperable. Ex: AWS 200+ services.<br><br>
+        <strong>How Design Issues Affect Performance:</strong><br>
+        · Communication Latency: Network calls 100x slower than local → minimize round trips<br>
+        · Heterogeneity: Marshalling overhead at every boundary → efficient serialization<br>
+        · Fault Tolerance: Replication adds consistency overhead → use async replication<br>
+        · Scalability: Central coordinator bottleneck → shard and decentralize<br>
+        · Security: Encryption overhead → hardware acceleration, session tokens<br><br>
+        [Draw both diagrams: Client-Server + 3-Tier for full marks]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 09: DCE ═══════════ -->
+<section class="section" id="dce">
+  <div class="section-header"><span class="section-num">09</span><h2 class="section-title">Distributed Computing Environment (DCE)</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — VERY HIGH (Part B):</strong> "Define distributed computing environment (DCE)" appeared as Part A Q2 in 2024 and "Explain the role of distributed computing environment" appeared as Part B Q2 in 2025. Two consecutive years with increasing question weight. VERY HIGH for 2026 — likely Part B Q2 again.</div></div>
+  <div class="theory-block">
+    <h3>What is DCE?</h3>
+    <p><span class="hl-v">Distributed Computing Environment (DCE)</span> is a set of software technologies developed by the Open Software Foundation (OSF) that provides a comprehensive framework for building distributed applications that work across heterogeneous hardware, OS, and network environments. DCE enables software running on different machines from different vendors to work together seamlessly.</p>
+    <div class="layman">Imagine you have workers using Windows, Mac, and Linux computers in different cities. They need to communicate and share files seamlessly. DCE is like a universal translator and coordinator — it hides all the differences between operating systems and machines, and gives everyone a common language and set of tools. You write your application once using DCE services, and it works everywhere.</div>
+    <h3>DCE Core Components (RTU 2025 Part B Q2)</h3>
+    <div class="fbox">
+      <span class="flbl">DCE — 6 Core Services (D-REMOTE)</span>
+      <div class="fl">1. REMOTE PROCEDURE CALL (RPC):</div>
+      <div class="fl">   The heart of DCE. Allows a program to call a procedure on a remote machine</div>
+      <div class="fl">   transparently as if it were local. Based on the Sun RPC mechanism.</div>
+      <div class="fl">   Components: Client stub → Network → Server stub → Actual procedure</div>
+      <div class="fl"></div>
+      <div class="fl">2. DIRECTORY SERVICES (CDS — Cell Directory Service):</div>
+      <div class="fl">   Naming service that maps logical names to network locations</div>
+      <div class="fl">   Global Directory Service (GDS): for world-wide name resolution</div>
+      <div class="fl">   Cell Directory Service (CDS): local naming within a DCE cell</div>
+      <div class="fl"></div>
+      <div class="fl">3. DISTRIBUTED FILE SYSTEM (DFS):</div>
+      <div class="fl">   Provides access to files on remote machines as if they were local</div>
+      <div class="fl">   Based on AFS (Andrew File System) — supports caching, replication</div>
+      <div class="fl"></div>
+      <div class="fl">4. DISTRIBUTED TIME SERVICE (DTS):</div>
+      <div class="fl">   Synchronizes clocks across all DCE nodes to a global time source</div>
+      <div class="fl">   Essential for ordering events and transaction timestamps</div>
+      <div class="fl"></div>
+      <div class="fl">5. SECURITY SERVICE:</div>
+      <div class="fl">   Authentication using Kerberos protocol (ticket-based)</div>
+      <div class="fl">   Authorization: Access Control Lists (ACLs)</div>
+      <div class="fl">   Encryption: DES-based encryption of communications</div>
+      <div class="fl"></div>
+      <div class="fl">6. THREADS SERVICE:</div>
+      <div class="fl">   POSIX-compliant thread library for concurrent programming</div>
+      <div class="fl">   Allows servers to handle multiple requests simultaneously</div>
+      <div class="fn">DCE "Cell" = administrative unit — a group of machines managed together. Can span multiple LANs.</div>
+    </div>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 260" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="20" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="12" font-weight="bold">DCE Architecture</text>
+        <!-- Application layer -->
+        <rect x="20" y="35" width="520" height="40" rx="6" fill="#0c2030" stroke="#a78bfa" stroke-width="2"/>
+        <text x="280" y="60" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="10" font-weight="bold">Distributed Applications</text>
+        <!-- DCE Services -->
+        <rect x="20" y="85" width="100" height="55" rx="6" fill="#081820" stroke="#10b981" stroke-width="1.5"/>
+        <text x="70" y="108" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">DCE RPC</text>
+        <text x="70" y="124" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Remote calls</text>
+        <rect x="130" y="85" width="100" height="55" rx="6" fill="#081820" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="180" y="108" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">Directory</text>
+        <text x="180" y="124" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">CDS / GDS</text>
+        <rect x="240" y="85" width="100" height="55" rx="6" fill="#081820" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="290" y="108" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="9" font-weight="bold">DFS</text>
+        <text x="290" y="124" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Distributed files</text>
+        <rect x="350" y="85" width="100" height="55" rx="6" fill="#081820" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="400" y="108" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="9" font-weight="bold">Security</text>
+        <text x="400" y="124" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Kerberos/ACL</text>
+        <rect x="460" y="85" width="80" height="55" rx="6" fill="#081820" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="500" y="108" text-anchor="middle" fill="#3b82f6" font-family="JetBrains Mono" font-size="9" font-weight="bold">DTS</text>
+        <text x="500" y="124" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Time sync</text>
+        <!-- OS layer -->
+        <rect x="20" y="150" width="520" height="40" rx="6" fill="#030c14" stroke="#133040" stroke-width="1.5"/>
+        <text x="280" y="175" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="10">Native OS (UNIX, Windows, AIX, Solaris...)</text>
+        <!-- Hardware -->
+        <rect x="20" y="200" width="520" height="40" rx="6" fill="#030c14" stroke="#133040" stroke-width="1.5"/>
+        <text x="280" y="225" text-anchor="middle" fill="#2a4858" font-family="JetBrains Mono" font-size="10">Hardware (Different CPU architectures: Intel, SPARC, MIPS...)</text>
+        <text x="280" y="252" text-anchor="middle" fill="#2a4858" font-family="JetBrains Mono" font-size="9">DCE sits between the application and the OS — provides uniform services despite heterogeneous underlying systems</text>
+      </svg>
+      <div class="diagram-cap">Fig: DCE Architecture — DCE services layer between applications and heterogeneous OS/hardware</div>
+    </div>
+    <h3 class="orange">DCE vs. Modern Alternatives</h3>
+    <p>DCE was the 1990s standard for distributed computing. Modern systems replaced DCE components with simpler alternatives:</p>
+    <table class="comp-table">
+      <tr><th>DCE Component</th><th>Modern Equivalent</th></tr>
+      <tr><td>DCE RPC</td><td>REST APIs, gRPC, SOAP</td></tr>
+      <tr><td>CDS/GDS (Naming)</td><td>DNS, Consul, ZooKeeper service discovery</td></tr>
+      <tr><td>DCE DFS</td><td>NFS v4, HDFS, Amazon S3</td></tr>
+      <tr><td>DCE Security (Kerberos)</td><td>OAuth 2.0, JWT, TLS certificates</td></tr>
+      <tr><td>DCE DTS (Time Sync)</td><td>NTP (Network Time Protocol), PTP</td></tr>
+    </table>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — DCE</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q2. Define distributed computing environment (DCE).</div>
+      <div class="pyq-meta"><span>2024 Part A Q2 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">DCE</span><span class="pred-tag">🔮 VERY HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>DCE (Distributed Computing Environment)</strong> is a set of software technologies developed by OSF (Open Software Foundation) that provides a framework for building distributed applications across heterogeneous hardware, OS, and networks.<br><br>
+        <strong>Key Components:</strong> DCE RPC (remote procedure calls) · CDS/GDS (naming/directory services) · DFS (distributed file system) · DTS (distributed time service) · Security (Kerberos authentication) · Threads (concurrent processing).<br><br>
+        <strong>Goal:</strong> Enable applications on different machines (different OS, hardware) to communicate seamlessly as if on one system.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q2(Part B). Explain the role of distributed computing environment.</div>
+      <div class="pyq-meta"><span>2025 Part B Q2 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">DCE Role</span><span class="pred-tag">🔮 VERY HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Role of DCE:</strong><br><br>
+        1. <strong>Interoperability:</strong> Enables applications on different hardware (Intel, SPARC) and OS (Unix, Windows) to communicate via standard DCE RPC mechanism.<br><br>
+        2. <strong>Naming &amp; Discovery:</strong> CDS/GDS provides a global naming service — applications find resources by name, not network address. Provides location transparency.<br><br>
+        3. <strong>Security:</strong> Kerberos-based authentication ensures only authorized users access remote services. ACLs control access to resources.<br><br>
+        4. <strong>Time Synchronization:</strong> DTS keeps all clocks synchronized — critical for ordering transactions and events across nodes.<br><br>
+        5. <strong>Distributed File Access:</strong> DFS makes remote files accessible as if local — provides a uniform file namespace across all DCE cells.<br><br>
+        6. <strong>Concurrency:</strong> Threads service allows servers to handle multiple simultaneous client requests.<br><br>
+        [Draw DCE Architecture diagram with 5 service boxes above OS layer]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 10: TIME & CLOCKS ═══════════ -->
+<section class="section" id="time">
+  <div class="section-header"><span class="section-num">10</span><h2 class="section-title">Time, Clocks &amp; Event Precedence</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — VERY HIGH (Part A Q3 + Part B Q1):</strong> "Explain concept of logical clocks" appeared in 2023 Part A Q5. Absent in 2024 and 2025 — a 2-year gap. The 2-year gap pattern is the STRONGEST return signal in RTU (confirmed by CAO, DIP, ML). "Distinguish physical vs logical clock" appeared in 2024 Part B Q3. Lamport+Vector clock appeared in 2023 Part C Q4. VERY HIGH for return in 2026.</div></div>
+  <div class="theory-block">
+    <h3>Why is Time a Problem in Distributed Systems?</h3>
+    <p>In a single computer, time is trivial — the OS has one clock, all processes use it. In a distributed system, <strong>each machine has its own clock</strong> and these clocks <strong>drift apart</strong> over time. There is <strong>no global clock</strong>. This creates a fundamental problem: we can't use timestamps to determine the order of events.</p>
+    <div class="layman">Imagine you and your friend in different cities are running a relay race. You each have different stopwatches. Your watch says you started at 10:00:01 and your friend's says they received the baton at 10:00:00. Who went first? It looks like your friend started before you passed the baton — impossible! The clocks are out of sync. Distributed systems have this exact problem, and Lamport clocks are the solution.</div>
+    <h3>Physical Clocks vs Logical Clocks (2024 Part B Q3)</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Physical Clock</th><th>Logical Clock</th></tr>
+      <tr><td>What it measures</td><td>Real wall-clock time</td><td>Order of events (not real time)</td></tr>
+      <tr><td>Basis</td><td>Crystal oscillator hardware</td><td>Software counter</td></tr>
+      <tr><td>Problem</td><td>Clocks drift — never perfectly synchronized</td><td>No drift — counter incremented on events</td></tr>
+      <tr><td>Use in DS</td><td>Impractical — NTP gives ±50ms error</td><td>Sufficient for causality ordering</td></tr>
+      <tr><td>What it tells</td><td>"It is 14:32:05" (absolute time)</td><td>"Event A happened before Event B" (relative order)</td></tr>
+      <tr><td>Algorithm</td><td>NTP, GPS sync</td><td>Lamport's Algorithm, Vector Clocks</td></tr>
+    </table>
+
+    <h3>The "Happened-Before" Relation (→)</h3>
+    <p><span class="hl-v">Happened-before</span> (denoted →) is Lamport's key insight for ordering events without physical clocks. It captures causality:</p>
+    <div class="fbox">
+      <span class="flbl">Happened-Before (→) — Definition</span>
+      <div class="fl">A → B (A happened before B) if ANY of these is true:</div>
+      <div class="fl">  Rule 1: A and B are in the same process, and A occurs before B</div>
+      <div class="fl">  Rule 2: A is the sending of a message and B is the receiving of that message</div>
+      <div class="fl">  Rule 3: If A → C and C → B, then A → B (transitivity)</div>
+      <div class="fl"></div>
+      <div class="fl">CONCURRENT events: If neither A→B nor B→A, then A and B are CONCURRENT (||)</div>
+      <div class="fl">  Concurrent means: neither causally influences the other</div>
+      <div class="fn">Key insight: "A happened before B" means A COULD HAVE CAUSED B. It doesn't mean A physically occurred before B on a wall clock.</div>
+    </div>
+
+    <h3 class="cyan">Lamport's Logical Clock Algorithm (2023 Part A Q5, 2023 Part C Q4)</h3>
+    <p>Each process Pi maintains a counter Ci (initially 0):</p>
+    <div class="fbox">
+      <span class="flbl">Lamport Clock Rules (Memorize All 3)</span>
+      <div class="fl">LC1: Before executing any event, Pi increments its counter: Ci = Ci + 1</div>
+      <div class="fl">LC2: When Pi sends a message m, it sets timestamp t = Ci and sends (m, t)</div>
+      <div class="fl">LC3: When Pj receives (m, t):</div>
+      <div class="fl">       Cj = max(Cj, t) + 1</div>
+      <div class="fl">     [Take max of local counter and received timestamp, then increment]</div>
+      <div class="fn">Key property: If A → B then C(A) &lt; C(B). BUT: C(A) &lt; C(B) does NOT imply A → B (they may be concurrent).</div>
+    </div>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 240" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="20" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">Lamport Clock — Space-Time Diagram</text>
+        <!-- Process lines -->
+        <line x1="80" y1="40" x2="80" y2="210" stroke="#22d3ee" stroke-width="2"/>
+        <line x1="280" y1="40" x2="280" y2="210" stroke="#f59e0b" stroke-width="2"/>
+        <line x1="480" y1="40" x2="480" y2="210" stroke="#a78bfa" stroke-width="2"/>
+        <text x="80" y="35" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">P1</text>
+        <text x="280" y="35" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="9" font-weight="bold">P2</text>
+        <text x="480" y="35" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">P3</text>
+        <!-- Events P1 -->
+        <circle cx="80" cy="60" r="6" fill="#22d3ee"/>
+        <text x="55" y="64" fill="#22d3ee" font-family="JetBrains Mono" font-size="9">a(1)</text>
+        <circle cx="80" cy="110" r="6" fill="#22d3ee"/>
+        <text x="55" y="114" fill="#22d3ee" font-family="JetBrains Mono" font-size="9">b(2)</text>
+        <circle cx="80" cy="170" r="6" fill="#22d3ee"/>
+        <text x="55" y="174" fill="#22d3ee" font-family="JetBrains Mono" font-size="9">c(4)</text>
+        <!-- Events P2 -->
+        <circle cx="280" cy="80" r="6" fill="#f59e0b"/>
+        <text x="255" y="84" fill="#f59e0b" font-family="JetBrains Mono" font-size="9">d(3)</text>
+        <circle cx="280" cy="140" r="6" fill="#f59e0b"/>
+        <text x="255" y="144" fill="#f59e0b" font-family="JetBrains Mono" font-size="9">e(5)</text>
+        <!-- Events P3 -->
+        <circle cx="480" cy="100" r="6" fill="#a78bfa"/>
+        <text x="490" y="104" fill="#a78bfa" font-family="JetBrains Mono" font-size="9">f(1)</text>
+        <circle cx="480" cy="160" r="6" fill="#a78bfa"/>
+        <text x="490" y="164" fill="#a78bfa" font-family="JetBrains Mono" font-size="9">g(6)</text>
+        <!-- Messages -->
+        <defs><marker id="ar3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#5a8aa0" stroke-width="1.5"/></marker></defs>
+        <!-- P1 b(2) → P2 d(3) -->
+        <line x1="80" y1="110" x2="278" y2="80" stroke="#10b981" stroke-width="1.5" marker-end="url(#ar3)"/>
+        <text x="180" y="88" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">send(2)→receive:max(0,2)+1=3</text>
+        <!-- P2 e(5) → P1 c(4) -->
+        <line x1="280" y1="140" x2="82" y2="170" stroke="#10b981" stroke-width="1.5" marker-end="url(#ar3)"/>
+        <text x="180" y="170" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">send(5)→receive:max(3,5)+1=6? No, c=4 here</text>
+        <!-- P3 to P2 -->
+        <line x1="480" y1="100" x2="282" y2="140" stroke="#10b981" stroke-width="1.5" marker-end="url(#ar3)"/>
+        <text x="385" y="118" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">send(1)→max(3,1)+1=5</text>
+        <text x="280" y="228" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Lamport Timestamps in brackets. Messages always carry sender's timestamp. Receiver takes max+1.</text>
+      </svg>
+      <div class="diagram-cap">Fig: Lamport Clock Space-Time Diagram. Numbers in brackets = Lamport timestamps. Arrows = messages between processes.</div>
+    </div>
+
+    <h3 class="orange">Vector Clocks — Detecting Concurrency</h3>
+    <p>Lamport clocks have a limitation: <code>C(A) &lt; C(B)</code> does NOT mean A happened before B. <span class="hl-v">Vector Clocks</span> solve this by assigning a <strong>vector of n counters</strong> (one per process) to each event, enabling detection of concurrent events.</p>
+    <div class="fbox">
+      <span class="flbl">Vector Clock Rules (n processes)</span>
+      <div class="fl">Each process Pi maintains vector Vi[1..n], all initially zero.</div>
+      <div class="fl"></div>
+      <div class="fl">VC1: Before event: Vi[i] = Vi[i] + 1</div>
+      <div class="fl">VC2: Send message: attach entire vector Vi</div>
+      <div class="fl">VC3: Receive message with vector Vj:</div>
+      <div class="fl">       For each k: Vi[k] = max(Vi[k], Vj[k])</div>
+      <div class="fl">       Then: Vi[i] = Vi[i] + 1</div>
+      <div class="fl"></div>
+      <div class="fl">COMPARISON RULES:</div>
+      <div class="fl">  Va = Vb   iff  Va[k] = Vb[k]  for all k</div>
+      <div class="fl">  Va &lt; Vb   iff  Va[k] ≤ Vb[k] for ALL k, AND Va ≠ Vb  →  A happened before B</div>
+      <div class="fl">  Va || Vb  iff  neither Va &lt; Vb nor Vb &lt; Va  →  A and B are CONCURRENT</div>
+      <div class="fn">Vector Clocks vs Lamport: Vector Clocks CAN detect concurrent events. Lamport Clocks CANNOT. Lamport: O(1) overhead. Vector: O(n) overhead per message.</div>
+    </div>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Lamport vs Vector in One Line</div>
+        <p><strong>Lamport Clock</strong>: If A→B then C(A)&lt;C(B). Simple counter. Cannot detect concurrency.<br><strong>Vector Clock</strong>: Va&lt;Vb iff A→B. Va||Vb iff concurrent. Detects concurrency. O(n) overhead.<br>Draw the space-time diagram with 3 processes for full Part B/C marks.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Time, Clocks</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q5. Explain concept of logical clocks.</div>
+      <div class="pyq-meta"><span>2023 Part A Q5 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Logical Clocks</span><span class="pred-tag">🔮 VERY HIGH 2026 (2yr absence)</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Logical Clocks</strong> are software counters used to order events in a distributed system without relying on physical time. Introduced by Lamport (1978).<br><br>
+        <strong>Need:</strong> Physical clocks on different machines drift — cannot perfectly synchronize. We need to determine "which event happened first" without real time.<br><br>
+        <strong>Lamport's Rules:</strong><br>
+        · Rule 1: Before any event, increment counter: C = C + 1<br>
+        · Rule 2: On receiving message with timestamp T: C = max(C, T) + 1<br><br>
+        <strong>Property:</strong> If A→B then C(A) &lt; C(B). Limitation: C(A) &lt; C(B) does NOT imply A→B — concurrent events may get ordered.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3(Part B). Distinguish between physical clock and logical clock.</div>
+      <div class="pyq-meta"><span>2024 Part B Q3 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Physical vs Logical Clock</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        Use the comparison table above (Physical vs Logical Clock section). Additionally:<br><br>
+        <strong>Physical Clock:</strong> Based on hardware oscillator. Measures real time. Clocks drift: typical quartz crystal drifts 10-100 ppm → 1 sec error per day. NTP can synchronize to ±50ms but that's too imprecise for distributed transactions.<br><br>
+        <strong>Logical Clock (Lamport):</strong> Software counter incremented on events. No hardware. Cannot tell real time. Can only tell relative order. Rules: increment before event, take max+1 on receive.<br><br>
+        <strong>Key insight:</strong> In DS, we usually don't need real time — we only need to know "did A happen before B?" Logical clocks answer this cheaply. [Draw comparison table + space-time diagram]
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q4(Part C). Explain lamport's clock and vector clock with the help of suitable example.</div>
+      <div class="pyq-meta"><span>2023 Part C Q4 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Lamport + Vector Clocks</span><span class="pred-tag">🔮 VERY HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Lamport's Logical Clock:</strong> Software counter capturing "happened before" (→) relationship.<br><br>
+        Rules: (1) Before event: Ci++. (2) Send: attach Ci. (3) Receive (m,t): Ci = max(Ci,t)+1.<br><br>
+        Example: P1 sends m at C=2. P2 receives m when C=0. P2's new C = max(0,2)+1 = 3.<br><br>
+        Property: A→B ⟹ C(A) &lt; C(B). BUT reverse not guaranteed.<br><br>
+        <strong>Vector Clock:</strong> n-element vector (one counter per process). Captures causality fully.<br><br>
+        Rules: (1) Before event: Vi[i]++. (2) Send: attach Vi. (3) Receive (m, Vj): Vi[k]=max(Vi[k],Vj[k]) ∀k, then Vi[i]++.<br><br>
+        Comparison: Va &lt; Vb (A happened before B), Va || Vb (concurrent).<br><br>
+        [Draw space-time diagram with 3 processes, show clock values at each event]<br><br>
+        <strong>Lamport vs Vector:</strong> Lamport: O(1), cannot detect concurrency. Vector: O(n), detects concurrency fully.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q6(Part B). How state of a distributed system is recorded? Explain by suitable diagram.</div>
+      <div class="pyq-meta"><span>2023 Part B Q6 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Distributed Snapshots</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        See the next section (Distributed Snapshots) for the complete answer.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 11: RECORDING STATE / SNAPSHOTS ═══════════ -->
+<section class="section" id="snapshots">
+  <div class="section-header"><span class="section-num">11</span><h2 class="section-title">Recording State of Distributed Systems</h2></div>
+  <div class="theory-block">
+    <h3>The Global State Problem</h3>
+    <p>In a single computer, recording state is trivial — pause the OS, copy all memory and registers. In a distributed system, we <strong>cannot pause all processes simultaneously</strong> (no global clock, no shared memory). Yet we need to capture a consistent global state for:</p>
+    <ul>
+      <li>Deadlock detection (is there a cycle in the wait-for graph?)</li>
+      <li>Termination detection (has the distributed computation finished?)</li>
+      <li>Checkpointing for fault tolerance</li>
+      <li>Garbage collection of distributed objects</li>
+    </ul>
+    <div class="layman">Imagine photographing a busy highway at rush hour. You can't stop all cars simultaneously — you can only photograph one car at a time. Yet you want a snapshot showing the positions of ALL cars at "one moment." If car A has already moved past car B when you photograph B, your snapshot might be inconsistent. Chandy-Lamport's algorithm solves this — it finds a consistent global snapshot even without stopping all processes simultaneously.</div>
+
+    <h3>Consistent Global State</h3>
+    <p>A <span class="hl-v">global state</span> of a distributed system consists of the local states of each process plus the state of all communication channels (messages in transit). A global state is <span class="hl-v">consistent</span> if it could have occurred in some correct execution — no message was recorded as received without being recorded as sent.</p>
+    <div class="fbox">
+      <span class="flbl">Consistency Rule</span>
+      <div class="fl">For each message m:</div>
+      <div class="fl">  If m is recorded as RECEIVED in the global snapshot,</div>
+      <div class="fl">  then m MUST be recorded as SENT in the same snapshot.</div>
+      <div class="fl">  (Can't receive what wasn't sent)</div>
+      <div class="fl"></div>
+      <div class="fl">INCONSISTENT: P1 records "sent m" in snapshot, P2 records "already received m"</div>
+      <div class="fl">  → Message appears neither in transit nor received — it "disappeared"!</div>
+      <div class="fn">A consistent snapshot is also called a "cut" in the space-time diagram where all arrow heads are to the RIGHT of the cut line.</div>
+    </div>
+
+    <h3 class="cyan">Chandy-Lamport Snapshot Algorithm</h3>
+    <p>The most famous distributed snapshot algorithm. Uses <span class="hl-v">MARKER messages</span> to record state without stopping any processes.</p>
+    <div class="fbox">
+      <span class="flbl">Chandy-Lamport Algorithm — Steps</span>
+      <div class="fl">INITIATOR (any process Pi that wants to start a snapshot):</div>
+      <div class="fl">  1. Record own local state (LSi)</div>
+      <div class="fl">  2. Send a MARKER message on ALL outgoing channels</div>
+      <div class="fl">  3. Start recording incoming messages on all incoming channels</div>
+      <div class="fl"></div>
+      <div class="fl">ON RECEIVING A MARKER on channel Cij at process Pj:</div>
+      <div class="fl">  Case A: Pj has NOT yet recorded its state:</div>
+      <div class="fl">    → Record Pj's local state (LSj)</div>
+      <div class="fl">    → Set channel state of Cij = EMPTY</div>
+      <div class="fl">    → Send MARKER on ALL of Pj's outgoing channels</div>
+      <div class="fl">    → Start recording messages on all other incoming channels</div>
+      <div class="fl">  Case B: Pj HAS already recorded its state:</div>
+      <div class="fl">    → Channel state of Cij = all messages received on Cij SINCE Pj recorded state</div>
+      <div class="fl"></div>
+      <div class="fl">TERMINATION: When every process has received MARKER on all incoming channels.</div>
+      <div class="fl">Global snapshot = ∪(local states) + ∪(channel states)</div>
+      <div class="fn">Key insight: MARKER acts as a "time boundary" — everything before MARKER is in the snapshot, everything after is not.</div>
+    </div>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 220" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="280" y="18" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">Chandy-Lamport Snapshot Algorithm</text>
+        <!-- Process lines -->
+        <line x1="80" y1="35" x2="80" y2="200" stroke="#22d3ee" stroke-width="2"/>
+        <line x1="480" y1="35" x2="480" y2="200" stroke="#a78bfa" stroke-width="2"/>
+        <text x="80" y="30" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">P1 (Initiator)</text>
+        <text x="480" y="30" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">P2</text>
+        <!-- SNAPSHOT point on P1 -->
+        <rect x="50" y="70" width="60" height="22" rx="4" fill="#ef4444" opacity="0.8"/>
+        <text x="80" y="85" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="8" font-weight="bold">SNAP LS1</text>
+        <!-- Regular message before snapshot -->
+        <circle cx="80" cy="60" r="4" fill="#22d3ee"/>
+        <circle cx="480" cy="120" r="4" fill="#a78bfa"/>
+        <line x1="80" y1="60" x2="478" y2="120" stroke="#5a8aa0" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="280" y="82" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">message m1 (before snapshot)</text>
+        <!-- MARKER message -->
+        <rect x="50" y="92" width="60" height="18" rx="3" fill="#f59e0b" opacity="0.9"/>
+        <text x="80" y="105" text-anchor="middle" fill="#000" font-family="JetBrains Mono" font-size="8" font-weight="bold">MARKER →</text>
+        <line x1="110" y1="96" x2="478" y2="148" stroke="#f59e0b" stroke-width="2"/>
+        <text x="280" y="118" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">MARKER (triggers P2 snapshot)</text>
+        <!-- P2 records state -->
+        <rect x="450" y="148" width="60" height="22" rx="4" fill="#ef4444" opacity="0.8"/>
+        <text x="480" y="163" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="8" font-weight="bold">SNAP LS2</text>
+        <!-- Channel state annotation -->
+        <text x="280" y="190" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Channel state = messages received AFTER P2 recorded state BEFORE P2 received marker</text>
+        <text x="280" y="207" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">Here: m1 was sent before MARKER but received after P2 snapshot → m1 is in channel state</text>
+      </svg>
+      <div class="diagram-cap">Fig: Chandy-Lamport Algorithm — P1 records state, sends MARKER. P2 records state when MARKER arrives. Channel state captured between snapshot and MARKER receipt.</div>
+    </div>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Snapshots Answer Structure</div>
+        <p>Problem statement (2) + Consistent global state definition (1) + Chandy-Lamport algorithm steps (4) + Diagram (2) + Applications (1) = 10 marks. Always mention applications: deadlock detection, termination detection, checkpointing.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Recording State</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q6(Part B). How state of a distributed system is recorded? Explain by suitable diagram.</div>
+      <div class="pyq-meta"><span>2023 Part B Q6 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">Distributed Snapshots</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Problem:</strong> In DS, no global clock and no shared memory — cannot pause all processes simultaneously to take a snapshot.<br><br>
+        <strong>Solution: Chandy-Lamport Distributed Snapshot Algorithm (1985)</strong><br><br>
+        <strong>Key Concepts:</strong><br>
+        · <strong>Local State:</strong> State of one process (registers, variables, files open)<br>
+        · <strong>Channel State:</strong> Messages currently in transit on a channel<br>
+        · <strong>Global State:</strong> Union of all local states + all channel states<br>
+        · <strong>Consistent Cut:</strong> No message received without being sent in the same snapshot<br><br>
+        <strong>Algorithm:</strong><br>
+        1. Initiator P1 records its local state, sends MARKER on all outgoing channels<br>
+        2. Process Pj receiving MARKER first time: records local state, sends MARKER on all outgoing channels, starts recording messages on all other incoming channels<br>
+        3. Process Pj receiving MARKER when already recorded: channel state = all messages received since recording<br>
+        4. Done when all processes received MARKER on all incoming channels<br><br>
+        <strong>Applications:</strong> Deadlock detection · Garbage collection · Checkpointing · Termination detection<br><br>
+        [Draw diagram showing two processes, MARKER propagation, and state recording points]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ REMAINING PYQs ═══════════ -->
+<section class="section" id="remaining-pyqs">
+  <div class="section-header"><span class="section-num">12</span><h2 class="section-title">Additional PYQs (All Papers)</h2></div>
+  <div class="pyq-section">
+    <div class="pyq-header">📝 Additional RTU PYQs from All 3 Papers</div>
+
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3. Define Inter-process Communication.</div>
+      <div class="pyq-meta"><span>2024 Part A Q3 · 2 marks ⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">IPC</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Inter-process Communication (IPC)</strong> is a set of mechanisms that allow processes running on the same or different machines to communicate and synchronize their actions.<br><br>
+        <strong>IPC Mechanisms in DS:</strong><br>
+        1. <strong>Message Passing:</strong> Explicit send/receive primitives. Synchronous (blocking) or asynchronous (non-blocking).<br>
+        2. <strong>Remote Procedure Call (RPC):</strong> Makes remote calls look like local function calls.<br>
+        3. <strong>Shared Memory:</strong> Processes share a region of memory (requires synchronization).<br>
+        4. <strong>Pipes:</strong> Unidirectional byte stream between related processes.<br>
+        5. <strong>Sockets:</strong> Network endpoints for client-server communication.<br><br>
+        <strong>In distributed systems, message passing is the PRIMARY mechanism</strong> since no shared memory exists between nodes.
+      </div>
+    </div>
+
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1(Part B). Briefly explain the disadvantages of distributed system.</div>
+      <div class="pyq-meta"><span>2024 Part B Q1 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 2</span><span class="topic-tag">DS Disadvantages</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Disadvantages of Distributed Systems:</strong><br><br>
+        1. <strong>Complexity:</strong> Much harder to design, build, and manage than centralized systems. Concurrency control, naming, failure handling all need distributed solutions.<br>
+        2. <strong>Security Risks:</strong> Data passes over untrusted networks — eavesdropping, man-in-the-middle attacks, unauthorized access.<br>
+        3. <strong>Network Dependency:</strong> System performance depends on network — if network fails, the entire distributed system may become unavailable.<br>
+        4. <strong>Consistency Problems:</strong> Maintaining consistent copies of data across multiple nodes is very difficult (CAP theorem).<br>
+        5. <strong>Debugging Difficulty:</strong> Race conditions and timing-dependent bugs are nearly impossible to reproduce and debug.<br>
+        6. <strong>Partial Failure:</strong> Some nodes fail while others continue — system may be in an inconsistent state that's hard to detect and recover.<br>
+        7. <strong>Overhead:</strong> Message passing, serialization, network latency add overhead compared to local function calls.
+      </div>
+    </div>
+
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q4(Part B). Explain different kinds of problems that are associated with the coordination and agreement in distributed system.</div>
+      <div class="pyq-meta"><span>2024 Part B Q4 · 4 marks ⭐⭐</span><span class="unit-tag">Units 2, 5, 6</span><span class="topic-tag">Coordination Problems</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Coordination and Agreement Problems:</strong><br><br>
+        1. <strong>Leader Election:</strong> Processes must agree on a single coordinator. Problem: no shared memory, processes may fail. Algorithm: Bully algorithm, Ring algorithm.<br>
+        2. <strong>Distributed Mutual Exclusion:</strong> Only one process at a time enters critical section. Problem: no shared semaphore. Solution: Ricart-Agrawala, Token Ring.<br>
+        3. <strong>Distributed Deadlock:</strong> Cycle in distributed wait-for graph. Hard to detect — no single node sees the full graph. Solution: Chandy-Misra-Haas algorithm.<br>
+        4. <strong>Distributed Termination:</strong> Has a distributed computation finished? Hard to know — messages may still be in transit. Solution: Dijkstra-Scholten algorithm.<br>
+        5. <strong>Consensus Problem:</strong> All processes agree on a single value despite failures. Byzantine Agreement is hardest form. Impossibility result (FLP): impossible in asynchronous system with even one crash failure.<br>
+        6. <strong>Distributed Snapshots:</strong> Record consistent global state without stopping system. Solution: Chandy-Lamport algorithm.
+      </div>
+    </div>
+
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7. What is non uniform memory access model?</div>
+      <div class="pyq-meta"><span>2023 Part A Q7 · 2 marks ⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">NUMA</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>NUMA (Non-Uniform Memory Access)</strong> is a computer memory architecture used in multiprocessor systems where the time to access memory depends on the memory location relative to the processor — memory access is <em>non-uniform</em>.<br><br>
+        <strong>Why it exists:</strong> In SMP (Symmetric Multiprocessing), all CPUs share one memory bus — creates bottleneck. NUMA gives each CPU (or group) its own local memory bank — accessing local memory is FAST; accessing another CPU's memory is SLOW (via interconnect).<br><br>
+        <strong>Key Characteristics:</strong><br>
+        · Local memory access: ~2-5 ns (fast)<br>
+        · Remote memory access: ~10-40 ns (slow — goes over interconnect)<br>
+        · OS is NUMA-aware: tries to allocate memory on the same node as the CPU using it<br><br>
+        <strong>Example:</strong> Modern Intel/AMD multi-socket servers. 4-socket server = 4 NUMA nodes, each with local RAM.
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div><!-- /layout -->
+
+<!-- ═══════════════════════════════════════════
+     PREDICTED PAPER 2026 — DS
+═══════════════════════════════════════════ -->
+<div class="predicted-section" id="predicted">
+  <div class="pred-inner">
+    <div class="pred-badge">🔮 AI-Powered Analysis — CAO 2026, DIP 2026, ML 2026 Cross-Referenced</div>
+    <div class="pred-sec-title">Predicted Paper — Distributed Systems 2026</div>
+    <div class="pred-sec-sub">BASED ON 3-YEAR DS PYQ ANALYSIS (2023–2025) + 2026 CAO, DIP, ML PAPER PATTERNS · 6E7136 / 6CS5-11</div>
+    <p class="pred-intro">Deep analysis of 3 DS papers (2023–2025) cross-referenced with the actual 2026 CAO, DIP, and ML papers reveals RTU's rotation pattern. RPC/RMI appears in every single DS paper — certain for 2026. Distributed Shared Memory appears in Part C every year without exception. Topics absent in 2025 (CORBA, Lamport+Vector clock, load sharing algorithms) are strongly due for return. Byzantine Agreement solidified from Part B (2024) to Part C (2025) — likely retained. Deadlock handling is tested every year in some form.</p>
+    <div class="disc-box">
+      <span style="font-size:18px;flex-shrink:0;">⚠️</span>
+      <p>Predictions are based on historical patterns and cross-paper analysis. Actual paper may differ. Use this to prioritise study time — do not skip unpredicted topics entirely.</p>
+    </div>
+
+    <div class="pred-grid">
+
+      <!-- PART A Q1 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q1)</div>
+          <div class="pred-unit">Unit 2 | Introduction</div>
+          <div class="pred-q">What is a distributed system? Write its goals and objectives.</div>
+          <div class="pred-reason">DS definition appeared in 2024 Q1 and 2025 Q1. "Goals of a distributed system" appeared in 2023 Q1. RTU alternates between "definition" and "goals" phrasing. 2026 is likely to combine both — consistent with the 2026 CAO and ML pattern of merging definition + purpose in Q1.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p>A <strong>Distributed System</strong> is a collection of autonomous computers linked by a network and equipped with distributed system software that enables computers to coordinate their activities and to share resources — hardware, software, and data — such that users perceive the system as a single integrated computing facility.</p>
+          <div class="fbox inside-pred">
+            <span class="flbl">Goals — ROST</span>
+            <div class="fl">Resource Sharing: Share hardware, software, data across network</div>
+            <div class="fl">Openness: Standard protocols, extensible components</div>
+            <div class="fl">Scalability: Effective as users/nodes/geography increase</div>
+            <div class="fl">Transparency: Hide distribution — location, failure, replication, migration</div>
+            <div class="fn">25-word exam answer: "DS = autonomous computers + network, appearing as one system. Goals: resource sharing, openness, scalability, transparency, fault tolerance."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART A Q2 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q2)</div>
+          <div class="pred-unit">Unit 3 | Communication</div>
+          <div class="pred-q">Differentiate between RPC and RMI.</div>
+          <div class="pred-reason">RPC/RMI differentiation appeared as Q3 in 2023 ("Explain working of RPC"), Q4 in 2024 ("What are RMI and RPC?"), and Q3 in 2025 ("Differentiate between RPC and RMI"). THREE consecutive papers — the most certain Part A question in DS.</div>
+          <span class="pred-conf high">CERTAIN — Every Paper</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <div class="fbox inside-pred">
+            <span class="flbl">RPC vs RMI</span>
+            <div class="fl">RPC: Procedural paradigm · Language-neutral (C, COBOL) · Primitive data types</div>
+            <div class="fl">RMI: OO paradigm · Java-specific · Passes full objects (serialization)</div>
+            <div class="fl">Both: Remote call looks like local call. Uses stubs + skeletons.</div>
+            <div class="fn">Memory: RPC = Remote PROCEDURE (function). RMI = Remote METHOD (OOP). RMI is OO-RPC.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART A Q3 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q3)</div>
+          <div class="pred-unit">Unit 2 | Synchronization</div>
+          <div class="pred-q">Explain the concept of logical clocks.</div>
+          <div class="pred-reason">Logical clocks appeared in 2023 Q5. Absent in 2024 and 2025 Part A — exactly the 2-year gap pattern confirmed by 2026 CAO and DIP. Logical clocks are due for return in 2026.</div>
+          <span class="pred-conf high">HIGH confidence (2-year absence)</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Logical Clocks</strong> are software counters that order events in a distributed system without physical time, capturing causal relationships.</p>
+          <div class="fbox inside-pred">
+            <span class="flbl">Lamport Clock Rules</span>
+            <div class="fl">Before event: C = C + 1</div>
+            <div class="fl">On receive (m, t): C = max(C, t) + 1</div>
+            <div class="fl">Property: A→B ⟹ C(A) &lt; C(B). Reverse not guaranteed.</div>
+            <div class="fn">Limitation: Cannot detect concurrent events. Vector clocks solve this.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART A Q7 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q7)</div>
+          <div class="pred-unit">Unit 6 | Distributed Shared Memory</div>
+          <div class="pred-q">What is distributed shared memory?</div>
+          <div class="pred-reason">DSM appeared in 2024 Q7 and 2025 Q7 — TWO consecutive years in the exact same slot. Present every year in Part A and Part C across all three papers. CERTAIN to appear in 2026.</div>
+          <span class="pred-conf high">CERTAIN — Every Paper</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Distributed Shared Memory (DSM)</strong> is an abstraction that provides the illusion of a single shared memory address space across multiple machines that do not physically share memory.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Physical reality: Machine A [Memory A] ←→ Network ←→ Machine B [Memory B]</div>
+            <div class="fl">Programmer's view: One large shared address space</div>
+            <div class="fl">Mechanism: Page fault → DSM fetches page from remote machine</div>
+            <div class="fn">Advantage: Familiar programming model. Disadvantage: Network latency.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART B Q1 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q1)</div>
+          <div class="pred-unit">Unit 2 | Synchronization</div>
+          <div class="pred-q">Explain Lamport's clock and vector clock with the help of suitable examples.</div>
+          <div class="pred-reason">Lamport's clock + vector clock appeared in 2023 Part C Q4. Completely absent from 2024 and 2025. A 2-year absence followed by a return — the strongest return signal in RTU pattern analysis. Clock algorithms are too important to remain absent — predicted as Part B Q1 in 2026.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Lamport's Logical Clock:</strong> Counter-based mechanism preserving "happened-before" (→).</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Rules: Before event: Ci++ | Send: attach Ci | Receive (m,t): Ci=max(Ci,t)+1</div>
+            <div class="fl">Example: P1 sends at C=2. P2 receives when C=0. P2 new C=max(0,2)+1=3.</div>
+            <div class="fl">Limit: C(A)&lt;C(B) does NOT guarantee A→B. Concurrent events look ordered.</div>
+          </div>
+          <p><strong>Vector Clock:</strong> n-element vector; detects concurrent events.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Rules: Before event: Vi[i]++ | Send: attach Vi | Receive (m,Vj): Vi[k]=max(Vi[k],Vj[k])∀k, then Vi[i]++</div>
+            <div class="fl">Compare: Va&lt;Vb ⟹ A happened before B | Va||Vb ⟹ CONCURRENT</div>
+            <div class="fn">Lamport: O(1), cannot detect concurrency. Vector: O(n), fully detects causality.</div>
+          </div>
+          <p>[Draw space-time diagram with 3 processes showing clock values evolving]</p>
+        </div>
+      </div>
+
+      <!-- PART B Q2 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q2)</div>
+          <div class="pred-unit">Unit 5 | Deadlock</div>
+          <div class="pred-q">Explain different strategies used for distributed deadlock handling (prevention, avoidance, detection and recovery).</div>
+          <div class="pred-reason">Deadlock strategies appeared in 2023 Part C Q3 and in Part B across 2024 and 2025. THREE consecutive years. A permanent DS fixture — predicted as Part B Q2 in 2026.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Prevention:</strong> Eliminate one of Coffman's conditions — impose ordering on resource requests (eliminates circular wait), require all-at-once requests (eliminates hold-and-wait).</p>
+          <p><strong>Avoidance — Wait-Die / Wound-Wait:</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">Wait-Die (non-preemptive): Older process WAITS; younger process DIES (restarts)</div>
+            <div class="fl">Wound-Wait (preemptive): Older process WOUNDS (aborts) younger; younger WAITS</div>
+            <div class="fn">Both use timestamps to avoid circular waits. May cause unnecessary aborts.</div>
+          </div>
+          <p><strong>Detection + Recovery:</strong> Chandy-Misra-Haas algorithm propagates PROBE messages along wait-for edges to detect cycles. Recovery: abort youngest process in cycle.</p>
+        </div>
+      </div>
+
+      <!-- PART C Q1 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q1)</div>
+          <div class="pred-unit">Unit 6 | Distributed Shared Memory</div>
+          <div class="pred-q">Explain the design and implementation issues in Distributed Shared Memory (DSM) systems. Also explain memory consistency models used in DSM.</div>
+          <div class="pred-reason">DSM Part C appeared in 2023 (Part B+C mention), 2024 Part C Q4, and 2025 Part C Q4 — THREE consecutive years in Part C. The single most certain Part C question in DS. CERTAIN every paper.</div>
+          <span class="pred-conf high">CERTAIN — Every Paper</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>DSM Design Issues:</strong> Granularity (page/word/object level), false sharing (two vars share a page), scalability, heterogeneity.</p>
+          <p><strong>Implementation — Page-Based DSM (Ivy, TreadMarks):</strong> Uses virtual memory hardware. Remote access → page fault → DSM fetches page from remote node.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Protocols: Write-Invalidate (invalidate all other copies on write) — used by Ivy</div>
+            <div class="fl">Write-Update (broadcast updates to all copies) — high traffic</div>
+            <div class="fl">Release Consistency (sync only at acquire/release) — used by TreadMarks</div>
+          </div>
+          <p><strong>Memory Consistency Models:</strong></p>
+          <ul>
+            <li>Strict: Most recent write always read — requires global clock, impossible in DS</li>
+            <li>Sequential: All see writes in same order — intuitive but expensive</li>
+            <li>Causal: Causally related writes seen in order — concurrent can differ</li>
+            <li>Eventual: All replicas converge if no new updates — used in Dynamo, Cassandra</li>
+            <li>Release: Sync only at lock acquire/release — practical, used in TreadMarks</li>
+          </ul>
+          <div class="fbox inside-pred">
+            <div class="fl">Stronger model → Easier to program → Higher cost</div>
+            <div class="fl">Weaker model → Harder to program → Better performance</div>
+          </div>
+          <p>[Draw DSM diagram showing two nodes + DSM software layer + page fault mechanism]</p>
+        </div>
+      </div>
+
+      <!-- PART C Q2 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q2)</div>
+          <div class="pred-unit">Unit 7 | Fault Tolerance</div>
+          <div class="pred-q">What is Byzantine Agreement? Explain different approaches to solve it. Also discuss fault tolerance in distributed systems.</div>
+          <div class="pred-reason">Byzantine Agreement appeared in 2024 Part B Q7 and escalated to 2025 Part C Q5. Two consecutive appearances with increasing weight. Confirmed Part C anchor for 2026.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Byzantine Agreement:</strong> n processes must reach consensus even if up to f are Byzantine faulty (send arbitrary/conflicting messages).</p>
+          <p><strong>Requirements:</strong> Agreement (all non-faulty agree on same value) · Validity · Termination.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Impossibility: Need at least 3f+1 processes to tolerate f Byzantine failures</div>
+            <div class="fl">n=4, f=1: 4 ≥ 3(1)+1 = 4 ✓ | n=3, f=1: Impossible</div>
+          </div>
+          <p><strong>Approaches:</strong></p>
+          <ul>
+            <li>Oral Messages (Lamport-Shostak-Pease): Recursive; majority voting; O(n^(f+1)) messages; needs n≥3f+1</li>
+            <li>Signed Messages: Uses digital signatures; traitor can't forge loyal general's message; needs n≥f+2</li>
+            <li>PBFT: 3-phase (Pre-prepare → Prepare → Commit); O(n²) messages; used in Hyperledger, blockchain</li>
+          </ul>
+          <p><strong>Fault Tolerance:</strong> Replication (active: all replicas process every request; passive: primary + backup), checkpointing, message logging, recovery protocols.</p>
+        </div>
+      </div>
+
+      <!-- PART C Q3 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q3)</div>
+          <div class="pred-unit">Unit 2 | Communication</div>
+          <div class="pred-q">(a) Explain the CORBA architecture in detail. (b) Explain CORBA Interface Definition Language (IDL) and how it enables interoperability.</div>
+          <div class="pred-reason">CORBA appeared in 2023 Part C Q1 and 2024 Part C Q5. COMPLETELY ABSENT from 2025 — a 1-year absence after 2 consecutive appearances. This is the strongest return signal. CORBA return is VERY HIGH for 2026.</div>
+          <span class="pred-conf high">VERY HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>(a) CORBA Architecture:</strong> OMG standard enabling objects in different languages/platforms to communicate. Core: Object Request Broker (ORB).</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Client App → Client Stub (Proxy) → ORB → Server Skeleton → Object Implementation</div>
+            <div class="fl">Key components: ORB (communication bus), IOR (unique object ref), Naming Service, DII/DSI</div>
+          </div>
+          <p><strong>(b) CORBA IDL:</strong> Language-neutral interface specification. Written once — IDL compiler generates stubs/skeletons for Java, C++, Python, Ada. Defines: interfaces, operations, parameters, exceptions.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">IDL Example: interface Bank { float balance(); void deposit(in float amt); };</div>
+            <div class="fl">IDL compiler → Java stub + C++ stub + Python stub (all from one IDL file)</div>
+            <div class="fn">Interoperability: Java client calls C++ server — both generated from same IDL. ORB handles marshalling.</div>
+          </div>
+          <p>[Draw CORBA architecture diagram with Client/ORB/Server sides]</p>
+        </div>
+      </div>
+
+      <!-- PART C Q4 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q4)</div>
+          <div class="pred-unit">Unit 5 | File Systems</div>
+          <div class="pred-q">Explain the design and implementation of a Distributed File System. Also discuss the issues in naming, caching, and replication.</div>
+          <div class="pred-reason">DFS appeared in 2024 Part C Q3 and 2025 Part C Q3 — TWO consecutive Part C appearances. Based on the DS pattern of topics in 2 consecutive Part Cs remaining in Part C, DFS is HIGH confidence for 2026.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>DFS</strong> allows access to remote files as if local. Examples: NFS, AFS, Coda, HDFS.</p>
+          <p><strong>Design Issues:</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">Naming: Location-dependent (//server/path) vs Location-independent (transparent)</div>
+            <div class="fl">Caching: Reduces server load. Consistency: write-through, callbacks (AFS), time-based (NFS)</div>
+            <div class="fl">Replication: Fault tolerance. Primary-backup, quorum-based, eventual consistency (Coda)</div>
+          </div>
+          <div class="fbox inside-pred">
+            <span class="flbl">NFS vs AFS</span>
+            <div class="fl">NFS: Stateless · Server-side caching · Poll-based · ~100 clients</div>
+            <div class="fl">AFS: Stateful · Client whole-file caching · Callbacks · 50,000+ clients</div>
+          </div>
+          <p><strong>Implementation:</strong> RPC for client-server comm, VFS (Virtual File System) layer in OS, consistency protocol as background daemon.</p>
+        </div>
+      </div>
+
+      <!-- PART C Q5 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q5)</div>
+          <div class="pred-unit">Unit 5 | Resource Management</div>
+          <div class="pred-q">With the help of suitable diagrams, explain sender-initiated and receiver-initiated algorithms for dynamic load sharing and balancing in distributed systems.</div>
+          <div class="pred-reason">Load sharing algorithms appeared in 2023 Part C Q5. ABSENT from 2024 and 2025 — a 2-year gap. The 2-year absence with a confirmed 2-year rotation pattern in RTU (validated by 2026 CAO, DIP, ML) makes this VERY HIGH for 2026 Part C Q5.</div>
+          <span class="pred-conf high">VERY HIGH confidence (2-year absence)</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Sender-Initiated:</strong> Overloaded node proactively finds lightly loaded node and sends work.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Steps: 1. Load &gt; threshold → 2. Poll random nodes → 3. Transfer process to lightest</div>
+            <div class="fl">+ Effective at distributing overload | – Floods network when ALL nodes busy</div>
+          </div>
+          <p><strong>Receiver-Initiated:</strong> Lightly loaded (idle) node actively requests work from overloaded nodes.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Steps: 1. Load &lt; threshold → 2. Poll nodes for load → 3. Request process from busiest</div>
+            <div class="fl">+ Effective when system light | – Broadcast storm when ALL nodes idle</div>
+          </div>
+          <p><strong>Symmetric:</strong> Combines both — above threshold acts as sender, below threshold acts as receiver. Best overall performance.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Summary: Sender-initiated → better for heavy load. Receiver-initiated → better for light load.</div>
+            <div class="fl">Symmetric → best for variable load. Real system: Condor (receiver-initiated).</div>
+          </div>
+          <p>[Draw both diagrams: Node A (overloaded) → Node B (light) for sender-initiated; reverse arrow for receiver-initiated]</p>
+        </div>
+      </div>
+
+    </div><!-- /pred-grid -->
+
+    <div class="prep-box">
+      <h3>✅ Quick Preparation Strategy — Distributed Systems 2026</h3>
+      <p><strong>MUST prepare completely (Part C level — full answers with diagrams):</strong><br>
+      Distributed Shared Memory (DSM architecture + page-based implementation + coherence protocols + memory consistency models — CERTAIN every year), Byzantine Agreement (oral messages + signed messages + PBFT — appeared 2024 Part B then 2025 Part C), CORBA architecture + IDL (returned after 1-year absence — diagram mandatory), Distributed File System (NFS vs AFS, naming + caching + replication), Load sharing algorithms (sender-initiated + receiver-initiated + symmetric diagrams — 2-year absence = certain return), Architecture Models + Design Issues (2025 Part C Q1 — likely returns).</p>
+      <p><strong>MUST prepare for Part B:</strong> Lamport's clock + Vector clock (2-year absence = return), Distributed deadlock handling (prevention + Wait-Die/Wound-Wait + Chandy-Misra-Haas detection), Client-server + RPC model (with marshalling diagram), Distributed process implementation + static/dynamic scheduling, Memory consistency models (strict → sequential → causal → eventual → release), Architecture models (client-server + P2P + multi-tier), Concurrency control + timestamp ordering, Types of OS (Centralized/NOS/DOS/Cooperative), DCE (role + 6 components).</p>
+      <p><strong>Part A only (≤25 words — definition + 1 key point + example):</strong> Distributed system definition + goals, RPC vs RMI (CERTAIN), Logical clocks (Lamport counter rules — 2yr absence), Distributed mutual exclusion (centralized vs token ring), Load balancing (static vs dynamic), Distributed deadlock (Coffman conditions), Distributed shared memory (page-fault based illusion), Synchronous vs asynchronous communication, Types of faults (transient/intermittent/permanent + crash/omission/Byzantine), Byzantine Agreement (n ≥ 3f+1 rule).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PYQ MASTER LIST ═══════════ -->
+<div class="layout">
+  <div style="width:var(--sidebar-w);min-width:var(--sidebar-w);flex-shrink:0;"></div>
+  <div class="content">
+    <section class="section" id="pyq-master" style="margin-top:40px">
+      <div class="section-header"><span class="section-num">M</span><h2 class="section-title">All PYQs — DS Master List (2023–2025)</h2></div>
+      <div class="pyq-section">
+        <div class="pyq-header">📋 Complete PYQ Coverage — Distributed System 6E7136 (2023–2025)</div>
+        <div class="pyq-item">
+          <div class="pyq-q-text">All DS Questions by Year — Click to Expand</div>
+          <button class="pyq-toggle" onclick="toggle(this)">▼ Show Full Master List</button>
+          <div class="answer-content">
+            <strong>2023 Main (6E7136 — Max 70 marks):</strong><br>
+            Part A: Q1=Goals of DS, Q2=DOS vs NOS, Q3=Working of RPC, Q4=DFS vs Centralized FS, Q5=Logical Clocks, Q6=Concurrency in DS, Q7=Non-uniform memory access, Q8=Distributed mutual exclusion, Q9=Faults in distributed agreement, Q10=Data in distributed databases<br>
+            Part B: Q1=Micro-kernels in client-server fashion, Q2=Transport level communication services, Q3=Object adapter, Q4=Time-stamping for concurrency + serializability, Q5=Connection-less communication using sockets, Q6=Recording state of DS (diagram), Q7=Distributed shared memory (diagram)<br>
+            Part C: Q1=CORBA naming service integration, Q2=(a)Side effects in Coda RPC2 (b)Coda file identifier, Q3=Deadlock (prevention + avoidance + detection/recovery), Q4=Lamport+Vector clock with example, Q5=Sender-initiated + receiver-initiated load sharing algorithms<br><br>
+
+            <strong>2024 Main/Back (6E7136 — Max 70 marks):</strong><br>
+            Part A: Q1=What is DS, Q2=DCE definition, Q3=Inter-process Communication, Q4=RMI and RPC, Q5=Distributed file system, Q6=Threshold, Q7=Shared memory vs distributed memory, Q8=Hardware support for mutual exclusion, Q9=Distributed deadlock, Q10=Disadvantages of Active Replication<br>
+            Part B: Q1=Disadvantages of DS, Q2=Synchronous vs asynchronous execution, Q3=Physical clock vs logical clock, Q4=Coordination and agreement problems, Q5=Concurrency control issues, Q6=Fault, errors, and failure in DS, Q7=Byzantine Agreement<br>
+            Part C: Q1=Need + characteristics of DS (with example), Q2=Client-server model on RPC + message passing, Q3=Distributed process implementation + static scheduling, Q4=Design + implementation issues in DSM, Q5=CORBA Interface Definition Language<br><br>
+
+            <strong>2025 Main/Back (6E7136 — Max 70 marks):</strong><br>
+            Part A: Q1=What is DS, Q2=Key features of DS, Q3=Differentiate RPC and RMI, Q4=Load Balancing in DS, Q5=Process vs thread, Q6=Two advantages of dynamic load sharing, Q7=Distributed shared memory, Q8=How DSM improves system performance, Q9=Concept of Faults, Q10=Key issues in managing replicated data<br>
+            Part B: Q1=Types of OS in DS, Q2=Role of DCE, Q3=Inter-Process Communication Mechanism, Q4=Distributed deadlock handling, Q5=Distributed process implementation, Q6=Memory consistency models + importance, Q7=Randomized distributed agreement approach<br>
+            Part C: Q1=Architecture Models + design issues affecting performance, Q2=Language mechanisms for synchronization, Q3=Design and implementation of DFS, Q4=Implementation of DSM systems, Q5=Byzantine Agreement + different approaches<br><br>
+
+            <strong>KEY PATTERNS:</strong><br>
+            DS Definition/Goals: Part A Q1 every year → <span style="color:#ef4444">CERTAIN 2026 Part A Q1</span><br>
+            RPC/RMI: Part A 2023(Q3), 2024(Q4), 2025(Q3) → <span style="color:#ef4444">CERTAIN Part A</span><br>
+            DSM: Part A 2024(Q7), 2025(Q7); Part C 2024(Q4), 2025(Q4) → <span style="color:#ef4444">CERTAIN every part</span><br>
+            Faults/Byzantine: Part A 2023(Q9), 2025(Q9); Part B 2024(Q7); Part C 2025(Q5) → <span style="color:#ef4444">CERTAIN 2026</span><br>
+            DCE: Part A 2024(Q2); Part B 2025(Q2) → <span style="color:#ef4444">VERY HIGH 2026</span><br>
+            Architecture Models: Part C 2025(Q1) → <span style="color:#ef4444">VERY HIGH 2026 Part C</span><br>
+            Lamport+Vector Clock: Part C 2023(Q4) → 2yr absence → <span style="color:#ef4444">VERY HIGH 2026</span><br>
+            Load Sharing: Part C 2023(Q5) → 2yr absence → <span style="color:#ef4444">VERY HIGH 2026</span><br>
+            CORBA: Part C 2023(Q1), 2024(Q5) → 1yr absence → <span style="color:#ef4444">VERY HIGH 2026</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="openSidebar()">☰</button>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="#">🏠 Home</a>
+    <a href="#">🖧 Unit 2: Fundamentals (current)</a>
+    <a href="#">⚙️ Unit 3: Processes & IPC</a>
+    <a href="#">📁 Unit 4: Scheduling & DFS</a>
+    <a href="#">🧠 Unit 5: DSM & Computation</a>
+    <a href="#">🛡️ Unit 6: Agreement & CORBA</a>
+    <a href="#predicted" style="color:var(--upred)">🔮 Predicted 2026</a>
+  </div>
+  © 2026 Mahansh Gaur · DS RTU Study Guide · Unit 2 — Distributed Systems Fundamentals · 6E7136 / 6CS5-11 · Educational use only.
+</footer>
+
+<script>
+function toggle(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function togglePred(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('visible');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+// Active nav tracking
+const sections=document.querySelectorAll('.section');
+const navItems=document.querySelectorAll('.nav-item');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navItems.forEach(n=>{
+        n.classList.remove('active');
+        if(n.getAttribute('href')==='#'+e.target.id) n.classList.add('active');
+      });
+    }
+  });
+},{rootMargin:'-15% 0px -70% 0px'});
+sections.forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>
