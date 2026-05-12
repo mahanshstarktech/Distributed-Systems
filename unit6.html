@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS Unit 6 — Agreement, Replication & CORBA | RTU Exam Prep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#040d10;--surface:#081820;--surface2:#0c2030;
+  --border:#133040;--border2:#0a1e2c;
+  --cc:#10b981;--cc2:#6ee7b7;--cc3:#d1fae5;
+  --u1:#22d3ee;--u2:#f97316;--u3:#ef4444;--u4:#a78bfa;--u5:#10b981;--u6:#3b82f6;
+  --upred:#f59e0b;--gold:#fbbf24;--text:#dde8f2;--dim:#2a4858;--dim2:#5a8aa0;
+  --mono:'JetBrains Mono',monospace;--head:'Fraunces',serif;--body:'Outfit',sans-serif;
+  --sidebar-w:300px;
+  --content-max:1800px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.82;overflow-x:hidden;}
+
+/* ── RESPONSIVE FONT SCALING ── */
+html{font-size:clamp(17px,1.25vw,21px);}
+@media(min-width:1200px){html{font-size:clamp(18px,1.3vw,22px);}}
+@media(min-width:1600px){html{font-size:clamp(19px,1.2vw,23px);}}
+@media(min-width:1900px){html{font-size:clamp(20px,1.1vw,25px);}}
+@media(min-width:2200px){html{font-size:clamp(21px,1.05vw,27px);}}
+@media(max-width:900px){html{font-size:18px;}}
+@media(max-width:600px){html{font-size:17px;}}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── LAYOUT ── */
+.layout{display:flex;max-width:100%;}
+.content{
+  flex:1;
+  padding:clamp(28px,2.5vw,52px) clamp(28px,3vw,64px);
+  max-width:100%;
+  overflow-x:hidden;
+  min-width:0;
+  /* no artificial max-width so content fills screen on big monitors */
+}
+@media(min-width:1400px){
+  .content{padding:clamp(32px,2.2vw,56px) clamp(36px,3.5vw,80px);}
+}
+@media(min-width:1800px){
+  .content{padding:clamp(36px,2vw,60px) clamp(48px,4vw,100px);}
+}
+
+/* ── TOP NAV ── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(4,13,16,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border2);padding:0 28px;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.topnav::-webkit-scrollbar{display:none;}
+.tnlabel{font-family:var(--mono);font-size:.62rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--cc);padding:15px 14px 15px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0;}
+.tnlink{font-family:var(--mono);font-size:.68rem;padding:8px 14px;border-radius:6px;text-decoration:none;color:var(--dim2);white-space:nowrap;flex-shrink:0;transition:all .18s;border:1px solid transparent;}
+.tnlink:hover{color:var(--text);background:var(--surface2);}
+.tnlink.active{color:var(--cc);background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);}
+.tnlink.pred{color:var(--upred);background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);font-weight:600;}
+
+/* ── CREDIT BAND ── */
+.credit-band{background:#030c12;border-bottom:1px solid var(--border2);padding:11px 32px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
+.credit-text{font-family:var(--mono);font-size:.7rem;color:var(--dim2);}
+.credit-text span{color:var(--cc);font-weight:600;}
+.credit-link{font-family:var(--mono);font-size:.68rem;padding:4px 14px;border-radius:5px;border:1px solid var(--border);color:var(--dim2);text-decoration:none;transition:all .2s;}
+.credit-link:hover{border-color:var(--cc);color:var(--cc);}
+
+/* ── HERO ── */
+.hero{position:relative;overflow:hidden;padding:clamp(50px,5vw,88px) clamp(28px,4vw,80px) clamp(44px,4vw,70px);background:var(--bg);}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(16,185,129,.08) 1px,transparent 1px),radial-gradient(circle,rgba(34,211,238,.04) 1px,transparent 1px);background-size:44px 44px,88px 88px;background-position:0 0,22px 22px;animation:dotDrift 30s linear infinite;}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 55% at 10% 50%,rgba(16,185,129,.09) 0%,transparent 65%),radial-gradient(ellipse 45% 50% at 85% 15%,rgba(34,211,238,.05) 0%,transparent 60%);pointer-events:none;}
+@keyframes dotDrift{0%{transform:translate(0,0);}100%{transform:translate(44px,44px);}}
+.hero-inner{position:relative;z-index:1;max-width:var(--content-max);margin:0 auto;}
+.hero-tag{font-family:var(--mono);font-size:.72rem;color:var(--cc);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.hero-dot{width:8px;height:8px;border-radius:50%;background:var(--cc);box-shadow:0 0 14px var(--cc);animation:blink 2.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.hero h1{font-family:var(--head);font-weight:800;font-size:clamp(32px,5vw,76px);line-height:1.02;color:#fff;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero h1 span{color:var(--cc);}
+.hero h1 em{color:var(--u1);font-style:normal;}
+.hero-sub{color:var(--dim2);font-size:clamp(15px,1.4vw,20px);max-width:900px;line-height:1.8;margin-bottom:22px;}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{font-family:var(--mono);font-size:.68rem;padding:5px 14px;border-radius:5px;border:1px solid;}
+.badge-r{color:var(--u3);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);}
+.badge-v{color:var(--cc);border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.08);}
+.badge-g{color:var(--u1);border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.08);}
+.badge-gold{color:var(--upred);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08);}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);padding:28px 18px;border-right:1px solid var(--border);position:sticky;top:44px;height:calc(100vh - 44px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;flex-shrink:0;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sidebar-title{font-family:var(--mono);font-size:.62rem;color:var(--cc);letter-spacing:2px;text-transform:uppercase;}
+.sidebar-close{display:none;background:none;border:1px solid var(--border);border-radius:4px;color:var(--dim2);cursor:pointer;padding:2px 9px;font-family:var(--mono);font-size:.68rem;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:7px;cursor:pointer;font-family:var(--head);font-size:.88rem;font-weight:600;color:var(--dim2);transition:all .2s;margin-bottom:3px;text-decoration:none;line-height:1.3;}
+.nav-item:hover,.nav-item.active{background:var(--surface2);color:var(--text);}
+.nav-item.active{color:var(--cc);border-left:2px solid var(--cc);padding-left:10px;}
+.nav-imp{margin-left:auto;font-family:var(--mono);font-size:.62rem;padding:2px 7px;border-radius:3px;background:var(--surface2);white-space:nowrap;}
+.nav-imp.high{color:var(--u3);}
+.nav-imp.med{color:var(--upred);}
+.sidebar-toggle{display:none;position:fixed;bottom:22px;right:22px;z-index:1000;width:52px;height:52px;border-radius:50%;background:var(--cc);border:none;cursor:pointer;font-size:22px;color:#fff;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(16,185,129,.45);transition:transform .2s;}
+.sidebar-toggle:hover{transform:scale(1.1);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:98;backdrop-filter:blur(3px);}
+.sidebar-overlay.visible{display:block;}
+
+/* ── CONTENT SECTIONS ── */
+.section{margin-bottom:80px;scroll-margin-top:64px;}
+.section-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.section-num{font-family:var(--mono);font-size:.72rem;color:var(--cc);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);padding:5px 10px;border-radius:5px;min-width:40px;text-align:center;}
+.section-title{font-family:var(--head);font-size:clamp(22px,2.5vw,36px);font-weight:800;color:#fff;}
+
+/* ── THEORY BLOCKS ── */
+.theory-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:clamp(22px,2.5vw,40px) clamp(24px,3vw,48px);margin-bottom:22px;}
+.theory-block h3{font-family:var(--head);font-size:clamp(17px,1.7vw,24px);font-weight:700;color:var(--cc);margin-bottom:14px;}
+.theory-block h3.orange{color:var(--u2);}
+.theory-block h3.red{color:var(--u3);}
+.theory-block h3.cyan{color:var(--u1);}
+.theory-block h3.purple{color:var(--u4);}
+.theory-block h3.blue{color:var(--u6);}
+.theory-block p{margin-bottom:14px;font-size:1rem;line-height:1.92;}
+.theory-block p:last-child{margin-bottom:0;}
+.theory-block ul,.theory-block ol{padding-left:26px;margin:12px 0;}
+.theory-block li{margin-bottom:10px;font-size:1rem;line-height:1.82;}
+h4{font-family:var(--head);font-size:1.05rem;font-weight:700;color:var(--text);margin:20px 0 10px;}
+
+/* ── LAYMAN BOX ── */
+.layman{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-left:3px solid var(--cc);border-radius:8px;padding:16px 20px;font-family:var(--mono);font-size:.83rem;color:#a7f3d0;margin:16px 0;line-height:1.78;}
+.layman::before{content:'💬 LAYMAN: ';color:var(--cc);font-weight:700;font-size:.85rem;}
+
+/* ── FORMULA BOX ── */
+.fbox{background:#030c14;border:1px solid rgba(16,185,129,.22);border-left:3px solid var(--cc);border-radius:9px;padding:18px 22px;margin:18px 0;font-family:var(--mono);font-size:.83rem;color:#6ee7b7;overflow-x:auto;line-height:1.72;}
+.fbox .flbl{font-size:.66rem;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:block;}
+.fbox .fl{color:#a7f3d0;font-size:.87rem;display:block;}
+.fbox .fn{color:var(--dim2);font-size:.76rem;margin-top:8px;display:block;font-style:italic;}
+
+/* ── TIP BOXES ── */
+.tip-box{border-radius:9px;padding:18px 20px;margin:16px 0;display:flex;gap:14px;}
+.tip-box.trick{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);}
+.tip-box.connect{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.25);}
+.tip-box.warning{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);}
+.tip-box.pred-tip{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);}
+.tip-icon{font-size:21px;flex-shrink:0;margin-top:3px;}
+.tip-content{flex:1;}
+.tip-title{font-family:var(--head);font-size:.85rem;font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.tip-box.trick .tip-title{color:var(--gold);}
+.tip-box.connect .tip-title{color:var(--u1);}
+.tip-box.warning .tip-title{color:var(--u3);}
+.tip-box.pred-tip .tip-title{color:var(--upred);}
+.tip-content p{font-size:.93rem;color:var(--text);margin:0;line-height:1.78;}
+
+/* ── TABLES ── */
+.comp-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.92rem;display:block;overflow-x:auto;}
+.comp-table th{background:var(--surface2);padding:12px 16px;text-align:left;font-family:var(--head);font-weight:700;color:var(--cc);border-bottom:1px solid var(--border);white-space:nowrap;}
+.comp-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:var(--surface2);}
+
+/* ── PYQ SECTION ── */
+.pyq-section{background:#06101a;border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:clamp(20px,2.5vw,30px) clamp(22px,3vw,36px);margin-top:26px;}
+.pyq-header{font-family:var(--head);font-size:1.02rem;font-weight:700;color:var(--upred);margin-bottom:18px;}
+.pyq-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:18px 20px;margin-bottom:16px;}
+.pyq-q-text{font-family:var(--head);font-size:1rem;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.45;}
+.pyq-meta{font-family:var(--mono);font-size:.68rem;color:var(--dim2);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;}
+.topic-tag{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:var(--cc);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pred-tag{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--upred);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.unit-tag{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:var(--u1);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pyq-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 16px;cursor:pointer;font-family:var(--mono);font-size:.74rem;color:var(--upred);margin-top:12px;transition:all .2s;}
+.pyq-toggle:hover{background:var(--upred);color:#000;}
+.answer-content{display:none;margin-top:16px;font-size:.96rem;line-height:1.92;}
+.answer-content.open{display:block;}
+.answer-content strong{color:var(--cc2);}
+.answer-content ul,.answer-content ol{padding-left:22px;margin:10px 0;}
+.answer-content li{margin-bottom:8px;}
+
+/* ── PRED BANNER ── */
+.pred-banner{background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(245,158,11,.03));border:1px solid rgba(245,158,11,.35);border-left:3px solid var(--upred);border-radius:9px;padding:14px 18px;margin:16px 0;font-family:var(--mono);font-size:.81rem;color:var(--upred);display:flex;gap:12px;align-items:flex-start;}
+.pred-banner .pb-text{line-height:1.72;}
+
+/* ── IMPORTANCE BARS ── */
+.imp-bar-wrap{margin-bottom:12px;}
+.imp-bar-label{font-family:var(--mono);font-size:.76rem;color:var(--dim2);margin-bottom:5px;display:flex;justify-content:space-between;}
+.imp-bar{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.imp-bar-fill{height:100%;border-radius:4px;}
+.ibf-hot{background:var(--u3);}
+.ibf-high{background:var(--cc);}
+.ibf-med{background:var(--upred);}
+
+/* ── DIAGRAM WRAP ── */
+.diagram-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin:18px 0;text-align:center;overflow-x:auto;}
+.diagram-cap{font-family:var(--mono);font-size:.73rem;color:var(--dim2);margin-top:12px;}
+
+/* ── HIGHLIGHT HELPERS ── */
+.hl-v{color:var(--cc2);font-weight:600;}
+.hl-o{color:var(--u2);font-weight:600;}
+.hl-r{color:var(--u3);font-weight:600;}
+.hl-g{color:var(--cc);font-weight:600;}
+.hl-c{color:var(--u1);font-weight:600;}
+.hl-p{color:var(--u4);font-weight:600;}
+code{font-family:var(--mono);background:var(--surface2);padding:2px 7px;border-radius:4px;font-size:.82rem;color:var(--cc2);}
+
+/* ── PREDICTED SECTION ── */
+.predicted-section{background:linear-gradient(135deg,rgba(4,13,16,1) 0%,rgba(16,185,129,.04) 100%);border-top:1px solid rgba(16,185,129,.2);border-bottom:1px solid rgba(16,185,129,.2);}
+.pred-inner{max-width:100%;margin:0 auto;padding:clamp(40px,4vw,72px) clamp(28px,3.5vw,80px);}
+@media(min-width:1600px){.pred-inner{padding:clamp(50px,3.5vw,80px) clamp(48px,4.5vw,110px);}}
+.pred-badge{display:inline-block;font-family:var(--mono);font-size:.75rem;color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:5px 14px;border-radius:5px;margin-bottom:14px;}
+.pred-sec-title{font-family:var(--head);font-size:clamp(24px,3.2vw,42px);font-weight:800;color:#fff;margin-bottom:6px;}
+.pred-sec-sub{font-family:var(--mono);font-size:.72rem;color:var(--dim2);letter-spacing:1px;margin-bottom:14px;}
+.pred-intro{font-family:var(--mono);font-size:.79rem;color:var(--dim2);max-width:1100px;line-height:1.75;margin-bottom:18px;}
+.disc-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:14px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-start;}
+.disc-box p{font-size:.87rem;color:var(--text);}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));gap:18px;margin-top:24px;}
+.pred-card{background:var(--surface);border:1px solid rgba(245,158,11,.2);border-radius:12px;border-top:3px solid var(--upred);overflow:hidden;}
+.pred-card-head{padding:20px 22px 14px;}
+.pred-part{font-family:var(--mono);font-size:.67rem;color:var(--dim2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-unit{font-family:var(--mono);font-size:.67rem;color:var(--u1);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-q{font-family:var(--head);font-size:clamp(.96rem,1.05vw,1.1rem);font-weight:700;color:#fff;line-height:1.4;margin-bottom:8px;}
+.pred-reason{font-size:clamp(.83rem,.92vw,.96rem);color:var(--dim2);line-height:1.7;margin-bottom:10px;}
+.pred-conf{font-family:var(--mono);font-size:.68rem;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:14px;}
+.pred-conf.high{color:var(--u3);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);}
+.pred-conf.med{color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);}
+.pred-answer-toggle{width:100%;padding:10px 22px;background:var(--surface2);border:none;border-top:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:.72rem;color:var(--cc);text-align:left;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.pred-answer-toggle:hover{background:var(--cc);color:#000;}
+.pred-answer{display:none;padding:20px 22px;border-top:1px solid var(--border);background:var(--bg);}
+.pred-answer.open{display:block;}
+.pred-answer p{font-size:.93rem;line-height:1.92;margin-bottom:12px;}
+.pred-answer strong{color:var(--cc2);}
+.pred-answer ul,.pred-answer ol{padding-left:22px;margin:10px 0;}
+.pred-answer li{margin-bottom:8px;font-size:.91rem;}
+.fbox.inside-pred{background:#030c14;border:1px solid rgba(16,185,129,.22);border-left:3px solid var(--cc);border-radius:8px;padding:14px 18px;margin:10px 0;font-family:var(--mono);font-size:.79rem;color:#6ee7b7;overflow-x:auto;line-height:1.7;}
+.fbox.inside-pred .fl{color:#a7f3d0;display:block;}
+.fbox.inside-pred .fn{color:var(--dim2);font-size:.7rem;margin-top:6px;display:block;font-style:italic;}
+.dbox{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin:14px 0;overflow-x:auto;}
+.dcap{font-family:var(--mono);font-size:.71rem;color:var(--dim2);margin-top:8px;text-align:center;}
+
+/* ── PREP BOX ── */
+.prep-box{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:22px 28px;margin-top:28px;}
+.prep-box h3{font-family:var(--head);font-size:clamp(1rem,1.15vw,1.3rem);font-weight:700;color:var(--cc);margin-bottom:14px;}
+.prep-box p{font-size:.93rem;line-height:1.88;margin-bottom:10px;}
+.prep-box strong{color:#fff;}
+
+/* ── FOOTER ── */
+.site-footer{background:#030b10;border-top:1px solid var(--border2);padding:28px 5vw;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--dim);}
+.site-footer a{color:var(--dim2);text-decoration:none;margin:0 12px;transition:color .2s;}
+.site-footer a:hover{color:var(--cc);}
+.footer-links{margin-bottom:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;}
+
+/* ── MOBILE ── */
+@media(max-width:1100px){:root{--sidebar-w:270px;}}
+@media(max-width:900px){
+  .sidebar{position:fixed;top:0;left:0;height:100vh;z-index:99;background:var(--bg);transform:translateX(-100%);border-right:1px solid var(--border);transition:transform .3s ease;width:var(--sidebar-w);}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.9);}
+  .sidebar-close{display:block;}
+  .sidebar-toggle{display:flex;}
+  .content{max-width:100%;padding:28px 20px;}
+  .pred-inner{padding:44px 20px;}
+  .pred-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .hero{padding:44px 18px 40px;}
+  .theory-block{padding:20px 16px;}
+  .pyq-section{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="tnlabel">DS · RTU</span>
+  <a class="tnlink" href="index.html">🏠 Home</a>
+  <a class="tnlink" href="unit2.html">🌐 U2: DS Fundamentals</a>
+  <a class="tnlink" href="unit3.html">⚙️ U3: Processes & IPC</a>
+  <a class="tnlink" href="unit4.html">📁 U4: Scheduling & DFS</a>
+  <a class="tnlink" href="unit5.html">🧠 U5: DSM & Computation</a>
+  <a class="tnlink active" href="unit6.html">🛡️ U6: Agreement & CORBA</a>
+  <a class="tnlink pred" href="#predicted">🔮 Predicted 2026</a>
+</nav>
+
+<div class="credit-band">
+  <div class="credit-text">Crafted by <span>Mahansh Gaur</span> · B.Tech RTU Jaipur</div>
+  <a class="credit-link" href="https://www.instagram.com/mahaanshgaur_6513" target="_blank">📸 @mahaanshgaur_6513</a>
+  <a class="credit-link" href="https://github.com/mahanshstarktech" target="_blank">🐙 GitHub</a>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="hero-dot"></span>🛡️ B.Tech VI Sem · RTU · DS 6CS5-11 / 6E7136 · Unit 6</div>
+    <h1>Distributed <span>Agreement</span>,<br>Replication &amp; <em>CORBA</em></h1>
+    <p class="hero-sub">Complete Unit 6 coverage — Faults &amp; Failures, Byzantine Agreement, Impossibility of Consensus, Randomized Agreement, Replicated Data Management, Atomic Multicast, CORBA Architecture, IDL &amp; Services. All RTU PYQs 2023–2025 solved with full answers. 2026 Predicted Paper included.</p>
+    <div class="hero-badges">
+      <span class="badge badge-r">🔥 Byzantine Agreement — CERTAIN Part C 2026</span>
+      <span class="badge badge-gold">🔮 CORBA Architecture + IDL — VERY HIGH (1yr absence)</span>
+      <span class="badge badge-g">Faults / Failure / Recovery — Every paper Part A</span>
+      <span class="badge badge-v">Replicated Data Management — RISING 2026</span>
+    </div>
+  </div>
+</section>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="layout">
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Unit 6 Topics</div>
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <a class="nav-item" href="#overview">📊 Importance Overview</a>
+  <a class="nav-item" href="#faults">⚠️ Faults &amp; Failures<span class="nav-imp high">90%</span></a>
+  <a class="nav-item" href="#byzantine-faults">👹 Byzantine Faults<span class="nav-imp high">95%</span></a>
+  <a class="nav-item" href="#byzantine-agreement">🤝 Byzantine Agreement<span class="nav-imp high">95%</span></a>
+  <a class="nav-item" href="#impossibility">🚫 Impossibility (FLP)<span class="nav-imp med">75%</span></a>
+  <a class="nav-item" href="#randomized">🎲 Randomized Agreement<span class="nav-imp high">82%</span></a>
+  <a class="nav-item" href="#replication">📋 Replicated Data Mgmt<span class="nav-imp high">85%</span></a>
+  <a class="nav-item" href="#atomic-multicast">📡 Atomic Multicast<span class="nav-imp med">72%</span></a>
+  <a class="nav-item" href="#update-propagation">🔄 Update Propagation<span class="nav-imp med">70%</span></a>
+  <a class="nav-item" href="#corba-intro">🏛️ CORBA Introduction<span class="nav-imp high">88%</span></a>
+  <a class="nav-item" href="#corba-arch">⚙️ CORBA Architecture<span class="nav-imp high">90%</span></a>
+  <a class="nav-item" href="#corba-rmi">🔗 CORBA RMI &amp; IDL<span class="nav-imp high">88%</span></a>
+  <a class="nav-item" href="#corba-services">🛠️ CORBA Services<span class="nav-imp med">78%</span></a>
+  <a class="nav-item" href="#predicted">🔮 2026 Predicted Paper</a>
+  <a class="nav-item" href="#pyq-master">📝 All PYQs</a>
+</nav>
+
+<main class="content">
+
+<!-- ═══════ SECTION 00: OVERVIEW ═══════ -->
+<section class="section" id="overview">
+  <div class="section-header"><span class="section-num">00</span><h2 class="section-title">Topic Importance — Unit 6</h2></div>
+  <div class="theory-block">
+    <p>Unit 6 is the <strong>most consistent Part C unit</strong> in DS. Byzantine Agreement has appeared in Part C every year since its introduction. CORBA appeared in Part C in both 2023 and 2024, then was absent in 2025 — making it a near-certain return for 2026. Faults and failure appear every year in Part A. This unit alone can score you 20–25 marks if prepared well.</p>
+    <div class="imp-bar-wrap" style="margin-top:18px">
+      <div class="imp-bar-label"><span>Byzantine Agreement (approaches + impossibility proof)</span><span style="color:#ef4444">95% 🔮 CERTAIN Part C</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:95%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Faults, Errors, Failure — Types and concepts</span><span style="color:#ef4444">90% — Every Part A + Part B</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:90%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>CORBA Architecture + IDL (returned after 1-yr absence)</span><span style="color:#ef4444">90% 🔮 VERY HIGH return</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:90%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Replicated Data Management — issues + techniques</span><span style="color:#06b6d4">85% — 2025 Part A, rising</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:85%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Randomized Distributed Agreement (new 2025)</span><span style="color:#06b6d4">82% — 2025 Part B anchor</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:82%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>CORBA Services (Naming, Security, Events, Transaction)</span><span style="color:#06b6d4">78%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:78%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>FLP Impossibility of Consensus</span><span style="color:#f59e0b">75%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:75%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Atomic Multicast + Update Propagation</span><span style="color:#f59e0b">70%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:70%"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 01: FAULTS & FAILURES ═══════ -->
+<section class="section" id="faults">
+  <div class="section-header"><span class="section-num">01</span><h2 class="section-title">Concept of Faults, Failure &amp; Recovery</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part A Q9):</strong> "Explain concept of faults" appeared in 2023 Part A Q9 and 2025 Part A Q9. "Briefly explain fault, errors, and failure" appeared in 2024 Part B Q6. Three consecutive papers — fault/failure is a PERMANENT unit 6 anchor. CERTAIN for 2026 in some form.</div></div>
+  <div class="theory-block">
+    <h3>The Three-Level Model: Fault → Error → Failure</h3>
+    <p>These three terms are often confused but have precise meanings in distributed systems. Understanding this hierarchy is essential for both Part A and Part B answers.</p>
+    <div class="layman">Think of a car. A crack in the brake pad (FAULT — root cause, hidden). The brake fluid starts leaking because of the crack (ERROR — the bad system state resulting from the fault). The car cannot stop when you press the brake (FAILURE — the visible, externally observable bad behaviour). The fault was there long before the failure was noticed.</div>
+    <div class="fbox">
+      <span class="flbl">The Chain: Fault → Error → Failure</span>
+      <div class="fl">FAULT   = The underlying defect (root cause). May be dormant for a long time.</div>
+      <div class="fl">          Example: A bug in code, a corrupted memory bit, a loose network cable</div>
+      <div class="fl"></div>
+      <div class="fl">ERROR   = An incorrect state that results when a fault is activated.</div>
+      <div class="fl">          Example: A variable holds the wrong value due to the bug being triggered</div>
+      <div class="fl"></div>
+      <div class="fl">FAILURE = When the system deviates from its specified behaviour — visible to users.</div>
+      <div class="fl">          Example: The server returns wrong data; the process crashes; request times out</div>
+      <div class="fn">Memory: "FEF" — Fault causes Error causes Failure. The fault is private (inside), failure is public (visible outside).</div>
+    </div>
+
+    <h3>Types of Faults by Duration</h3>
+    <table class="comp-table">
+      <tr><th>Fault Type</th><th>Description</th><th>Example</th><th>Hardest to?</th></tr>
+      <tr><td><strong>Transient</strong></td><td>Occurs once then disappears on its own</td><td>Cosmic ray flips a bit in memory; power spike</td><td>Reproduce (gone before you look)</td></tr>
+      <tr><td><strong>Intermittent</strong></td><td>Occurs, disappears, then reappears unpredictably</td><td>Loose network connector; temperature-dependent bug</td><td>Diagnose (comes and goes)</td></tr>
+      <tr><td><strong>Permanent</strong></td><td>Persists until repaired by human intervention</td><td>Burned-out CPU; severed cable; software bug</td><td>Quick fix (requires explicit repair)</td></tr>
+    </table>
+
+    <h3 class="cyan">Types of Failures (Process/Component Level)</h3>
+    <p>A process can fail in different ways — listed from <strong>easiest to handle</strong> to <strong>hardest to handle</strong>:</p>
+    <div class="fbox">
+      <span class="flbl">5 Failure Types (Crash → Byzantine) — Increasing Severity</span>
+      <div class="fl">1. CRASH-STOP (Fail-Stop): Process crashes and stops permanently. No more messages.</div>
+      <div class="fl">   Easiest: Others can detect silence → assume crashed. No wrong answers, just silence.</div>
+      <div class="fl">   Example: A server process killed by kill -9.</div>
+      <div class="fl"></div>
+      <div class="fl">2. CRASH-RECOVERY: Process crashes but may restart from saved state (checkpoint).</div>
+      <div class="fl">   Moderate: May have stale data on restart. Logging helps recovery.</div>
+      <div class="fl">   Example: A database that restarts after a crash and replays its WAL log.</div>
+      <div class="fl"></div>
+      <div class="fl">3. OMISSION FAILURE: Process omits to send/receive some messages (not all).</div>
+      <div class="fl">   Still responds to some — hard to distinguish from slow or crashed process.</div>
+      <div class="fl">   Example: Network packet drops; receive-omission = process ignores some requests.</div>
+      <div class="fl"></div>
+      <div class="fl">4. TIMING FAILURE: Process responds, but outside the specified time bounds.</div>
+      <div class="fl">   In synchronous model only (asynchronous: no timing bounds to violate).</div>
+      <div class="fl">   Example: Real-time system: sensor must report in 10ms, takes 50ms.</div>
+      <div class="fl"></div>
+      <div class="fl">5. BYZANTINE (Arbitrary) FAILURE: Process behaves ARBITRARILY.</div>
+      <div class="fl">   Sends wrong, inconsistent, or malicious messages. HARDEST to handle.</div>
+      <div class="fl">   Example: Corrupted process sends "attack" to half the generals, "retreat" to others.</div>
+      <div class="fn">Think of severity as a ladder: Crash-Stop (bottom, easiest) → Byzantine (top, hardest). Each step up is harder to detect and recover from.</div>
+    </div>
+
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Faults → The Rest of Unit 6</div>
+        <p>Byzantine failures are why we need <strong>Byzantine Agreement</strong> (next section). Crash failures motivate replication (Replicated Data Management). The impossibility of consensus in the presence of even ONE crash failure is the FLP result. Every topic in Unit 6 is a direct response to one of these failure types. Understanding the failure model first makes everything else click.</p>
+      </div>
+    </div>
+
+    <h3 class="orange">Failure Recovery Mechanisms</h3>
+    <p>Once a failure is detected, the system must recover. RTU syllabus covers these recovery approaches:</p>
+    <ul>
+      <li><strong>Checkpointing:</strong> Save process state periodically. On failure, restart from last checkpoint. Called <em>backward recovery</em> — roll back to a known good state.</li>
+      <li><strong>Message Logging:</strong> Log all messages received. On recovery, replay logged messages to reconstruct state without needing sender to resend.</li>
+      <li><strong>Replication:</strong> Keep multiple copies of data/processes. If one fails, another takes over. Most common approach in practice.</li>
+      <li><strong>Forward Recovery:</strong> Error-correcting codes (like RAID) allow the system to reconstruct the correct state without rolling back.</li>
+    </ul>
+    <div class="layman">Backward recovery = "undo" — go back to your last save game point. Forward recovery = "repair" — use parity bits to reconstruct the correct data without going back. Replication = "redundancy" — keep multiple copies so if one burns, another steps in.</div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Faults, Errors, Failures</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q9. Explain concept of faults in distributed agreement.</div>
+      <div class="pyq-meta"><span>2023 Part A Q9 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Faults</span><span class="pred-tag">🔮 CERTAIN 2026 Part A</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Concept of Faults in Distributed Agreement:</strong><br><br>
+        A <strong>fault</strong> is the underlying defect in a component. It activates an <strong>error</strong> (incorrect state), which causes a <strong>failure</strong> (deviation from specified behaviour).<br><br>
+        <strong>Types of faults relevant to distributed agreement:</strong><br>
+        1. <strong>Crash Faults:</strong> Process stops responding entirely — others detect by silence/timeout<br>
+        2. <strong>Byzantine Faults:</strong> Process behaves arbitrarily — sends contradictory messages to different processes. Hardest to handle — process may actively lie<br>
+        3. <strong>Omission Faults:</strong> Process fails to send/receive some messages<br><br>
+        <strong>In distributed agreement:</strong> We need all correct (non-faulty) processes to agree on the same value even in the presence of faults. Byzantine faults make this extremely hard — faulty processes can send conflicting "vote" messages to different participants.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q6(Part B). Briefly explain fault, errors, and failure in distributed system.</div>
+      <div class="pyq-meta"><span>2024 Part B Q6 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Fault-Error-Failure</span><span class="pred-tag">🔮 VERY HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>The Fault → Error → Failure Chain:</strong><br><br>
+        <strong>FAULT:</strong> The root cause — a physical or logical defect. May be dormant (not yet causing problems). Types: Transient (occurs once, disappears), Intermittent (comes and goes), Permanent (persists until repaired).<br><br>
+        <strong>ERROR:</strong> The incorrect system state resulting from a fault activation. The fault has now affected data, computation, or communication. May or may not be visible outside the process.<br><br>
+        <strong>FAILURE:</strong> When the system deviates from its specified service — the error becomes externally visible. The component fails to perform its required function.<br><br>
+        <strong>Example chain:</strong><br>
+        Fault: Memory bit flipped by cosmic ray (hardware defect)<br>
+        Error: Process's counter variable now holds wrong value (bad state)<br>
+        Failure: Process sends incorrect response to client (external deviation)<br><br>
+        <strong>Types of Failures by severity:</strong><br>
+        Crash-Stop → Omission → Timing → Byzantine (order of increasing difficulty to handle)
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q9. What is concept of Faults?</div>
+      <div class="pyq-meta"><span>2025 Part A Q9 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Faults</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        A <strong>fault</strong> is a defect in a system component that can cause an error, which in turn can cause a failure.<br><br>
+        <strong>Fault Classification:</strong><br>
+        · By duration: Transient (once), Intermittent (periodic), Permanent (until repaired)<br>
+        · By type: Hardware faults (circuit failure), Software faults (bugs), Network faults (packet loss)<br>
+        · By failure mode: Crash, Omission, Timing, Byzantine<br><br>
+        <strong>Importance:</strong> Understanding fault types determines the recovery strategy — crash faults need replication; Byzantine faults need Byzantine Agreement protocols.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 02: BYZANTINE FAULTS ═══════ -->
+<section class="section" id="byzantine-faults">
+  <div class="section-header"><span class="section-num">02</span><h2 class="section-title">Byzantine Faults &amp; Adversaries</h2></div>
+  <div class="theory-block">
+    <h3>What is a Byzantine Fault?</h3>
+    <p>A <span class="hl-v">Byzantine fault</span> (also called an arbitrary fault) is the most severe type of failure. A Byzantine process can:</p>
+    <ul>
+      <li>Send <strong>different messages to different processes</strong> (inconsistency)</li>
+      <li>Send <strong>intentionally wrong</strong> messages</li>
+      <li>Send messages at the <strong>wrong time</strong></li>
+      <li>Selectively <strong>not send</strong> messages to some processes</li>
+      <li>Collude with other Byzantine processes</li>
+    </ul>
+    <div class="layman">Normal crash fault = a soldier gets injured and can't communicate at all. Everyone knows he's down (silence = crash). Byzantine fault = a TRAITOR SOLDIER who is alive and sending messages — but sending "ATTACK" to half the army and "RETREAT" to the other half. He's trying to make the army fail by creating confusion. This is why Byzantine faults are so dangerous — you can't trust anything the faulty process says.</div>
+
+    <h3 class="orange">The Byzantine Generals Problem (Original Story)</h3>
+    <p>Introduced by <em>Lamport, Shostak, and Pease (1982)</em>, this famous problem illustrates the challenge:</p>
+    <div class="fbox">
+      <span class="flbl">The Byzantine Generals Problem Setup</span>
+      <div class="fl">Scenario: Byzantine army surrounds an enemy city.</div>
+      <div class="fl">Several generals, each commanding a division, must agree on a common plan:</div>
+      <div class="fl">  → ATTACK together (they win) OR RETREAT together (they survive)</div>
+      <div class="fl">  → Some attack + some retreat = CATASTROPHIC DEFEAT</div>
+      <div class="fl"></div>
+      <div class="fl">Communication: Only by messenger (can't all meet face-to-face)</div>
+      <div class="fl">Problem: Some generals may be TRAITORS (Byzantine faulty)</div>
+      <div class="fl">  → Traitors send conflicting messages to different generals</div>
+      <div class="fl">  → Goal: All LOYAL generals must agree on the SAME plan</div>
+      <div class="fl">  → Traitors try to prevent agreement or cause wrong agreement</div>
+      <div class="fn">Mapping to DS: Generals = processes, Messengers = network, Traitors = Byzantine-faulty processes. The problem is: can loyal processes agree despite traitors?</div>
+    </div>
+
+    <h3 class="red">Adversary Model</h3>
+    <p>An <span class="hl-v">adversary</span> is an entity (or model) representing the worst-case behaviour of faulty components. Different adversary models define different problem difficulties:</p>
+    <table class="comp-table">
+      <tr><th>Adversary Type</th><th>Power</th><th>Protocol Needed</th></tr>
+      <tr><td><strong>Crash Adversary</strong></td><td>Can crash any f processes (they stop responding)</td><td>Paxos, Raft — need f+1 out of 2f+1</td></tr>
+      <tr><td><strong>Byzantine Adversary</strong></td><td>Can control f processes — they send arbitrary messages</td><td>Need 3f+1 processes; f+1 rounds</td></tr>
+      <tr><td><strong>Authenticated Byzantine</strong></td><td>Byzantine but can't forge digital signatures</td><td>Need f+2 processes (lighter requirement)</td></tr>
+      <tr><td><strong>Rushing Adversary</strong></td><td>Byzantine + sees all messages before sending own (adaptive)</td><td>Randomized protocols needed</td></tr>
+    </table>
+    <div class="tip-box warning">
+      <div class="tip-icon">⚠️</div>
+      <div class="tip-content">
+        <div class="tip-title">Key Insight — Why Byzantine is MUCH Harder than Crash</div>
+        <p>With <strong>crash faults</strong>, silence = crashed (binary). You know who to ignore.<br>With <strong>Byzantine faults</strong>, the faulty process is ACTIVE and LYING. You don't know which messages are trustworthy. That's why you need 3f+1 processes for Byzantine vs only 2f+1 for crash tolerance — the extra f processes provide the "majority margin" to outvote the liars.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 03: BYZANTINE AGREEMENT ═══════ -->
+<section class="section" id="byzantine-agreement">
+  <div class="section-header"><span class="section-num">03</span><h2 class="section-title">Byzantine Agreement</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN (Part C Q2 or Q5):</strong> "What do you understand by Byzantine Agreement? Explain." appeared in 2024 Part B Q7. "What is the Byzantine Agreement? Explain different approaches to solve it." appeared in 2025 Part C Q5 (10 marks). This is the clearest escalation pattern in DS — Part B → Part C. CERTAIN for 2026 Part C. Draw ALL approach diagrams for full marks.</div></div>
+  <div class="theory-block">
+    <h3>Formal Definition of Byzantine Agreement</h3>
+    <p>The <span class="hl-v">Byzantine Agreement (BA) Problem</span> requires that n processes, where up to f may be Byzantine faulty, reach a consensus on a single value despite the faulty processes sending arbitrary/conflicting messages.</p>
+    <div class="fbox">
+      <span class="flbl">Three Requirements of Byzantine Agreement</span>
+      <div class="fl">1. AGREEMENT: All non-faulty processes must decide on the SAME value.</div>
+      <div class="fl">              (No two honest processes can decide different values)</div>
+      <div class="fl"></div>
+      <div class="fl">2. VALIDITY: If all non-faulty processes propose the same value v,</div>
+      <div class="fl">             then all non-faulty processes must decide v.</div>
+      <div class="fl">             (Unanimous honest input must produce that result)</div>
+      <div class="fl"></div>
+      <div class="fl">3. TERMINATION: Every non-faulty process eventually decides a value.</div>
+      <div class="fl">               (The protocol cannot run forever)</div>
+      <div class="fn">These three properties together define a "correct" Byzantine Agreement protocol. A protocol is broken if it violates ANY one of these.</div>
+    </div>
+
+    <h3>The Key Result — Minimum Processes Required</h3>
+    <div class="fbox">
+      <span class="flbl">Lamport-Shostak-Pease Theorem (1982) — THE Most Important Formula</span>
+      <div class="fl">To tolerate f Byzantine faulty processes, you need at least:</div>
+      <div class="fl">          n ≥ 3f + 1   total processes</div>
+      <div class="fl"></div>
+      <div class="fl">Examples:</div>
+      <div class="fl">  f = 1 fault: need n ≥ 4 processes (3×1+1 = 4)</div>
+      <div class="fl">  f = 2 faults: need n ≥ 7 processes (3×2+1 = 7)</div>
+      <div class="fl">  f = 10 faults: need n ≥ 31 processes</div>
+      <div class="fl"></div>
+      <div class="fl">WHY 3f+1? Intuition:</div>
+      <div class="fl">  → f Byzantine can lie (actively mislead)</div>
+      <div class="fl">  → f may crash (silent failures)</div>
+      <div class="fl">  → Remaining n-2f non-faulty must still form a majority</div>
+      <div class="fl">  → n - 2f > f  →  n > 3f  →  n ≥ 3f+1</div>
+      <div class="fn">EXAM CRITICAL: If asked "How many processes needed?" → Answer: n ≥ 3f+1. Always verify: 4 processes with f=1: 4 ≥ 4 ✓. 3 processes with f=1: 3 < 4 ✗ IMPOSSIBLE.</div>
+    </div>
+    <div class="layman">Why n ≥ 3f+1? Imagine a voting system where f people are liars. If you only have 3 people (1 liar + 2 honest), the liar can tell person A "B voted YES" and tell person B "A voted YES" — now both honest people think there's a majority when there isn't. With 4 people and 1 liar: the liar can mislead one person but the remaining 2 honest people can always outvote the combined f liars + f crashers = 2f confused votes. You need n-f non-faulty (at least 2f+1) honest processes to out-majority the chaos.</div>
+
+    <h3 class="cyan">Algorithm 1: Oral Messages (OM Algorithm)</h3>
+    <p>The original algorithm by Lamport, Shostak &amp; Pease. Uses recursive message passing where each general forwards what they heard to everyone else.</p>
+    <div class="fbox">
+      <span class="flbl">OM(f) Algorithm — Recursive Approach</span>
+      <div class="fl">OM(0): Commander sends value to all lieutenants. Each lieutenant uses what they received.</div>
+      <div class="fl"></div>
+      <div class="fl">OM(m) where m > 0:</div>
+      <div class="fl">  Step 1: Commander sends value v to each of n-1 lieutenants.</div>
+      <div class="fl">  Step 2: Each lieutenant i acts as commander in OM(m-1) with the</div>
+      <div class="fl">           n-2 other lieutenants, sending what they received from the commander.</div>
+      <div class="fl">  Step 3: Each lieutenant i collects (n-1) values — one from original send +</div>
+      <div class="fl">           (n-2) from sub-protocol. Takes MAJORITY of these values.</div>
+      <div class="fl"></div>
+      <div class="fl">Example (n=4, f=1): 1 commander + 3 lieutenants (1 lieutenant is traitor)</div>
+      <div class="fl">  Round 1: Commander → L1:attack, L2:attack, L3(traitor): attack</div>
+      <div class="fl">  Round 2: L1 → L2:attack, L3:attack | L2 → L1:attack, L3:attack | L3 → L1:retreat, L2:retreat</div>
+      <div class="fl">  L1 collects: {attack, attack, retreat} → majority = ATTACK ✓</div>
+      <div class="fl">  L2 collects: {attack, attack, retreat} → majority = ATTACK ✓ (same as L1)</div>
+      <div class="fl">Agreement achieved!</div>
+      <div class="fn">Complexity: Needs f+1 rounds, n ≥ 3f+1 processes, O(n^(f+1)) messages — exponential! Practical only for very small f.</div>
+    </div>
+
+    <h3 class="orange">Algorithm 2: Signed Messages (SM Algorithm)</h3>
+    <p>Uses digital signatures to prevent traitors from forging loyal generals' messages. This removes the need for n ≥ 3f+1 — only n ≥ f+2 needed!</p>
+    <div class="fbox">
+      <span class="flbl">Signed Messages Algorithm</span>
+      <div class="fl">Key Assumption: Digital signatures cannot be forged.</div>
+      <div class="fl">  → Loyal general's signed message cannot be altered by a traitor</div>
+      <div class="fl">  → Traitor can send different signed values to different processes,</div>
+      <div class="fl">    but cannot fake a different loyal general's signature</div>
+      <div class="fl"></div>
+      <div class="fl">Algorithm SM(f):</div>
+      <div class="fl">  Step 1: Commander signs and sends value to all lieutenants.</div>
+      <div class="fl">  Step 2: Each lieutenant maintains a set V of values it has received.</div>
+      <div class="fl">  Step 3: On receiving signed message (v : signature_chain):</div>
+      <div class="fl">    → If v is new, add to V; forward to all others with your signature appended</div>
+      <div class="fl">  Step 4: After f+1 rounds, decide: if |V|=1, choose that value; else choose default (RETREAT)</div>
+      <div class="fl"></div>
+      <div class="fl">Minimum processes needed: n ≥ f + 2  (much better than 3f+1!)</div>
+      <div class="fn">Trade-off: Oral Messages: n ≥ 3f+1, no crypto. Signed Messages: n ≥ f+2, requires public-key infrastructure.</div>
+    </div>
+
+    <h3 class="purple">Algorithm 3: PBFT (Practical Byzantine Fault Tolerance)</h3>
+    <p><span class="hl-v">PBFT</span> (Castro &amp; Liskov, 1999) is the most practical Byzantine Agreement algorithm used in real systems. It uses a 3-phase protocol.</p>
+    <div class="fbox">
+      <span class="flbl">PBFT — 3 Phase Protocol</span>
+      <div class="fl">Assumption: n ≥ 3f+1 replicas. One replica is the PRIMARY (leader); rest are BACKUPS.</div>
+      <div class="fl"></div>
+      <div class="fl">Phase 1 — PRE-PREPARE:</div>
+      <div class="fl">  Primary receives client request, assigns sequence number, broadcasts PRE-PREPARE msg</div>
+      <div class="fl">  PRE-PREPARE(v, n, d) — view v, sequence num n, digest d (hash of request)</div>
+      <div class="fl"></div>
+      <div class="fl">Phase 2 — PREPARE:</div>
+      <div class="fl">  Each backup validates PRE-PREPARE; if valid, broadcasts PREPARE(v, n, d, i)</div>
+      <div class="fl">  A replica is "prepared" when it has PRE-PREPARE + 2f PREPARE messages</div>
+      <div class="fl"></div>
+      <div class="fl">Phase 3 — COMMIT:</div>
+      <div class="fl">  Each prepared replica broadcasts COMMIT(v, n, D, i)</div>
+      <div class="fl">  A replica "commits" when it has 2f+1 COMMIT messages → executes request → replies</div>
+      <div class="fl"></div>
+      <div class="fl">Message complexity: O(n²) — each phase involves all-to-all communication</div>
+      <div class="fn">Used in: Hyperledger Fabric, Tendermint, early blockchain systems. Handles up to ⌊(n-1)/3⌋ Byzantine failures.</div>
+    </div>
+
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 620 260" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="310" y="20" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="12" font-weight="bold">PBFT — 3 Phase Protocol (n=4, f=1)</text>
+        <!-- Client -->
+        <rect x="10" y="40" width="80" height="36" rx="6" fill="#081820" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="50" y="62" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">CLIENT</text>
+        <!-- Primary -->
+        <rect x="130" y="40" width="90" height="36" rx="6" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="175" y="58" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">PRIMARY</text>
+        <text x="175" y="70" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Replica 0</text>
+        <!-- Backups -->
+        <rect x="280" y="40" width="90" height="36" rx="6" fill="#081820" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="325" y="58" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">BACKUP 1</text>
+        <text x="325" y="70" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Replica 1</text>
+        <rect x="430" y="40" width="90" height="36" rx="6" fill="#081820" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="475" y="58" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">BACKUP 2</text>
+        <text x="475" y="70" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Replica 2</text>
+        <rect x="530" y="40" width="80" height="36" rx="6" fill="#081820" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="570" y="58" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="9" font-weight="bold">FAULTY</text>
+        <text x="570" y="70" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Replica 3</text>
+        <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#5a8aa0" stroke-width="1.5"/></marker></defs>
+        <!-- Request -->
+        <line x1="90" y1="58" x2="128" y2="58" stroke="#22d3ee" stroke-width="2" marker-end="url(#ar)"/>
+        <text x="109" y="52" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="7">REQUEST</text>
+        <!-- Phase labels -->
+        <text x="310" y="105" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="9" font-weight="bold">① PRE-PREPARE (Primary → All)</text>
+        <line x1="220" y1="112" x2="278" y2="112" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="220" y1="112" x2="428" y2="112" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="220" y1="112" x2="528" y2="112" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3" marker-end="url(#ar)"/>
+        <text x="310" y="145" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">② PREPARE (Each Backup → All, All-to-All)</text>
+        <line x1="325" y1="152" x2="173" y2="152" stroke="#10b981" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="325" y1="152" x2="428" y2="152" stroke="#10b981" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="475" y1="152" x2="222" y2="152" stroke="#10b981" stroke-width="1.2" marker-end="url(#ar)"/>
+        <text x="310" y="185" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">③ COMMIT (Each → All when prepared)</text>
+        <line x1="175" y1="192" x2="323" y2="192" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="325" y1="192" x2="173" y2="192" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#ar)"/>
+        <!-- Reply -->
+        <text x="310" y="222" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">④ REPLY (Each correct replica → Client)</text>
+        <line x1="175" y1="228" x2="92" y2="228" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="325" y1="228" x2="92" y2="228" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#ar)"/>
+        <text x="310" y="252" text-anchor="middle" fill="#2a4858" font-family="JetBrains Mono" font-size="8">Client accepts reply when 2f+1 matching replies received. Message complexity: O(n²) per request.</text>
+      </svg>
+      <div class="diagram-cap">Fig: PBFT Protocol — Client request goes through Pre-Prepare → Prepare → Commit phases. Faulty replica (Replica 3) ignored after 2f+1 correct responses received.</div>
+    </div>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Full 10-Mark Byzantine Agreement Answer</div>
+        <p>Introduction + definition (1) + 3 requirements (1) + n≥3f+1 result with proof sketch (2) + Oral Messages algorithm with n=4,f=1 example (2) + Signed Messages (1) + PBFT 3-phase diagram (2) + comparison table (1) = 10 marks. Always write n≥3f+1 formula PROMINENTLY — examiners look for it. Draw the PBFT diagram since faculty specifically checks diagrams.</p>
+      </div>
+    </div>
+
+    <h3 class="red">Comparison: Three Byzantine Agreement Approaches</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Oral Messages (OM)</th><th>Signed Messages (SM)</th><th>PBFT</th></tr>
+      <tr><td>Min processes</td><td>n ≥ 3f+1</td><td>n ≥ f+2</td><td>n ≥ 3f+1</td></tr>
+      <tr><td>Rounds</td><td>f+1 rounds</td><td>f+1 rounds</td><td>3 phases (constant)</td></tr>
+      <tr><td>Message complexity</td><td>O(n^(f+1))</td><td>O(n²·f)</td><td>O(n²) per request</td></tr>
+      <tr><td>Cryptography</td><td>Not needed</td><td>Digital signatures required</td><td>Message digests (hashes)</td></tr>
+      <tr><td>Practical?</td><td>No (exponential messages)</td><td>Partially</td><td>Yes — used in real systems</td></tr>
+      <tr><td>Real use</td><td>Theoretical proof</td><td>Secure systems</td><td>Hyperledger, Tendermint</td></tr>
+    </table>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Byzantine Agreement</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7(Part B). What do you understand by Byzantine Agreement? Explain.</div>
+      <div class="pyq-meta"><span>2024 Part B Q7 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Byzantine Agreement</span><span class="pred-tag">🔮 CERTAIN 2026 Part C</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Byzantine Agreement (Byzantine Generals Problem):</strong><br><br>
+        n processes must reach consensus on a single value even when up to f processes are Byzantine faulty (send arbitrary, conflicting messages).<br><br>
+        <strong>Three Requirements:</strong><br>
+        1. Agreement: All non-faulty processes decide the same value<br>
+        2. Validity: If all non-faulty processes propose v, all decide v<br>
+        3. Termination: Every non-faulty process eventually decides<br><br>
+        <strong>Key Theorem:</strong> Byzantine Agreement is solvable iff n ≥ 3f+1. With f=1, need at least 4 processes. With n=3 and f=1, it is IMPOSSIBLE.<br><br>
+        <strong>Approach (Oral Messages, n=4, f=1):</strong><br>
+        Commander sends value to 3 lieutenants. Each lieutenant forwards what it received to the other 2. Each lieutenant decides by majority vote on the 3 values it collected (1 direct + 2 forwarded).<br><br>
+        <strong>Result:</strong> Even if traitor sends different values, honest lieutenants receive majority of honest values → agreement achieved.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q5(Part C). What is the Byzantine Agreement? Explain different approaches to solve it.</div>
+      <div class="pyq-meta"><span>2025 Part C Q5 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Byzantine Agreement</span><span class="pred-tag">🔮 CERTAIN 2026 Part C</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Byzantine Agreement:</strong> n processes must agree on a value despite f Byzantine-faulty processes. Requirements: Agreement, Validity, Termination. Min processes: n ≥ 3f+1.<br><br>
+        <strong>Approach 1 — Oral Messages (OM Algorithm):</strong> Recursive forwarding. Each general forwards everything heard to all others. Decide by majority. Requires f+1 rounds, n ≥ 3f+1, O(n^(f+1)) messages. No cryptography needed. Example: n=4, f=1: commander sends to 3 lieutenants, each forwards to 2 others, majority of 3 values = decision.<br><br>
+        <strong>Approach 2 — Signed Messages:</strong> Digital signatures prevent message forgery. Traitor can't fake a loyal general's signed message. Needs only n ≥ f+2 processes. More practical for small f. Requires public key infrastructure.<br><br>
+        <strong>Approach 3 — PBFT:</strong> 3-phase protocol (Pre-Prepare → Prepare → Commit). O(n²) messages. Handles n ≥ 3f+1. Used in blockchain systems (Hyperledger Fabric, Tendermint). Client waits for 2f+1 matching replies.<br><br>
+        <strong>Fault Tolerance comparison:</strong> Oral Messages: theoretical; Signed: better ratio; PBFT: practical production use.<br><br>
+        [Draw PBFT 3-phase diagram with n=4, f=1]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 04: IMPOSSIBILITY OF CONSENSUS ═══════ -->
+<section class="section" id="impossibility">
+  <div class="section-header"><span class="section-num">04</span><h2 class="section-title">Impossibility of Consensus (FLP Result)</h2></div>
+  <div class="theory-block">
+    <h3>The FLP Impossibility Theorem</h3>
+    <p>One of the most famous results in distributed computing, proven by <em>Fischer, Lynch, and Paterson (1985)</em>:</p>
+    <div class="fbox">
+      <span class="flbl">FLP Impossibility Result — THE Most Important Theorem</span>
+      <div class="fl">Statement: In an ASYNCHRONOUS distributed system, it is IMPOSSIBLE</div>
+      <div class="fl">to solve consensus if even ONE process can CRASH-FAIL.</div>
+      <div class="fl"></div>
+      <div class="fl">Even with CRASH failures only (not Byzantine), with NO timing guarantees,</div>
+      <div class="fl">no deterministic protocol can simultaneously guarantee:</div>
+      <div class="fl">  ✓ Agreement (all decide same value)</div>
+      <div class="fl">  ✓ Validity</div>
+      <div class="fl">  ✓ Termination (protocol always terminates)</div>
+      <div class="fl"></div>
+      <div class="fl">WHY: In an asynchronous system, you can't distinguish between a SLOW process</div>
+      <div class="fl">and a CRASHED process. A protocol that waits for all processes could wait forever</div>
+      <div class="fl">(if one crashed). A protocol that doesn't wait all might decide too early.</div>
+      <div class="fn">FLP does NOT mean consensus is impossible in practice. It means: in a fully asynchronous model, you must weaken one of: safety OR liveness OR the fault model.</div>
+    </div>
+    <div class="layman">Imagine a committee vote where any member might have left the room (crashed) without telling anyone. You can't tell if someone is "thinking slowly" or "has left permanently." If you wait for everyone to vote, you might wait forever (if someone left). If you stop waiting early, the person might come back with a different vote and upset the agreement. FLP says this is a fundamental impossibility — you can't solve it perfectly in a system with no timing guarantees.</div>
+
+    <h3 class="orange">Circumventing FLP — Practical Solutions</h3>
+    <p>Since FLP kills deterministic consensus in pure asynchronous systems, real systems use these workarounds:</p>
+    <table class="comp-table">
+      <tr><th>Approach</th><th>What it weakens</th><th>Example</th></tr>
+      <tr><td><strong>Randomization</strong></td><td>Termination: probabilistic (not guaranteed but very likely)</td><td>Ben-Or's randomized consensus, Ethereum's PoS</td></tr>
+      <tr><td><strong>Partial synchrony</strong></td><td>Asynchrony assumption: assume "eventually synchronous"</td><td>Paxos, Raft — have timeouts</td></tr>
+      <tr><td><strong>Failure detectors</strong></td><td>Fault model: assume an unreliable "oracle" can suspect failures</td><td>Chandra-Toueg failure detectors</td></tr>
+      <tr><td><strong>Weaker consistency</strong></td><td>Agreement: eventual consistency instead of strong</td><td>Dynamo, Cassandra</td></tr>
+    </table>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — FLP in One Paragraph (Part A Answer)</div>
+        <p>"FLP theorem (Fischer-Lynch-Paterson, 1985): In an asynchronous distributed system, consensus is impossible if even one process can crash. The key reason: you cannot distinguish a slow process from a crashed one — waiting for it risks non-termination; not waiting risks incorrect agreement. Solutions: randomized protocols (sacrifice guaranteed termination), partially synchronous models (Paxos, Raft), or failure detectors."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 05: RANDOMIZED AGREEMENT ═══════ -->
+<section class="section" id="randomized">
+  <div class="section-header"><span class="section-num">05</span><h2 class="section-title">Randomized Distributed Agreement</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part B Q7):</strong> "Discuss the randomized distributed agreement approach and its advantages" appeared as Part B Q7 in 2025 — a brand new topic in DS. New Part B topics persist for 2-3 years per RTU pattern (confirmed by DS DCE, Types of OS patterns). VERY HIGH for 2026 Part B.</div></div>
+  <div class="theory-block">
+    <h3>Why Randomization?</h3>
+    <p><span class="hl-v">Randomized algorithms</span> break the FLP impossibility by sacrificing <em>deterministic termination</em> — they terminate with <strong>high probability</strong> rather than certainty. This is practically acceptable because the probability of non-termination can be made astronomically small.</p>
+    <div class="layman">Imagine a deadlocked meeting where no one agrees. Instead of a rule (which can be exploited by traitors), everyone secretly flips a coin and whispers the result to one trusted person. The randomness introduces "noise" that the adversary can't control — breaking the deadlock by accident. That's randomized consensus: use randomness to break ties that adversaries would otherwise exploit to prevent agreement.</div>
+
+    <h3>Ben-Or's Randomized Algorithm (1983)</h3>
+    <p>The classic randomized consensus algorithm that gets around FLP. Works even with Byzantine failures but achieves agreement <em>with probability 1</em> (not certainty).</p>
+    <div class="fbox">
+      <span class="flbl">Ben-Or Algorithm — Round Structure</span>
+      <div class="fl">Each process maintains: value v (its current estimate), round r.</div>
+      <div class="fl">In each round, process executes two phases:</div>
+      <div class="fl"></div>
+      <div class="fl">PHASE 1 (Report):</div>
+      <div class="fl">  Broadcast (REPORT, r, v) to all processes</div>
+      <div class="fl">  Wait for n-f REPORT messages for round r</div>
+      <div class="fl">  If more than n/2 reports have the same value w:</div>
+      <div class="fl">    → update v = w  (a near-consensus exists)</div>
+      <div class="fl">  Else: v = ⊥ (no consensus yet)</div>
+      <div class="fl"></div>
+      <div class="fl">PHASE 2 (Propose):</div>
+      <div class="fl">  Broadcast (PROPOSE, r, v) to all processes</div>
+      <div class="fl">  Wait for n-f PROPOSE messages for round r</div>
+      <div class="fl">  If any PROPOSE has a specific value w (not ⊥):</div>
+      <div class="fl">    → v = w (adopt that value)</div>
+      <div class="fl">    → if more than n/2 proposed w: DECIDE(w) and output</div>
+      <div class="fl">  Else: v = COIN_FLIP()  ← RANDOMNESS HERE: flip a fair coin!</div>
+      <div class="fl">  Start next round with new v</div>
+      <div class="fn">Why it works: The coin flip prevents adversary from consistently steering all processes to deadlock. Expected rounds to termination: O(2^n) worst case BUT in practice terminates in O(1) expected rounds. Used for: blockchain consensus, distributed databases under partial failure.</div>
+    </div>
+
+    <h3 class="cyan">Advantages of Randomized Distributed Agreement</h3>
+    <ul>
+      <li><strong>Circumvents FLP:</strong> Terminates with probability 1 — practically as good as guaranteed termination in real deployments</li>
+      <li><strong>Simpler protocols:</strong> No need for complex failure detectors or partial synchrony assumptions</li>
+      <li><strong>Byzantine resilient variants:</strong> With n ≥ 3f+1, can handle Byzantine failures probabilistically</li>
+      <li><strong>Self-stabilizing:</strong> Protocol eventually terminates regardless of the start state</li>
+      <li><strong>Practical performance:</strong> Expected O(1) rounds under reasonable adversary models</li>
+    </ul>
+
+    <h3 class="orange">Limitations</h3>
+    <ul>
+      <li><strong>Non-deterministic termination:</strong> Cannot guarantee exact termination time (though probability approaches 1 exponentially fast)</li>
+      <li><strong>Need shared random coin:</strong> Some variants require a trusted shared randomness source (e.g., a threshold signature scheme)</li>
+      <li><strong>Higher message complexity:</strong> Two phases per round, multiple rounds possible</li>
+    </ul>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: FLP → Randomized Agreement</div>
+        <p>FLP proves deterministic consensus is impossible in asynchronous systems. Randomized agreement is the direct response — by adding a coin flip, the algorithm avoids the "adversary-controlled" scenarios FLP uses in its impossibility proof. The adversary can control process speeds but cannot control the outcome of a truly random coin flip.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Randomized Agreement</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7(Part B). Discuss the randomized distributed agreement approach and its advantages.</div>
+      <div class="pyq-meta"><span>2025 Part B Q7 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Randomized Agreement</span><span class="pred-tag">🔮 HIGH 2026 Part B</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Randomized Distributed Agreement:</strong> A consensus algorithm that uses random coin flips to break symmetry and achieve agreement with probability 1, circumventing the FLP impossibility result.<br><br>
+        <strong>Why needed:</strong> FLP theorem says deterministic consensus is impossible in asynchronous systems with even one crash fault. Randomization solves this by replacing the deterministic decision rule with a probabilistic one.<br><br>
+        <strong>Approach (Ben-Or Algorithm):</strong><br>
+        Each round has two phases: (1) Report phase — broadcast current value; if majority agrees, note the value. (2) Propose phase — broadcast updated value; if enough agree on one value, decide; else flip a random coin to choose new value.<br><br>
+        <strong>Key insight:</strong> The coin flip prevents an adversary from permanently steering processes into indecision. Adversary can control process speeds but not a truly random outcome.<br><br>
+        <strong>Advantages:</strong><br>
+        1. Circumvents FLP impossibility (terminates with probability 1)<br>
+        2. No need for failure detectors or timing assumptions<br>
+        3. Works under Byzantine failures if n ≥ 3f+1<br>
+        4. Expected O(1) rounds under benign adversaries<br>
+        5. Simpler than partial-synchrony approaches
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 06: REPLICATED DATA MANAGEMENT ═══════ -->
+<section class="section" id="replication">
+  <div class="section-header"><span class="section-num">06</span><h2 class="section-title">Replicated Data Management</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part A Q10 + Part B):</strong> "What are the key issues in managing replicated data?" appeared in 2025 Part A Q10. "What are the disadvantages of Active Replication?" appeared in 2024 Part A Q10. Two consecutive years in Part A Q10 — this slot belongs to replication. VERY HIGH for 2026 Part A + escalation to Part B.</div></div>
+  <div class="theory-block">
+    <h3>Why Replicate Data?</h3>
+    <p><span class="hl-v">Data replication</span> means maintaining multiple identical copies of data on different machines. It is the primary mechanism for achieving fault tolerance and performance in distributed systems.</p>
+    <div class="layman">Imagine a very important document (your original birth certificate). If you store it in only one place, a fire can destroy it forever. So you make photocopies and keep them in different cities. If Mumbai is flooded, Delhi still has the copy. Replication is exactly this — keeping copies of data in multiple machines so that if one machine fails, data is still accessible from another. The tricky part: what if you update the document? You need to update ALL copies — keeping them consistent.</div>
+    <div class="fbox">
+      <span class="flbl">Three Goals of Replication</span>
+      <div class="fl">1. FAULT TOLERANCE: If one replica fails, others continue serving requests.</div>
+      <div class="fl">   → System availability increases. Single point of failure eliminated.</div>
+      <div class="fl"></div>
+      <div class="fl">2. PERFORMANCE: Clients read from nearest replica — reduced latency.</div>
+      <div class="fl">   → Read load distributed across replicas (read scaling).</div>
+      <div class="fl">   → Write still goes to all replicas (write overhead).</div>
+      <div class="fl"></div>
+      <div class="fl">3. SCALABILITY: More replicas → more read throughput without redesign.</div>
+      <div class="fn">Trade-off: Replication improves reads but makes writes harder (all replicas must be updated consistently). The more replicas, the harder consistency becomes.</div>
+    </div>
+
+    <h3>Key Issues in Managing Replicated Data</h3>
+    <p>These issues appeared directly in 2025 Part A Q10 and are expected in 2026:</p>
+    <ul>
+      <li><strong>Consistency:</strong> All replicas should show the same data. How quickly must they converge? Strong consistency (all agree immediately) vs. eventual consistency (converge over time).</li>
+      <li><strong>Update Propagation:</strong> How are writes propagated to all replicas? Push (primary pushes to others) vs. Pull (replicas poll for updates) vs. Hybrid.</li>
+      <li><strong>Replica Management:</strong> Where to place replicas? How many replicas are needed? Who decides which replica is the "primary"?</li>
+      <li><strong>Concurrency Control:</strong> Multiple clients writing simultaneously — how to serialize conflicting writes across all replicas?</li>
+      <li><strong>Failure Handling:</strong> What happens when a replica crashes? How to bring it back up-to-date (repair) without stopping service?</li>
+    </ul>
+
+    <h3 class="cyan">Replication Models</h3>
+    <h4>1. Active Replication (State Machine Replication)</h4>
+    <div class="fbox">
+      <span class="flbl">Active Replication</span>
+      <div class="fl">All replicas are ACTIVE and process EVERY client request.</div>
+      <div class="fl">Client sends request to ALL replicas (or multicast).</div>
+      <div class="fl">All replicas execute the same operations in the same order.</div>
+      <div class="fl">All replicas produce the same result → client accepts first reply.</div>
+      <div class="fl"></div>
+      <div class="fl">Advantages:</div>
+      <div class="fl">  ✓ No failover delay — any replica can serve at any time</div>
+      <div class="fl">  ✓ Handles crash failures transparently</div>
+      <div class="fl">  ✓ Can tolerate Byzantine failures with n ≥ 3f+1 replicas (PBFT)</div>
+      <div class="fl"></div>
+      <div class="fl">Disadvantages (2024 Part A Q10):</div>
+      <div class="fl">  ✗ All replicas must process ALL requests — CPU overhead proportional to n</div>
+      <div class="fl">  ✗ Requires TOTAL ORDER delivery — all replicas must process in exact same order</div>
+      <div class="fl">  ✗ Expensive to ensure total order (atomic multicast needed)</div>
+      <div class="fl">  ✗ Non-deterministic operations problematic (e.g., random number generators)</div>
+      <div class="fn">Used in: PBFT, Hyperledger Fabric. Also called "State Machine Replication" (SMR). Total order = Atomic Multicast (next section).</div>
+    </div>
+
+    <h4>2. Passive Replication (Primary-Backup)</h4>
+    <div class="fbox">
+      <span class="flbl">Passive Replication (Primary-Backup)</span>
+      <div class="fl">ONE primary replica processes all client requests.</div>
+      <div class="fl">Primary updates state, then forwards update to backup replicas.</div>
+      <div class="fl">On primary failure: one backup is elected as new primary.</div>
+      <div class="fl"></div>
+      <div class="fl">Two variants:</div>
+      <div class="fl">  Cold Standby: Backup is offline. Long failover time (minutes).</div>
+      <div class="fl">  Hot Standby: Backup is live and up-to-date. Fast failover (seconds).</div>
+      <div class="fl">  Warm Standby: Backup updated periodically. Moderate failover.</div>
+      <div class="fl"></div>
+      <div class="fl">Advantages:</div>
+      <div class="fl">  ✓ Simpler — only one node executes operations</div>
+      <div class="fl">  ✓ No total order requirement on replicas</div>
+      <div class="fl">  ✓ Works with non-deterministic operations</div>
+      <div class="fl">Disadvantages:</div>
+      <div class="fl">  ✗ Primary is bottleneck. Failover introduces downtime.</div>
+      <div class="fl">  ✗ Can only tolerate CRASH failures, not Byzantine failures</div>
+      <div class="fn">Used in: PostgreSQL streaming replication, MySQL replication, many cloud databases (RDS primary-standby).</div>
+    </div>
+
+    <h3 class="orange">Database Techniques for Replicated Data</h3>
+    <p>When replication is applied to databases, specialized techniques ensure consistency:</p>
+    <ul>
+      <li><strong>2-Phase Commit (2PC):</strong> Ensures atomic distributed transactions. Phase 1 (Prepare): coordinator asks all participants to prepare. Phase 2 (Commit/Abort): if all prepared, commit; else abort. Guarantees atomicity but blocks if coordinator crashes.</li>
+      <li><strong>3-Phase Commit (3PC):</strong> Adds a pre-commit phase between Prepare and Commit. Non-blocking but more messages. Rarely used in practice.</li>
+      <li><strong>Quorum-Based Protocols:</strong> Read quorum Qr + Write quorum Qw > N (total replicas). Ensures every read sees the latest write. Used in Dynamo, Cassandra (tunable consistency).</li>
+      <li><strong>Versioning:</strong> Each write creates a new version. Conflicts resolved by vector clocks (as in Amazon Dynamo). Multiple versions kept; application resolves conflicts.</li>
+    </ul>
+    <div class="fbox">
+      <span class="flbl">Quorum Formula — Must Know</span>
+      <div class="fl">Qr + Qw > N   (Read quorum + Write quorum > Total replicas)</div>
+      <div class="fl">Qw + Qw > N   (Two concurrent writes cannot both succeed without overlap)</div>
+      <div class="fl"></div>
+      <div class="fl">Example: N=5 replicas, Qr=3, Qw=3</div>
+      <div class="fl">  Qr+Qw = 6 > 5 ✓ (every read will see latest write)</div>
+      <div class="fl">  Qw+Qw = 6 > 5 ✓ (no two writes can proceed without one blocking the other)</div>
+      <div class="fl"></div>
+      <div class="fl">Tuning: Qr=1, Qw=5 → very fast reads, slow writes</div>
+      <div class="fl">        Qr=5, Qw=1 → slow reads, fast writes</div>
+      <div class="fl">        Qr=3, Qw=3 → balanced (used by Cassandra default)</div>
+      <div class="fn">CAP Theorem: Choose any 2 of: Consistency, Availability, Partition tolerance. Distributed systems always have partitions → must choose C or A.</div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Replicated Data Management</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q10. What are the disadvantages of Active Replication in distributed systems?</div>
+      <div class="pyq-meta"><span>2024 Part A Q10 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Active Replication</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Disadvantages of Active Replication:</strong><br><br>
+        1. <strong>CPU overhead:</strong> All n replicas process EVERY request — CPU usage scales linearly with number of replicas. No read scaling benefit for computation-heavy operations.<br>
+        2. <strong>Total order requirement:</strong> All replicas must process operations in the EXACT same order — requires expensive Atomic Multicast (total order broadcast).<br>
+        3. <strong>Non-determinism problem:</strong> Non-deterministic operations (random numbers, timestamps) produce different results on different replicas — breaks consistency.<br>
+        4. <strong>Increased network load:</strong> Client must send to all replicas (or coordinator must forward to all) — O(n) network messages per operation.<br>
+        5. <strong>Byzantine overhead:</strong> Tolerating f Byzantine failures needs n ≥ 3f+1 replicas — expensive compared to primary-backup which only needs 2f+1.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q10. What are the key issues in managing replicated data?</div>
+      <div class="pyq-meta"><span>2025 Part A Q10 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">Replicated Data Issues</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Key Issues in Managing Replicated Data:</strong><br><br>
+        1. <strong>Consistency:</strong> All replicas must show the same data — choosing between strong consistency (expensive) and eventual consistency (practical)<br>
+        2. <strong>Update Propagation:</strong> How and when to propagate writes to all replicas — synchronous (wait for all) vs. asynchronous (don't wait)<br>
+        3. <strong>Concurrency Control:</strong> Handling simultaneous writes to different replicas — preventing conflicting updates<br>
+        4. <strong>Failure Recovery:</strong> Bringing crashed replicas back up-to-date without interrupting service<br>
+        5. <strong>Total Order:</strong> Ensuring all replicas process updates in the same order — requires atomic multicast
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 07: ATOMIC MULTICAST ═══════ -->
+<section class="section" id="atomic-multicast">
+  <div class="section-header"><span class="section-num">07</span><h2 class="section-title">Atomic Multicast</h2></div>
+  <div class="theory-block">
+    <h3>What is Atomic Multicast?</h3>
+    <p><span class="hl-v">Atomic Multicast</span> (also called <em>Total Order Broadcast</em> or <em>Atomic Broadcast</em>) is a communication primitive that ensures all processes deliver the same set of messages in the exact same order. It is the foundation of active replication.</p>
+    <div class="layman">Imagine a class where the teacher announces: "Everyone write down the following announcement." Atomic Multicast is like having a loudspeaker that guarantees: (1) either EVERYONE in class hears the announcement or NO ONE does (atomicity), and (2) if two teachers speak at the same time, everyone hears them in the SAME order (total ordering). Normal gossip fails both — some people hear differently ordered messages.</div>
+    <div class="fbox">
+      <span class="flbl">Four Properties of Atomic Multicast</span>
+      <div class="fl">1. VALIDITY: If a correct process multicasts message m, then all correct processes</div>
+      <div class="fl">   eventually deliver m. (No message gets lost)</div>
+      <div class="fl"></div>
+      <div class="fl">2. UNIFORM AGREEMENT: If a process delivers m, then all correct processes</div>
+      <div class="fl">   eventually deliver m. (All-or-nothing delivery)</div>
+      <div class="fl"></div>
+      <div class="fl">3. UNIFORM INTEGRITY: m is delivered at most once by each process,</div>
+      <div class="fl">   and only if it was multicast. (No duplicates, no forgeries)</div>
+      <div class="fl"></div>
+      <div class="fl">4. TOTAL ORDER: If processes p and q both deliver messages m1 and m2,</div>
+      <div class="fl">   then p delivers m1 before m2 iff q delivers m1 before m2.</div>
+      <div class="fl">   (All processes see same ordering of all messages)</div>
+      <div class="fn">Total order is the hardest property. It requires consensus — which is equivalent to solving the consensus problem! This is why active replication is expensive.</div>
+    </div>
+
+    <h3 class="cyan">Implementation Using Sequencer</h3>
+    <p>One practical approach to implement atomic multicast is using a centralized <em>sequencer</em>:</p>
+    <div class="fbox">
+      <span class="flbl">Sequencer-Based Atomic Multicast</span>
+      <div class="fl">1. Process p wants to multicast message m.</div>
+      <div class="fl">2. p sends m to the SEQUENCER (a designated coordinator).</div>
+      <div class="fl">3. Sequencer assigns a SEQUENCE NUMBER to m → m gets global order position.</div>
+      <div class="fl">4. Sequencer broadcasts (m, seq_num) to all group members.</div>
+      <div class="fl">5. All processes deliver messages in sequence number order.</div>
+      <div class="fl"></div>
+      <div class="fl">Guarantee: All processes deliver in same order ← total order ✓</div>
+      <div class="fl">Problem: Sequencer is single point of failure. Use backup sequencer for resilience.</div>
+      <div class="fn">Alternative: Lamport-clock based ordering — each process includes Lamport timestamp; all processes deliver in timestamp order (breaking ties by process ID). No single sequencer but O(n²) messages.</div>
+    </div>
+
+    <h3 class="orange">Atomic Multicast vs Other Multicast Types</h3>
+    <table class="comp-table">
+      <tr><th>Type</th><th>Agreement</th><th>Order</th><th>Cost</th></tr>
+      <tr><td><strong>Best-Effort Multicast</strong></td><td>None — message may be lost</td><td>None</td><td>O(n)</td></tr>
+      <tr><td><strong>Reliable Multicast</strong></td><td>All-or-nothing delivery</td><td>None (FIFO optional)</td><td>O(n²)</td></tr>
+      <tr><td><strong>Causal Multicast</strong></td><td>Reliable + causally related in order</td><td>Causal</td><td>O(n²)</td></tr>
+      <tr><td><strong>Atomic Multicast</strong></td><td>Reliable + uniform agreement</td><td>Total order (same everywhere)</td><td>O(n²) + consensus</td></tr>
+    </table>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Atomic Multicast ↔ Consensus ↔ Active Replication</div>
+        <p>These three concepts are <strong>equivalent</strong> in distributed systems theory: solving one solves the others. Active Replication requires total order → which requires Atomic Multicast → which requires Consensus. Since FLP says consensus is impossible in async systems, so is perfect Atomic Multicast and true Active Replication in async systems.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 08: UPDATE PROPAGATION ═══════ -->
+<section class="section" id="update-propagation">
+  <div class="section-header"><span class="section-num">08</span><h2 class="section-title">Update Propagation</h2></div>
+  <div class="theory-block">
+    <h3>Update Propagation Methods</h3>
+    <p><span class="hl-v">Update propagation</span> defines how changes made to one replica are spread to all other replicas. The choice of propagation method directly affects consistency, performance, and fault tolerance.</p>
+    <div class="fbox">
+      <span class="flbl">Three Propagation Approaches</span>
+      <div class="fl">1. PUSH (Eager) Protocol:</div>
+      <div class="fl">   Primary replica proactively pushes updates to all replicas.</div>
+      <div class="fl">   Replicas are always up-to-date. No staleness.</div>
+      <div class="fl">   → Good for: high read-to-write ratios, strong consistency</div>
+      <div class="fl">   → Bad for: many replicas (O(n) network on every write)</div>
+      <div class="fl">   Example: MySQL synchronous replication</div>
+      <div class="fl"></div>
+      <div class="fl">2. PULL (Lazy) Protocol:</div>
+      <div class="fl">   Replicas periodically poll primary for updates.</div>
+      <div class="fl">   Stale reads possible between polls. Weak consistency.</div>
+      <div class="fl">   → Good for: high write-to-read ratios, tolerance of staleness</div>
+      <div class="fl">   → Bad for: when freshness is critical</div>
+      <div class="fl">   Example: DNS record TTL — replicas use cached records for hours</div>
+      <div class="fl"></div>
+      <div class="fl">3. HYBRID (Lease-Based):</div>
+      <div class="fl">   Primary gives replicas a "lease" (time-based right to cache data).</div>
+      <div class="fl">   During lease: replica serves reads without contacting primary.</div>
+      <div class="fl">   On write: primary waits for all leases to expire (or revokes them).</div>
+      <div class="fl">   → Balance: good read performance, consistent writes</div>
+      <div class="fl">   Example: AFS file system callbacks — server notifies clients on change</div>
+      <div class="fn">Epidemic (Gossip) Protocol: Nodes randomly pick a neighbour and exchange state. Very scalable, eventual consistency. Used in Cassandra, Riak.</div>
+    </div>
+
+    <h3 class="orange">Epidemic / Gossip Protocols</h3>
+    <p>A scalable approach to update propagation inspired by how rumours spread in a social network:</p>
+    <ul>
+      <li>Each node periodically picks a random subset of nodes and exchanges its latest updates</li>
+      <li>Updates "infect" the network like a virus — spreading exponentially fast</li>
+      <li>Very scalable: O(log n) rounds to inform all n nodes</li>
+      <li>Fault tolerant: works even with many node failures</li>
+      <li>Consistency model: <strong>eventual consistency</strong> — all nodes eventually converge</li>
+      <li>Examples: Cassandra anti-entropy, Amazon Dynamo, Consul</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 09: CORBA INTRODUCTION ═══════ -->
+<section class="section" id="corba-intro">
+  <div class="section-header"><span class="section-num">09</span><h2 class="section-title">CORBA — Introduction</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — VERY HIGH (Part C Q3):</strong> CORBA appeared in 2023 Part C Q1 (naming service integration) and 2024 Part C Q5 (CORBA IDL). COMPLETELY ABSENT from 2025. A 1-year absence after 2 consecutive appearances is the STRONGEST return signal in RTU. CORBA is VERY HIGH for 2026 Part C — prepare both architecture diagram AND IDL explanation.</div></div>
+  <div class="theory-block">
+    <h3>What is CORBA?</h3>
+    <p><span class="hl-v">CORBA (Common Object Request Broker Architecture)</span> is a standard defined by the <em>Object Management Group (OMG)</em> that enables software objects written in different programming languages, running on different operating systems and hardware architectures, to communicate and interoperate seamlessly over a network.</p>
+    <div class="layman">Imagine a United Nations meeting where delegates speak French, English, Spanish, and Chinese. Without translators (middleware), they can't communicate. CORBA is the universal translator system — it lets a Java object running on Linux call a method on a C++ object running on Windows, as if they were in the same process. CORBA translates the "language" of each object so they understand each other across machine and language boundaries.</div>
+    <div class="fbox">
+      <span class="flbl">CORBA Key Concepts</span>
+      <div class="fl">CORBA Standard: Defines HOW distributed objects communicate, not HOW they work internally.</div>
+      <div class="fl">OMG: The standards body (like IEEE for networks). CORBA is their most famous standard.</div>
+      <div class="fl">ORB (Object Request Broker): The middleware bus — the HEART of CORBA. Routes calls between objects.</div>
+      <div class="fl">IDL (Interface Definition Language): Language-neutral way to define object interfaces.</div>
+      <div class="fl">IOR (Interoperable Object Reference): Unique handle to locate any CORBA object anywhere.</div>
+      <div class="fn">CORBA enables: Language interoperability (Java/C++/Python), OS interoperability (Linux/Windows), Hardware interoperability (x86/ARM), Location transparency.</div>
+    </div>
+
+    <h3 class="cyan">CORBA vs. Earlier Approaches</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Traditional RPC</th><th>CORBA</th><th>Modern Web Services</th></tr>
+      <tr><td>Paradigm</td><td>Procedural</td><td>Object-Oriented</td><td>Service-Oriented</td></tr>
+      <tr><td>Language</td><td>Language-specific</td><td>Language-neutral (IDL)</td><td>Language-neutral (WSDL/JSON)</td></tr>
+      <tr><td>Transport</td><td>TCP/IP</td><td>IIOP (Internet Inter-ORB Protocol)</td><td>HTTP/REST</td></tr>
+      <tr><td>Type system</td><td>C types</td><td>Rich IDL types</td><td>JSON/XML types</td></tr>
+      <tr><td>Discovery</td><td>Hard-coded ports</td><td>Naming Service (COS Naming)</td><td>DNS / REST discovery</td></tr>
+    </table>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: CORBA → RMI (Unit 3) → DCE (Unit 2)</div>
+        <p>You already know RMI (Java-only Remote Method Invocation) from Unit 3. CORBA is the <strong>language-neutral</strong> equivalent — RMI for ALL languages. DCE (Unit 2) was the procedural predecessor — CORBA's object-oriented replacement. All three solve the same problem (distributed computation) at different levels of abstraction and with different trade-offs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 10: CORBA ARCHITECTURE ═══════ -->
+<section class="section" id="corba-arch">
+  <div class="section-header"><span class="section-num">10</span><h2 class="section-title">CORBA Architecture</h2></div>
+  <div class="theory-block">
+    <h3>The Object Request Broker (ORB) — Core of CORBA</h3>
+    <p>The <span class="hl-v">ORB</span> acts as a software bus connecting client objects and server objects. It handles: finding the server object, sending the request, marshalling (converting) parameters, and routing the reply. Neither client nor server knows about the network — only the ORB does.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 660 300" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="330" y="20" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="12" font-weight="bold">CORBA Architecture — Full Diagram</text>
+        <!-- Client side box -->
+        <rect x="8" y="35" width="200" height="230" rx="8" fill="#051215" stroke="#22d3ee" stroke-width="2"/>
+        <text x="108" y="58" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">CLIENT SIDE</text>
+        <rect x="18" y="68" width="180" height="28" rx="5" fill="#0c2030"/>
+        <text x="108" y="86" text-anchor="middle" fill="#dde8f2" font-family="JetBrains Mono" font-size="9">Client Application</text>
+        <rect x="18" y="102" width="85" height="28" rx="5" fill="#0c2030" stroke="#f59e0b" stroke-width="1"/>
+        <text x="60" y="120" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8" font-weight="bold">Static Stub</text>
+        <rect x="112" y="102" width="86" height="28" rx="5" fill="#0c2030" stroke="#f59e0b" stroke-width="1"/>
+        <text x="155" y="120" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8" font-weight="bold">DII</text>
+        <rect x="18" y="140" width="180" height="28" rx="5" fill="#051215" stroke="#22d3ee" stroke-width="1"/>
+        <text x="108" y="158" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">ORB Interface (Client)</text>
+        <!-- ORB bus -->
+        <rect x="218" y="140" width="224" height="48" rx="6" fill="#0a1c28" stroke="#7c3aed" stroke-width="2.5"/>
+        <text x="330" y="162" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="11" font-weight="bold">OBJECT REQUEST</text>
+        <text x="330" y="177" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="11" font-weight="bold">BROKER (ORB)</text>
+        <!-- Server side box -->
+        <rect x="452" y="35" width="200" height="230" rx="8" fill="#051215" stroke="#a78bfa" stroke-width="2"/>
+        <text x="552" y="58" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="10" font-weight="bold">SERVER SIDE</text>
+        <rect x="462" y="68" width="180" height="28" rx="5" fill="#0c2030"/>
+        <text x="552" y="86" text-anchor="middle" fill="#dde8f2" font-family="JetBrains Mono" font-size="9">Object Implementation</text>
+        <rect x="462" y="102" width="85" height="28" rx="5" fill="#0c2030" stroke="#10b981" stroke-width="1"/>
+        <text x="504" y="120" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8" font-weight="bold">Static Skeleton</text>
+        <rect x="556" y="102" width="86" height="28" rx="5" fill="#0c2030" stroke="#10b981" stroke-width="1"/>
+        <text x="599" y="120" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8" font-weight="bold">DSI</text>
+        <rect x="462" y="140" width="180" height="28" rx="5" fill="#051215" stroke="#a78bfa" stroke-width="1"/>
+        <text x="552" y="158" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">ORB Interface (Server)</text>
+        <!-- Object Adapter -->
+        <rect x="462" y="178" width="180" height="28" rx="5" fill="#0c2030" stroke="#f97316" stroke-width="1.5"/>
+        <text x="552" y="196" text-anchor="middle" fill="#f97316" font-family="JetBrains Mono" font-size="8" font-weight="bold">Object Adapter (POA)</text>
+        <!-- Connection lines -->
+        <line x1="108" y1="168" x2="218" y2="164" stroke="#22d3ee" stroke-width="2"/>
+        <line x1="442" y1="164" x2="462" y2="164" stroke="#a78bfa" stroke-width="2"/>
+        <!-- IR and NS below -->
+        <rect x="218" y="225" width="105" height="28" rx="5" fill="#051215" stroke="#10b981" stroke-width="1"/>
+        <text x="270" y="243" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Interface Repository</text>
+        <rect x="333" y="225" width="109" height="28" rx="5" fill="#051215" stroke="#10b981" stroke-width="1"/>
+        <text x="388" y="243" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Naming Service</text>
+        <text x="330" y="285" text-anchor="middle" fill="#2a4858" font-family="JetBrains Mono" font-size="9">IDL Compiler generates Stubs (client-side) + Skeletons (server-side) from one .idl file</text>
+      </svg>
+      <div class="diagram-cap">Fig: CORBA Architecture — ORB is the central communication bus. Client uses Stub (or DII); Server uses Skeleton (or DSI). IDL compiler auto-generates both stubs and skeletons from the IDL specification.</div>
+    </div>
+
+    <h3>Component-by-Component Explanation</h3>
+    <div class="fbox">
+      <span class="flbl">CORBA Components — 8 Key Parts</span>
+      <div class="fl">1. ORB (Object Request Broker):</div>
+      <div class="fl">   The middleware bus. Finds server objects, routes requests, handles marshalling.</div>
+      <div class="fl">   Client and server NEVER communicate directly — always through ORB.</div>
+      <div class="fl"></div>
+      <div class="fl">2. IDL (Interface Definition Language):</div>
+      <div class="fl">   Language-neutral specification of object interfaces.</div>
+      <div class="fl">   IDL Compiler generates: Client Stubs + Server Skeletons (for any target language)</div>
+      <div class="fl"></div>
+      <div class="fl">3. Client Stub (Proxy):</div>
+      <div class="fl">   Generated by IDL compiler. Makes remote calls look like local calls to client.</div>
+      <div class="fl">   Marshals (packs) parameters into IIOP format; sends to ORB.</div>
+      <div class="fl"></div>
+      <div class="fl">4. Server Skeleton:</div>
+      <div class="fl">   Generated by IDL compiler. Receives request from ORB; dispatches to actual object.</div>
+      <div class="fl">   Unmarshals parameters back into native language types.</div>
+      <div class="fl"></div>
+      <div class="fl">5. DII (Dynamic Invocation Interface):</div>
+      <div class="fl">   Client can call objects without a pre-compiled stub — discovers interface at runtime.</div>
+      <div class="fl">   Slower but flexible (useful for scripting, testing, late binding).</div>
+      <div class="fl"></div>
+      <div class="fl">6. DSI (Dynamic Skeleton Interface):</div>
+      <div class="fl">   Server can handle requests without a pre-compiled skeleton — dispatches dynamically.</div>
+      <div class="fl">   Enables bridges between ORBs, generic servers (ORB gateways).</div>
+      <div class="fl"></div>
+      <div class="fl">7. Object Adapter (POA — Portable Object Adapter):</div>
+      <div class="fl">   Connects server object to ORB. Manages object lifecycle: creation, activation, deactivation.</div>
+      <div class="fl">   POA is the newer, portable version (older: BOA — Basic Object Adapter).</div>
+      <div class="fl"></div>
+      <div class="fl">8. IOR (Interoperable Object Reference):</div>
+      <div class="fl">   Globally unique ID for each CORBA object. Contains: host, port, object key, type info.</div>
+      <div class="fl">   Client holds IOR to reference a remote object (like a pointer but network-wide).</div>
+      <div class="fn">IIOP (Internet Inter-ORB Protocol): TCP/IP-based wire protocol for CORBA. Ensures different vendors' ORBs can communicate. Runs on port 683 by default.</div>
+    </div>
+
+    <h3 class="orange">CORBA Invocation Flow — Step by Step</h3>
+    <div class="fbox">
+      <span class="flbl">Request Flow: Client → Server (via CORBA)</span>
+      <div class="fl">Step 1: Client holds an IOR (object reference) for the remote server object.</div>
+      <div class="fl">Step 2: Client calls method on its local Stub: bankAccount.deposit(100.0)</div>
+      <div class="fl">Step 3: Stub MARSHALS (serializes) parameters into IIOP binary format.</div>
+      <div class="fl">Step 4: Client's ORB opens TCP connection to server's host:port (from IOR).</div>
+      <div class="fl">Step 5: ORB sends IIOP GIOP (General Inter-ORB Protocol) request message.</div>
+      <div class="fl">Step 6: Server ORB receives request, locates object via Object Adapter (POA).</div>
+      <div class="fl">Step 7: Server Skeleton UNMARSHALS parameters back to C++/Java/Python native types.</div>
+      <div class="fl">Step 8: Skeleton calls the actual server object method: deposit(100.0)</div>
+      <div class="fl">Step 9: Return value marshalled, sent back to client ORB.</div>
+      <div class="fl">Step 10: Client Stub unmarshals return value → client code sees local return value.</div>
+      <div class="fn">The client programmer wrote "bankAccount.deposit(100.0)" — looks EXACTLY like a local call. All 10 steps happened transparently. This is CORBA's key promise: location transparency.</div>
+    </div>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Architecture Question Structure</div>
+        <p>Introduction (1) + Architecture diagram with ALL components labeled (3) + Component-by-component explanation: ORB, IDL, Stub, Skeleton, POA, IOR, DII, DSI (3) + Invocation flow step-by-step OR IDL example (2) + IIOP mention (1) = 10 marks. The diagram is MANDATORY for full marks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 11: CORBA RMI & IDL ═══════ -->
+<section class="section" id="corba-rmi">
+  <div class="section-header"><span class="section-num">11</span><h2 class="section-title">CORBA RMI &amp; Interface Definition Language (IDL)</h2></div>
+  <div class="theory-block">
+    <h3>CORBA IDL — The Universal Interface Language</h3>
+    <p><span class="hl-v">IDL (Interface Definition Language)</span> is the contract language of CORBA. You write the interface once in IDL and the IDL compiler generates stubs and skeletons for any target language (C++, Java, Python, Ada, COBOL, etc.).</p>
+    <div class="layman">IDL is like a restaurant menu. The menu (IDL) describes WHAT dishes are available and WHAT ingredients each requires — but not HOW the chef (the actual object) cooks them. Any customer (client in any language) can read the menu and order. Any restaurant (server in any language) can use the menu to know what to serve. The menu is the common contract — independent of who's cooking or who's eating.</div>
+    <div class="fbox">
+      <span class="flbl">IDL Syntax — Key Constructs</span>
+      <div class="fl">// Define a module (like a Java package / C++ namespace)</div>
+      <div class="fl">module BankingSystem {</div>
+      <div class="fl">  // Define a custom exception</div>
+      <div class="fl">  exception InsufficientFunds {</div>
+      <div class="fl">    float balance;  // How much was available</div>
+      <div class="fl">  };</div>
+      <div class="fl">  // Define the interface (like a Java interface)</div>
+      <div class="fl">  interface BankAccount {</div>
+      <div class="fl">    // Read-only attribute (getter only)</div>
+      <div class="fl">    readonly attribute float currentBalance;</div>
+      <div class="fl">    // Read-write attribute</div>
+      <div class="fl">    attribute string accountHolder;</div>
+      <div class="fl">    // Operations (methods)</div>
+      <div class="fl">    float balance();                         // No parameters, returns float</div>
+      <div class="fl">    void deposit(in float amount);           // in = input parameter</div>
+      <div class="fl">    void withdraw(in float amount)           // in = input, can raise exception</div>
+      <div class="fl">      raises(InsufficientFunds);</div>
+      <div class="fl">    void transfer(in float amount,           // Multiple parameters</div>
+      <div class="fl">                  in BankAccount target)</div>
+      <div class="fl">      raises(InsufficientFunds);</div>
+      <div class="fl">  };</div>
+      <div class="fl">};</div>
+      <div class="fn">Parameter modes: in (client→server), out (server→client), inout (both directions). IDL compiler generates: BankAccount.java (client stub) + BankAccount.h+.cpp (server skeleton) from this one file.</div>
+    </div>
+
+    <h3 class="cyan">How IDL Enables Interoperability</h3>
+    <p>The IDL → Multiple Languages workflow is CORBA's core innovation:</p>
+    <div class="fbox">
+      <span class="flbl">IDL → Multiple Language Stubs (One Source, Many Targets)</span>
+      <div class="fl">ONE IDL file: BankAccount.idl</div>
+      <div class="fl">       ↓</div>
+      <div class="fl">IDL Compiler (e.g., omniidl, JacORB)</div>
+      <div class="fl">       ↓ generates:</div>
+      <div class="fl">Java Client Stub:   BankAccountStub.java  (Android app uses this)</div>
+      <div class="fl">C++ Skeleton:       BankAccount_impl.h    (Server in C++ uses this)</div>
+      <div class="fl">Python Stub:        BankAccount_skel.py   (Python script uses this)</div>
+      <div class="fl">Ada Skeleton:       BankAccount.ads       (Legacy military system uses this)</div>
+      <div class="fl"></div>
+      <div class="fl">Result: Java client on Android calls C++ server on Windows!</div>
+      <div class="fl">        ORB handles all translation transparently.</div>
+      <div class="fn">This is why CORBA is used in: military systems (Ada), finance (COBOL+Java), telecom (C++), and enterprise (Java). All interoperating through CORBA IDL.</div>
+    </div>
+
+    <h3 class="orange">CORBA RMI (Remote Method Invocation via CORBA)</h3>
+    <p>CORBA RMI is the mechanism by which a client invokes methods on remote objects. The key difference from Java RMI:</p>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Java RMI</th><th>CORBA RMI</th></tr>
+      <tr><td>Language</td><td>Java only</td><td>Any language with IDL binding</td></tr>
+      <tr><td>Interface spec</td><td>Java interface (.java)</td><td>IDL file (.idl)</td></tr>
+      <tr><td>Protocol</td><td>JRMP or RMI-IIOP</td><td>IIOP (Internet Inter-ORB Protocol)</td></tr>
+      <tr><td>Stub generation</td><td>rmic compiler</td><td>idl compiler (omniidl, etc.)</td></tr>
+      <tr><td>Object location</td><td>RMI Registry</td><td>COS Naming Service</td></tr>
+      <tr><td>Parameter passing</td><td>Java Serialization</td><td>CDR (Common Data Representation)</td></tr>
+      <tr><td>Heterogeneity</td><td>None (Java ↔ Java)</td><td>Full (any language ↔ any language)</td></tr>
+    </table>
+    <div class="fbox">
+      <span class="flbl">CORBA RMI Call Sequence</span>
+      <div class="fl">1. Client obtains IOR of server object (from Naming Service or file)</div>
+      <div class="fl">2. Client narrows IOR to specific interface type: BankAccount ba = BankAccountHelper.narrow(obj)</div>
+      <div class="fl">3. Client calls method as if local: float result = ba.balance()</div>
+      <div class="fl">4. Client Stub marshals call into CDR (Common Data Representation) format</div>
+      <div class="fl">5. ORB transmits via IIOP over TCP/IP to server host:port</div>
+      <div class="fl">6. Server ORB + POA locate object, unmarshal, invoke method</div>
+      <div class="fl">7. Return value marshalled, sent back, unmarshalled by client stub</div>
+      <div class="fl">8. Client receives return value — looks like a normal function call result</div>
+      <div class="fn">CDR: All CORBA data uses a canonical binary format — handles endianness differences (big-endian vs little-endian machines). This is how a Java int becomes a C++ int without corruption.</div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — CORBA Architecture & IDL</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q1(Part C). Consider two CORBA systems, each with their own naming service. Outline how the integration may be performed.</div>
+      <div class="pyq-meta"><span>2023 Part C Q1 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">CORBA Naming Service</span><span class="pred-tag">🔮 VERY HIGH 2026 (1yr absence)</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Integration of Two CORBA Systems with Different Naming Services:</strong><br><br>
+        <strong>Problem Setup:</strong> System A and System B each have their own ORB, Naming Service, and objects. Clients in System A need to call objects in System B and vice versa.<br><br>
+        <strong>Integration Approaches:</strong><br><br>
+        <strong>1. Federated Naming (Linked Naming Services):</strong><br>
+        Use the COS Naming Service's "federated naming" capability. Each naming service can hold references to objects in the OTHER naming service as regular naming context nodes.<br>
+        → Add System B's naming context as a child node in System A's naming tree<br>
+        → Clients traverse: A's naming root → "SystemB_context" → B's objects<br>
+        → Transparent to clients — they just navigate the naming hierarchy<br><br>
+        <strong>2. IOR Exchange (Direct Object References):</strong><br>
+        Export IOR (Interoperable Object Reference) from System B as a stringified IOR file or URL. System A clients directly use this IOR to call System B objects, bypassing naming services entirely.<br>
+        → Most direct approach. Client stores the IOR string, narrows to required interface, calls methods.<br><br>
+        <strong>3. CORBA Gateway/Bridge:</strong><br>
+        Deploy a bridge process that is registered in BOTH naming services. Gateway translates calls between the two CORBA environments (useful if different ORB vendors are used).<br><br>
+        <strong>4. Global Trading Service:</strong><br>
+        Use the CORBA Trading Object Service — a service-oriented directory where objects advertise their capabilities by type, not name. Both systems register in a shared Trader → clients find services by type.<br><br>
+        [Draw: System A Naming Tree ←→ Federation Link ←→ System B Naming Tree, with ORBs on each side]<br><br>
+        <strong>Key CORBA Naming Concepts:</strong><br>
+        NamingContext: A directory node in the naming tree. Can contain objects or other contexts.<br>
+        bind(): Binds a name to an object reference. rebind(): Updates an existing binding. resolve(): Looks up a name → returns object reference.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q5(Part C). Explain CORBA Interface Definitions Languages.</div>
+      <div class="pyq-meta"><span>2024 Part C Q5 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">CORBA IDL</span><span class="pred-tag">🔮 VERY HIGH 2026 (1yr absence)</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>CORBA IDL (Interface Definition Language):</strong><br><br>
+        IDL is a purely declarative, language-neutral specification language used to define the interfaces of CORBA objects. It separates WHAT a service provides from HOW it is implemented.<br><br>
+        <strong>Key Characteristics:</strong><br>
+        1. Language-neutral: No implementation code — pure interface specification<br>
+        2. Platform-neutral: Works with any hardware architecture, OS<br>
+        3. Compiler-driven: IDL compiler auto-generates stubs + skeletons for any target language<br>
+        4. Strictly typed: Strong type system ensures cross-language type safety<br><br>
+        <strong>IDL Constructs:</strong><br>
+        · module: namespace (like Java package)<br>
+        · interface: collection of operations and attributes (like Java interface)<br>
+        · in/out/inout: parameter passing modes<br>
+        · raises: exception declaration<br>
+        · readonly attribute: getter only<br>
+        · Types: short, long, float, double, char, string, boolean, sequence, struct, enum, union, any<br><br>
+        <strong>IDL Compilation Process:</strong><br>
+        BankAccount.idl → IDL Compiler → (a) BankAccount.java (client stub) + (b) BankAccountPOA.java (server skeleton)<br>
+        Same IDL → C++ stub/skeleton, Python binding, Ada binding<br><br>
+        <strong>IDL Example:</strong><br>
+        interface BankAccount {<br>
+        &nbsp;&nbsp;readonly attribute float balance;<br>
+        &nbsp;&nbsp;void deposit(in float amount);<br>
+        &nbsp;&nbsp;void withdraw(in float amount) raises(InsufficientFunds);<br>
+        };<br><br>
+        <strong>How IDL enables interoperability:</strong> Java client (using stub generated from IDL) can call C++ server (using skeleton generated from same IDL) — ORB handles CDR marshalling between the two languages transparently.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 12: CORBA SERVICES ═══════ -->
+<section class="section" id="corba-services">
+  <div class="section-header"><span class="section-num">12</span><h2 class="section-title">CORBA Services</h2></div>
+  <div class="theory-block">
+    <h3>CORBA Object Services (COS)</h3>
+    <p><span class="hl-v">CORBA Object Services</span> (also called CORBAservices) are a collection of standard services that OMG defines as IDL interfaces — every CORBA ORB implementation provides these. They are the "utilities" of the CORBA world.</p>
+    <div class="layman">CORBA Services are like the utility departments in a city: the city itself (ORB) handles transportation, but there's also a postal service (Naming Service), a security department (Security Service), a bank (Transaction Service), and a newspaper (Event Service). You don't build these yourself — they come standard with the city infrastructure.</div>
+    <div class="fbox">
+      <span class="flbl">8 Core CORBA Services — COS (RTU focuses on these 4)</span>
+      <div class="fl">★ 1. COS NAMING SERVICE (most important):</div>
+      <div class="fl">   Maps human-readable names to IORs. Hierarchical directory like a file system.</div>
+      <div class="fl">   bind("BankAccount/Account001") → IOR_of_account001</div>
+      <div class="fl">   Clients call resolve("BankAccount/Account001") to get the IOR.</div>
+      <div class="fl">   Example: like DNS for the CORBA object world.</div>
+      <div class="fl"></div>
+      <div class="fl">★ 2. COS EVENT SERVICE:</div>
+      <div class="fl">   Decoupled publish-subscribe communication. Producers → EventChannel → Consumers.</div>
+      <div class="fl">   Producers don't know who consumes. Consumers don't know who produces.</div>
+      <div class="fl">   Push model: channel pushes events to consumers.</div>
+      <div class="fl">   Pull model: consumers poll channel for events.</div>
+      <div class="fl">   Example: Notification system — stock price change pushes to all subscribers.</div>
+      <div class="fl"></div>
+      <div class="fl">★ 3. COS TRANSACTION SERVICE:</div>
+      <div class="fl">   ACID transactions across multiple CORBA objects on different machines.</div>
+      <div class="fl">   Uses 2PC (Two-Phase Commit) under the hood.</div>
+      <div class="fl">   Client starts transaction: current.begin().</div>
+      <div class="fl">   Multiple objects participate. current.commit() or current.rollback().</div>
+      <div class="fl">   Example: Bank transfer: debit Account A + credit Account B = one atomic transaction.</div>
+      <div class="fl"></div>
+      <div class="fl">★ 4. COS SECURITY SERVICE:</div>
+      <div class="fl">   Authentication: verifies identity of calling client.</div>
+      <div class="fl">   Authorization: checks if client has permission for the operation.</div>
+      <div class="fl">   Confidentiality: encrypts communication between client and server.</div>
+      <div class="fl">   Non-repudiation: digital signatures prevent denial of actions.</div>
+      <div class="fl"></div>
+      <div class="fl">  5. COS PERSISTENCE SERVICE: Stores CORBA objects to persistent storage.</div>
+      <div class="fl">  6. COS LIFECYCLE SERVICE: Creates, copies, moves, deletes objects.</div>
+      <div class="fl">  7. COS TRADING SERVICE: Service discovery by capability/property.</div>
+      <div class="fl">  8. COS NOTIFICATION SERVICE: Enhanced Event Service with filtering.</div>
+      <div class="fn">RTU focus: Naming + Event + Transaction + Security are the four most tested COS services. Know each with a one-line definition and real example.</div>
+    </div>
+
+    <h3 class="cyan">COS Naming Service — Detail (Most Important for Exams)</h3>
+    <p>The Naming Service is the foundation — without it, clients can't find objects. Here's how it works:</p>
+    <div class="fbox">
+      <span class="flbl">COS Naming — Operations</span>
+      <div class="fl">NamingContext operations:</div>
+      <div class="fl">  bind(name, object_ref): Register an object under a given name</div>
+      <div class="fl">  rebind(name, object_ref): Update existing binding (overwrite)</div>
+      <div class="fl">  resolve(name): Look up name → return object reference (IOR)</div>
+      <div class="fl">  unbind(name): Remove a name binding</div>
+      <div class="fl">  list(): List all bindings in a context</div>
+      <div class="fl">  bind_context(name, ctx): Bind a sub-directory (context)</div>
+      <div class="fl"></div>
+      <div class="fl">Naming Tree Example:</div>
+      <div class="fl">  Root Context</div>
+      <div class="fl">  ├── Banking/</div>
+      <div class="fl">  │   ├── Account001  → IOR_of_account_001</div>
+      <div class="fl">  │   └── Account002  → IOR_of_account_002</div>
+      <div class="fl">  └── ATM/</div>
+      <div class="fl">      └── ATM_Vasant_Kunj → IOR_of_atm_vk</div>
+      <div class="fn">Client code: NamingContextExt nc = ORBHelper.getNamingService(orb); BankAccount acct = BankAccountHelper.narrow(nc.resolve_str("Banking/Account001"));</div>
+    </div>
+
+    <table class="comp-table">
+      <tr><th>CORBA Service</th><th>Analogy</th><th>Real DS Equivalent</th></tr>
+      <tr><td>Naming Service</td><td>City phone directory</td><td>DNS, LDAP, Consul</td></tr>
+      <tr><td>Event Service</td><td>Newsletter subscription</td><td>Apache Kafka, RabbitMQ</td></tr>
+      <tr><td>Transaction Service</td><td>Bank ledger with ACID</td><td>JTA, XA transactions</td></tr>
+      <tr><td>Security Service</td><td>Airport security checkpoint</td><td>OAuth2, Kerberos, TLS</td></tr>
+      <tr><td>Trading Service</td><td>Yellow Pages</td><td>Service mesh (Consul), AWS Service Discovery</td></tr>
+      <tr><td>Notification Service</td><td>News feed with filters</td><td>Apache Kafka with topic filters</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════ ADDITIONAL PYQs ═══════ -->
+<section class="section" id="additional-pyqs">
+  <div class="section-header"><span class="section-num">13</span><h2 class="section-title">Additional PYQs Across All Papers</h2></div>
+  <div class="pyq-section">
+    <div class="pyq-header">📝 All Remaining PYQs from 2023–2025</div>
+
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3(Part B). What is an object adapter?</div>
+      <div class="pyq-meta"><span>2023 Part B Q3 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 6</span><span class="topic-tag">CORBA Object Adapter</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Object Adapter:</strong> A CORBA component that connects server objects to the ORB. It manages the lifecycle and activation of server objects and acts as the interface between the server-side ORB and the actual object implementation.<br><br>
+        <strong>Types:</strong><br>
+        · <strong>BOA (Basic Object Adapter):</strong> Original CORBA adapter. Not portable across ORB implementations. Deprecated.<br>
+        · <strong>POA (Portable Object Adapter):</strong> The modern standard. Portable across ORB vendors. More flexible. CORBA 2.2+ standard.<br><br>
+        <strong>POA Responsibilities:</strong><br>
+        1. Activates and deactivates servant objects on demand<br>
+        2. Maps incoming requests (by object key) to the correct servant implementation<br>
+        3. Creates object references (IORs) for new objects<br>
+        4. Controls servant lifecycles (when to create, when to destroy)<br>
+        5. Manages threading policy for request handling<br><br>
+        <strong>Example:</strong> When a client calls deposit() via an IOR, the server ORB receives the request, passes it to the POA, which looks up the servant object corresponding to that IOR's object key and dispatches the call to it.
+      </div>
+    </div>
+
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q5(Part B). Discuss connection-less communication between client and server using sockets.</div>
+      <div class="pyq-meta"><span>2023 Part B Q5 · 4 marks ⭐⭐</span><span class="unit-tag">Unit 3</span><span class="topic-tag">Sockets / IPC</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Connection-less Communication (UDP Sockets):</strong><br><br>
+        In connection-less communication, client sends a datagram directly to server without establishing a prior connection. No handshake, no state maintained.<br><br>
+        <strong>UDP Socket Steps:</strong><br>
+        <strong>Server:</strong><br>
+        1. socket(AF_INET, SOCK_DGRAM, 0) — create UDP socket<br>
+        2. bind(socket, port) — bind to port<br>
+        3. recvfrom() — blocks waiting for datagrams<br>
+        4. sendto(response, client_addr) — reply to sender<br><br>
+        <strong>Client:</strong><br>
+        1. socket(AF_INET, SOCK_DGRAM, 0) — create UDP socket<br>
+        2. sendto(message, server_addr) — send directly (no connect step)<br>
+        3. recvfrom() — wait for response<br><br>
+        <strong>Characteristics:</strong><br>
+        · No connection overhead (fast for short messages)<br>
+        · No guaranteed delivery (packet may be lost)<br>
+        · No ordering guarantee<br>
+        · Good for: DNS queries, DHCP, video streaming, gaming (latency > reliability)<br><br>
+        <strong>vs. Connection-oriented (TCP):</strong> TCP: connect() → send() → recv() → close() — reliable, ordered. UDP: sendto() → recvfrom() — fast, unreliable.
+      </div>
+    </div>
+
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7(Part B). Explain distributed shared memory with the help of suitable diagram.</div>
+      <div class="pyq-meta"><span>2023 Part B Q7 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">DSM</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Shared Memory (DSM):</strong> Abstraction providing a shared address space across multiple physically separate machines. No hardware shared memory — software creates the illusion using virtual memory mechanisms.<br><br>
+        <strong>Mechanism:</strong> When Process on Machine A accesses an address located on Machine B → hardware generates a page fault → OS intercepts → DSM software fetches the page from Machine B over network → maps it into A's address space → process continues without knowing the page was remote.<br><br>
+        <strong>Architecture:</strong><br>
+        [Machine A: Process + Virtual Memory + DSM Software] ←→ Network ←→ [Machine B: Memory Pages + DSM Software]<br><br>
+        <strong>Coherence Protocols:</strong><br>
+        · Write-Invalidate: On write, invalidate all remote copies → next read fetches fresh (used by Ivy)<br>
+        · Write-Update: On write, push update to all copies → always fresh but high bandwidth<br>
+        · Release Consistency: Sync only at lock acquire/release → used by TreadMarks, most practical<br><br>
+        <strong>False Sharing Problem:</strong> Two unrelated variables share the same page → unnecessary page transfers. Solved by object-based DSM or fine-grained page sizes.
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div><!-- /layout -->
+
+<!-- ═══════════════════════════════════════════
+     PREDICTED PAPER 2026
+═══════════════════════════════════════════ -->
+<div class="predicted-section" id="predicted">
+  <div class="pred-inner">
+    <div class="pred-badge">🔮 AI-Powered Analysis — DS 2023+2024+2025 PYQ Cross-Referenced</div>
+    <div class="pred-sec-title">Predicted Paper — DS Unit 6 · 2026</div>
+    <div class="pred-sec-sub">BASED ON 3-YEAR DS PYQ ANALYSIS (2023–2025) · 6E7136 / 6CS5-11</div>
+    <p class="pred-intro">Byzantine Agreement escalated from Part B 2024 → Part C 2025 — CERTAIN for Part C 2026. CORBA appeared Part C in 2023 and 2024, then ABSENT 2025 — the strongest possible return signal. Faults/Failure is a permanent Part A fixture (every year). Randomized Agreement is a new 2025 Part B anchor. Active Replication disadvantages appeared 2024 Part A Q10 → 2025 escalated to broader replication issues Q10 — rising trajectory. CORBA naming integration appeared 2023 Part C → IDL appeared 2024 Part C → CORBA architecture itself is the natural 2026 Part C return.</p>
+    <div class="disc-box"><span style="font-size:18px;flex-shrink:0">⚠️</span><p>Predictions based on historical pattern analysis. Actual paper may differ. Do not skip unpredicted topics entirely.</p></div>
+
+    <div class="pred-grid">
+
+      <!-- PART A Q9 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q9)</div>
+          <div class="pred-unit">Unit 6 | Faults & Failures</div>
+          <div class="pred-q">Explain the types of faults in a distributed system. Differentiate between fault, error, and failure.</div>
+          <div class="pred-reason">Fault concepts appeared in 2023 Part A Q9 and 2025 Part A Q9 (alternating years). Part B Q6 in 2024 had a 4-mark version. This is a PERMANENT fixture of Unit 6 Part A — alternating between short definition and longer types. 2026 is its return year.</div>
+          <span class="pred-conf high">CERTAIN</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Fault → Error → Failure chain:</strong> Fault (root cause) activates an Error (bad state) which causes a Failure (visible deviation from specified behaviour).</p>
+          <div class="fbox inside-pred">
+            <span class="flbl">Types of Faults by Duration</span>
+            <div class="fl">Transient: occurs once, disappears (cosmic ray bit flip)</div>
+            <div class="fl">Intermittent: comes and goes (loose connector)</div>
+            <div class="fl">Permanent: persists until repaired (broken cable, software bug)</div>
+          </div>
+          <div class="fbox inside-pred">
+            <span class="flbl">Failure Severity (easiest to hardest)</span>
+            <div class="fl">Crash-Stop → Crash-Recovery → Omission → Timing → Byzantine</div>
+            <div class="fn">Byzantine = arbitrary failure — process may actively lie. Hardest to handle. Needs n ≥ 3f+1.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART A Q10 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q10)</div>
+          <div class="pred-unit">Unit 6 | Byzantine Agreement</div>
+          <div class="pred-q">What is Byzantine Agreement? State the minimum number of processes required to tolerate f Byzantine failures.</div>
+          <div class="pred-reason">Byzantine Agreement appeared as Part B Q7 in 2024 then Part C Q5 in 2025. In 2026, it anchors the entire Unit 6 Part C — a short Part A definition question is also highly likely, as seen with Byzantine in 2023 Part A Q9 ("faults in distributed agreement"). Two-year escalation pattern.</div>
+          <span class="pred-conf high">VERY HIGH</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Byzantine Agreement:</strong> n processes must agree on a single value despite f Byzantine-faulty processes (which may send arbitrary, conflicting messages).</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Minimum processes needed: n ≥ 3f + 1</div>
+            <div class="fl">f=1 → n≥4; f=2 → n≥7; f=10 → n≥31</div>
+            <div class="fl">Requirements: Agreement + Validity + Termination</div>
+            <div class="fn">With n=3, f=1: IMPOSSIBLE. The classic result by Lamport-Shostak-Pease (1982).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART B Q7 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q7)</div>
+          <div class="pred-unit">Unit 6 | Randomized Agreement</div>
+          <div class="pred-q">Discuss the randomized distributed agreement approach. How does it overcome the FLP impossibility result?</div>
+          <div class="pred-reason">Randomized distributed agreement appeared as Part B Q7 in 2025 — a brand new anchor. RTU retains new Part B anchors for 2-3 years (confirmed by Types of OS 2025→2026, DCE 2024+2025). VERY HIGH for 2026 Part B Q7 — same slot, same topic.</div>
+          <span class="pred-conf high">VERY HIGH</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>FLP Impossibility:</strong> In an asynchronous system, deterministic consensus is impossible if even one process can crash (Fischer-Lynch-Paterson, 1985). Cannot distinguish slow process from crashed.</p>
+          <p><strong>Randomized Agreement (Ben-Or Algorithm):</strong> Overcomes FLP by introducing a random coin flip — termination becomes probabilistic (not guaranteed) but occurs with probability 1.</p>
+          <div class="fbox inside-pred">
+            <span class="flbl">Ben-Or — Each Round (2 Phases)</span>
+            <div class="fl">Phase 1 (Report): Broadcast current value v. Wait for n-f reports.</div>
+            <div class="fl">  If majority has same value w → set v=w</div>
+            <div class="fl">Phase 2 (Propose): Broadcast v. Wait for n-f proposals.</div>
+            <div class="fl">  If majority proposes w → decide w (output)</div>
+            <div class="fl">  Else → v = COIN_FLIP() ← breaks adversary's control</div>
+            <div class="fn">Why it works: Adversary can control process speeds but NOT a random coin. The coin breaks deadlock that the adversary would exploit in FLP.</div>
+          </div>
+          <p><strong>Advantages:</strong> No failure detectors needed, no timing assumptions, handles Byzantine failures, expected O(1) rounds in practice.</p>
+        </div>
+      </div>
+
+      <!-- PART C Q2/Q5 -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q5)</div>
+          <div class="pred-unit">Unit 6 | Byzantine Agreement</div>
+          <div class="pred-q">What is Byzantine Agreement? Explain the different approaches to solve it with suitable diagrams. Also discuss fault tolerance in distributed systems.</div>
+          <div class="pred-reason">Byzantine Agreement escalated: Part B Q7 in 2024 → Part C Q5 in 2025. This is the clearest escalation pattern in DS history. Part C topics stay in Part C once they enter (confirmed by DSM — Part C all 3 years). CERTAIN for 2026 Part C.</div>
+          <span class="pred-conf high">CERTAIN — Part C 2026</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Byzantine Agreement:</strong> n processes agree on a value despite f Byzantine-faulty processes. Requirements: Agreement, Validity, Termination. Key theorem: n ≥ 3f+1.</p>
+          <p><strong>Approach 1 — Oral Messages (OM):</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">OM(0): Commander sends value; lieutenants use what they receive.</div>
+            <div class="fl">OM(m): Commander sends to all. Each lieutenant runs OM(m-1) with n-2 others.</div>
+            <div class="fl">Each lieutenant decides by MAJORITY of n-1 values collected.</div>
+            <div class="fl">Example n=4, f=1: L1 gets {attack,attack,retreat}→majority=attack ✓</div>
+            <div class="fl">Complexity: f+1 rounds, n≥3f+1, O(n^(f+1)) messages.</div>
+          </div>
+          <p><strong>Approach 2 — Signed Messages:</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">Digital signatures prevent message forgery.</div>
+            <div class="fl">Traitor can't fake a loyal general's signature.</div>
+            <div class="fl">Needs only n ≥ f+2 (vs 3f+1 for oral messages).</div>
+            <div class="fl">Trade-off: Requires public-key infrastructure.</div>
+          </div>
+          <p><strong>Approach 3 — PBFT (3-Phase Protocol):</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">① PRE-PREPARE: Primary assigns seq# + broadcasts to all replicas</div>
+            <div class="fl">② PREPARE: Each backup validates + sends PREPARE to all</div>
+            <div class="fl">   → "Prepared" = PRE-PREPARE + 2f PREPARE messages received</div>
+            <div class="fl">③ COMMIT: Each prepared replica sends COMMIT to all</div>
+            <div class="fl">   → Execute + Reply to client when 2f+1 COMMIT received</div>
+            <div class="fl">Message complexity: O(n²). Used in Hyperledger, Tendermint.</div>
+          </div>
+          <p><strong>Fault Tolerance:</strong> Active replication (all process every request) + passive (primary-backup). Replication, checkpointing, message logging are the three recovery mechanisms.</p>
+        </div>
+      </div>
+
+      <!-- CORBA Part C -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q3)</div>
+          <div class="pred-unit">Unit 6 | CORBA</div>
+          <div class="pred-q">(a) Explain the CORBA architecture in detail with diagram. (b) Explain how CORBA IDL enables language-independent interoperability.</div>
+          <div class="pred-reason">CORBA Part C: 2023 Q1 (Naming integration), 2024 Q5 (IDL), 2025 ABSENT. Perfect 1-year absence after 2 consecutive appearances. This is the pattern that predicted CORBA return in the Unit 2 guide — confirmed as VERY HIGH. The natural 2026 question combines architecture (not yet fully asked) with IDL (asked 2024).</div>
+          <span class="pred-conf high">VERY HIGH — 1yr absence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>(a) CORBA Architecture:</strong></p>
+          <p>CORBA (Common Object Request Broker Architecture) by OMG enables language-neutral, platform-neutral distributed object communication.</p>
+          <div class="fbox inside-pred">
+            <span class="flbl">Components (all 8 must be mentioned)</span>
+            <div class="fl">1. ORB: Central communication bus — routes all requests</div>
+            <div class="fl">2. IDL: Language-neutral interface specification</div>
+            <div class="fl">3. Client Stub: Auto-generated proxy; marshals parameters</div>
+            <div class="fl">4. Server Skeleton: Auto-generated; unmarshals + dispatches</div>
+            <div class="fl">5. POA: Object Adapter — manages object lifecycle on server</div>
+            <div class="fl">6. IOR: Unique network-wide object reference (host+port+key)</div>
+            <div class="fl">7. DII: Dynamic Invocation — call without pre-compiled stub</div>
+            <div class="fl">8. DSI: Dynamic Skeleton — handle calls without pre-compiled skeleton</div>
+          </div>
+          <p><strong>Invocation flow:</strong> Client calls Stub → Stub marshals → ORB routes via IIOP → Server ORB + POA locate servant → Skeleton unmarshals → Actual object executes → Return value flows back.</p>
+          <p><strong>(b) IDL Interoperability:</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">ONE IDL file → IDL Compiler → Java Stub + C++ Skeleton + Python Binding</div>
+            <div class="fl">Java client on Android → calls C++ server on Windows → seamlessly</div>
+            <div class="fl">CDR (Common Data Representation): handles endianness + type conversion</div>
+            <div class="fn">IDL Example: interface BankAccount { void deposit(in float amount); float balance(); };</div>
+          </div>
+          <p>[Draw complete CORBA architecture diagram with Client/ORB/Server sections, IDL compiler arrow generating both stub and skeleton]</p>
+        </div>
+      </div>
+
+      <!-- Replicated Data Part C -->
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q4)</div>
+          <div class="pred-unit">Unit 6 | Replicated Data Management</div>
+          <div class="pred-q">Explain the concepts and issues in replicated data management. Discuss Active Replication vs Passive Replication and the role of Atomic Multicast.</div>
+          <div class="pred-reason">Active Replication disadvantages appeared 2024 Part A Q10. Key issues in managing replicated data appeared 2025 Part A Q10. Two consecutive Part A appearances is the pre-cursor to a Part C question (confirmed by DSM and Byzantine trajectories in DS). RISING for 2026 Part C.</div>
+          <span class="pred-conf med">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Replication Goals:</strong> Fault tolerance (survive node failures), Performance (read from nearest replica), Scalability (add replicas for more read throughput).</p>
+          <p><strong>Key Issues:</strong> Consistency (all replicas same data), Update Propagation (how writes spread), Concurrency control (simultaneous writes), Failure recovery (repair crashed replica), Total ordering (all replicas process in same order).</p>
+          <p><strong>Active Replication (State Machine Replication):</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">All replicas process EVERY request. Client multicasts to all.</div>
+            <div class="fl">✓ No failover delay ✓ Tolerates Byzantine with n≥3f+1</div>
+            <div class="fl">✗ All replicas do all work (CPU overhead proportional to n)</div>
+            <div class="fl">✗ Requires TOTAL ORDER delivery (Atomic Multicast)</div>
+            <div class="fl">✗ Non-deterministic operations problematic</div>
+          </div>
+          <p><strong>Passive Replication (Primary-Backup):</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">ONE primary processes requests; backups standby hot/warm/cold.</div>
+            <div class="fl">✓ Simple ✓ No total order requirement ✓ Works with non-determinism</div>
+            <div class="fl">✗ Primary is bottleneck ✗ Only crash-fault tolerance</div>
+          </div>
+          <p><strong>Atomic Multicast (Total Order Broadcast):</strong> Ensures all replicas deliver the same messages in the same order. Properties: Validity, Uniform Agreement, Integrity, Total Order. Required by Active Replication. Implemented via sequencer or Lamport timestamp ordering.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Quorum: Qr + Qw > N  ensures every read sees latest write</div>
+            <div class="fn">N=5, Qr=3, Qw=3: 6>5 ✓ — Cassandra default "quorum" setting</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pred-grid -->
+
+    <div class="prep-box">
+      <h3>✅ Quick Preparation Strategy — Unit 6 for 2026</h3>
+      <p><strong>MUST prepare completely (Part C — 10 marks, full diagrams):</strong> Byzantine Agreement (Oral Messages algorithm with n=4,f=1 example + Signed Messages + PBFT 3-phase diagram with ALL labels — CERTAIN every year), CORBA Architecture (full diagram with all 8 components labeled + IDL example + invocation flow — VERY HIGH after 1-year absence), Replicated Data Management (Active vs Passive + Atomic Multicast + quorum formula — rising trajectory).</p>
+      <p><strong>MUST prepare for Part B (4 marks):</strong> Randomized Distributed Agreement (Ben-Or algorithm + FLP connection + 5 advantages — new 2025 anchor), CORBA Services (Naming + Event + Transaction + Security with one-liner each + analogy), Atomic Multicast (4 properties + sequencer implementation), Object Adapter / POA (responsibilities + BOA vs POA), Fault types (Fault→Error→Failure chain + 5 failure types ordered by severity + recovery mechanisms).</p>
+      <p><strong>Part A only (≤25 words):</strong> Byzantine Agreement (n≥3f+1, 3 requirements), Faults (transient/intermittent/permanent + crash/Byzantine), FLP impossibility (async system, 1 crash = impossible), Active Replication disadvantages (CPU overhead, total order needed, non-determinism problem), CORBA IDL (language-neutral interface → IDL compiler → stubs for any language), IOR (Interoperable Object Reference — unique handle for CORBA objects), Quorum (Qr+Qw>N), Gossip/epidemic protocol (random neighbour exchange, eventual consistency).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PYQ MASTER LIST ═══════ -->
+<div class="layout">
+  <div style="width:var(--sidebar-w);min-width:var(--sidebar-w);flex-shrink:0;"></div>
+  <div class="content">
+    <section class="section" id="pyq-master" style="margin-top:40px">
+      <div class="section-header"><span class="section-num">M</span><h2 class="section-title">All PYQs — Unit 6 Master List (2023–2025)</h2></div>
+      <div class="pyq-section">
+        <div class="pyq-header">📋 Complete PYQ Coverage — Unit 6 Topics Across All Papers</div>
+        <div class="pyq-item">
+          <div class="pyq-q-text">All Unit 6 Questions by Year — Click to Expand</div>
+          <button class="pyq-toggle" onclick="toggle(this)">▼ Show Full Master List</button>
+          <div class="answer-content">
+            <strong>From DS 2023 (6E7136):</strong><br>
+            Part A Q9: Explain concept of faults in distributed agreement → Unit 6 Faults<br>
+            Part B Q3: What is an object adapter? → Unit 6 CORBA<br>
+            Part C Q1: Two CORBA systems, each with own naming service — outline integration → Unit 6 CORBA Naming<br><br>
+
+            <strong>From DS 2024 (6E7136):</strong><br>
+            Part A Q10: Disadvantages of Active Replication in distributed systems → Unit 6 Replication<br>
+            Part B Q6: Briefly explain fault, errors, and failure in distributed system → Unit 6 Faults<br>
+            Part B Q7: What do you understand by Byzantine Agreement? Explain → Unit 6 Byzantine<br>
+            Part C Q5: Explain CORBA Interface Definitions Languages → Unit 6 CORBA IDL<br><br>
+
+            <strong>From DS 2025 (6E7136):</strong><br>
+            Part A Q9: What is concept of Faults? → Unit 6 Faults<br>
+            Part A Q10: Key issues in managing replicated data → Unit 6 Replication<br>
+            Part B Q7: Discuss the randomized distributed agreement approach and its advantages → Unit 6 Randomized Agreement<br>
+            Part C Q5: What is the Byzantine Agreement? Explain different approaches to solve it → Unit 6 Byzantine<br><br>
+
+            <strong>KEY PATTERNS:</strong><br>
+            Faults (Part A Q9): 2023✓, 2025✓ → <span style="color:#ef4444">CERTAIN 2026 Part A</span><br>
+            Active/Replicated Data (Part A Q10): 2024✓, 2025✓ → <span style="color:#ef4444">CERTAIN 2026 Part A Q10</span><br>
+            Byzantine Agreement: 2024 Part B Q7 → 2025 Part C Q5 (escalating) → <span style="color:#ef4444">CERTAIN 2026 Part C</span><br>
+            CORBA: 2023 Part C Q1, 2024 Part C Q5, 2025 ABSENT → <span style="color:#ef4444">VERY HIGH return 2026 Part C</span><br>
+            Randomized Agreement: 2025 Part B Q7 (new anchor) → <span style="color:#ef4444">HIGH 2026 Part B</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="openSidebar()">☰</button>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="#">🏠 Home</a>
+    <a href="#">🌐 Unit 2: Fundamentals</a>
+    <a href="#">⚙️ Unit 3: Processes & IPC</a>
+    <a href="#">📁 Unit 4: Scheduling & DFS</a>
+    <a href="#">🧠 Unit 5: DSM & Computation</a>
+    <a href="#">🛡️ Unit 6: Agreement & CORBA (current)</a>
+    <a href="#predicted" style="color:var(--upred)">🔮 Predicted 2026</a>
+  </div>
+  © 2026 Mahansh Gaur · DS RTU Study Guide · Unit 6 — Distributed Agreement, Replication & CORBA · 6E7136 / 6CS5-11 · Educational use only.
+</footer>
+
+<script>
+function toggle(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function togglePred(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('visible');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+const sections=document.querySelectorAll('.section');
+const navItems=document.querySelectorAll('.nav-item');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navItems.forEach(n=>{
+        n.classList.remove('active');
+        if(n.getAttribute('href')==='#'+e.target.id) n.classList.add('active');
+      });
+    }
+  });
+},{rootMargin:'-15% 0px -70% 0px'});
+sections.forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>
