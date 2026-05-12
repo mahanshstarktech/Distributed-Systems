@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS Unit 5 — DSM & Distributed Computation | RTU Exam Prep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#040d10;--surface:#081820;--surface2:#0c2030;
+  --border:#133040;--border2:#0a1e2c;
+  --cc:#10b981;--cc2:#6ee7b7;--cc3:#d1fae5;
+  --u1:#22d3ee;--u2:#f97316;--u3:#ef4444;--u4:#a78bfa;--u5:#10b981;--u6:#3b82f6;
+  --upred:#f59e0b;--gold:#fbbf24;--text:#dde8f2;--dim:#2a4858;--dim2:#5a8aa0;
+  --mono:'JetBrains Mono',monospace;--head:'Fraunces',serif;--body:'Outfit',sans-serif;
+  --sidebar-w:300px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.82;overflow-x:hidden;}
+
+/* ── AGGRESSIVE RESPONSIVE FONT SCALING ── */
+html{font-size:clamp(17px,1.25vw,20px);}
+@media(min-width:1100px){html{font-size:clamp(18px,1.3vw,21px);}}
+@media(min-width:1400px){html{font-size:clamp(19px,1.35vw,22px);}}
+@media(min-width:1700px){html{font-size:clamp(20px,1.3vw,24px);}}
+@media(min-width:2000px){html{font-size:clamp(21px,1.2vw,26px);}}
+@media(min-width:2400px){html{font-size:clamp(22px,1.1vw,28px);}}
+@media(max-width:900px){html{font-size:17px;}}
+@media(max-width:600px){html{font-size:16px;}}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── LAYOUT ── */
+.layout{display:flex;max-width:100%;}
+.content{
+  flex:1;
+  padding:clamp(24px,2.5vw,48px) clamp(28px,3.5vw,72px);
+  max-width:calc(100% - var(--sidebar-w));
+  overflow-x:hidden;min-width:0;
+}
+@media(min-width:1400px){
+  .content{padding:clamp(28px,2.2vw,52px) clamp(36px,3.8vw,88px);}
+}
+@media(min-width:1800px){
+  .content{padding:clamp(32px,2vw,56px) clamp(44px,4vw,100px);}
+}
+@media(min-width:2200px){
+  .content{padding:clamp(36px,1.8vw,60px) clamp(52px,4.2vw,120px);}
+}
+
+/* ── TOP NAV ── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(4,13,16,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border2);padding:0 28px;display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.topnav::-webkit-scrollbar{display:none;}
+.tnlabel{font-family:var(--mono);font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--cc);padding:15px 14px 15px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0;}
+.tnlink{font-family:var(--mono);font-size:.7rem;padding:8px 14px;border-radius:6px;text-decoration:none;color:var(--dim2);white-space:nowrap;flex-shrink:0;transition:all .18s;border:1px solid transparent;}
+.tnlink:hover{color:var(--text);background:var(--surface2);}
+.tnlink.active{color:var(--cc);background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);}
+.tnlink.pred{color:var(--upred);background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);font-weight:600;}
+
+/* ── CREDIT BAND ── */
+.credit-band{background:#030c12;border-bottom:1px solid var(--border2);padding:11px 32px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
+.credit-text{font-family:var(--mono);font-size:.7rem;color:var(--dim2);}
+.credit-text span{color:var(--cc);font-weight:600;}
+.credit-link{font-family:var(--mono);font-size:.68rem;padding:4px 14px;border-radius:5px;border:1px solid var(--border);color:var(--dim2);text-decoration:none;transition:all .2s;}
+.credit-link:hover{border-color:var(--cc);color:var(--cc);}
+
+/* ── HERO ── */
+.hero{position:relative;overflow:hidden;padding:clamp(44px,5vw,80px) clamp(28px,4.5vw,88px) clamp(38px,4.5vw,64px);background:var(--bg);}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(16,185,129,.08) 1px,transparent 1px),radial-gradient(circle,rgba(34,211,238,.04) 1px,transparent 1px);background-size:44px 44px,88px 88px;background-position:0 0,22px 22px;animation:dotDrift 30s linear infinite;}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 55% at 10% 50%,rgba(16,185,129,.09) 0%,transparent 65%),radial-gradient(ellipse 45% 50% at 85% 15%,rgba(34,211,238,.05) 0%,transparent 60%);pointer-events:none;}
+@keyframes dotDrift{0%{transform:translate(0,0);}100%{transform:translate(44px,44px);}}
+.hero-inner{position:relative;z-index:1;max-width:100%;}
+.hero-tag{font-family:var(--mono);font-size:.7rem;color:var(--cc);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.hero-dot{width:8px;height:8px;border-radius:50%;background:var(--cc);box-shadow:0 0 14px var(--cc);animation:blink 2.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.hero h1{font-family:var(--head);font-weight:800;font-size:clamp(30px,4.5vw,68px);line-height:1.02;color:#fff;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero h1 span{color:var(--cc);}
+.hero h1 em{color:var(--u1);font-style:normal;}
+.hero-sub{color:var(--dim2);font-size:clamp(15px,1.4vw,20px);max-width:860px;line-height:1.8;margin-bottom:22px;}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{font-family:var(--mono);font-size:.68rem;padding:5px 14px;border-radius:5px;border:1px solid;}
+.badge-r{color:var(--u3);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);}
+.badge-v{color:var(--cc);border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.08);}
+.badge-g{color:var(--u1);border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.08);}
+.badge-gold{color:var(--upred);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.08);}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);padding:28px 18px;border-right:1px solid var(--border);position:sticky;top:44px;height:calc(100vh - 44px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;flex-shrink:0;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sidebar-title{font-family:var(--mono);font-size:.62rem;color:var(--cc);letter-spacing:2px;text-transform:uppercase;}
+.sidebar-close{display:none;background:none;border:1px solid var(--border);border-radius:4px;color:var(--dim2);cursor:pointer;padding:2px 9px;font-family:var(--mono);font-size:.68rem;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:7px;cursor:pointer;font-family:var(--head);font-size:.9rem;font-weight:600;color:var(--dim2);transition:all .2s;margin-bottom:3px;text-decoration:none;line-height:1.3;}
+.nav-item:hover,.nav-item.active{background:var(--surface2);color:var(--text);}
+.nav-item.active{color:var(--cc);border-left:2px solid var(--cc);padding-left:10px;}
+.nav-imp{margin-left:auto;font-family:var(--mono);font-size:.62rem;padding:2px 7px;border-radius:3px;background:var(--surface2);white-space:nowrap;}
+.nav-imp.high{color:var(--u3);}
+.nav-imp.med{color:var(--upred);}
+.sidebar-toggle{display:none;position:fixed;bottom:22px;right:22px;z-index:1000;width:52px;height:52px;border-radius:50%;background:var(--cc);border:none;cursor:pointer;font-size:22px;color:#fff;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(16,185,129,.45);transition:transform .2s;}
+.sidebar-toggle:hover{transform:scale(1.1);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:98;backdrop-filter:blur(3px);}
+.sidebar-overlay.visible{display:block;}
+
+/* ── CONTENT SECTIONS ── */
+.section{margin-bottom:80px;scroll-margin-top:64px;}
+.section-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.section-num{font-family:var(--mono);font-size:.7rem;color:var(--cc);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);padding:5px 10px;border-radius:5px;min-width:40px;text-align:center;}
+.section-title{font-family:var(--head);font-size:clamp(20px,2.4vw,32px);font-weight:800;color:#fff;}
+
+/* ── THEORY BLOCKS ── */
+.theory-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:clamp(20px,2.5vw,34px) clamp(22px,3vw,40px);margin-bottom:22px;}
+.theory-block h3{font-family:var(--head);font-size:clamp(17px,1.7vw,24px);font-weight:700;color:var(--cc);margin-bottom:14px;}
+.theory-block h3.orange{color:var(--u2);}
+.theory-block h3.red{color:var(--u3);}
+.theory-block h3.cyan{color:var(--u1);}
+.theory-block h3.purple{color:var(--u4);}
+.theory-block h3.blue{color:var(--u6);}
+.theory-block p{margin-bottom:14px;font-size:1rem;line-height:1.9;}
+.theory-block p:last-child{margin-bottom:0;}
+.theory-block ul,.theory-block ol{padding-left:26px;margin:12px 0;}
+.theory-block li{margin-bottom:10px;font-size:1rem;line-height:1.8;}
+h4{font-family:var(--head);font-size:1.05rem;font-weight:700;color:var(--text);margin:20px 0 10px;}
+
+/* ── LAYMAN BOX ── */
+.layman{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-left:3px solid var(--cc);border-radius:8px;padding:16px 20px;font-family:var(--mono);font-size:.82rem;color:#a7f3d0;margin:16px 0;line-height:1.78;}
+.layman::before{content:'💬 LAYMAN: ';color:var(--cc);font-weight:700;font-size:.84rem;}
+
+/* ── FORMULA BOX ── */
+.fbox{background:#030c14;border:1px solid rgba(16,185,129,.22);border-left:3px solid var(--cc);border-radius:9px;padding:18px 22px;margin:18px 0;font-family:var(--mono);font-size:.82rem;color:#6ee7b7;overflow-x:auto;line-height:1.72;}
+.fbox .flbl{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:block;}
+.fbox .fl{color:#a7f3d0;font-size:.86rem;display:block;}
+.fbox .fn{color:var(--dim2);font-size:.75rem;margin-top:8px;display:block;font-style:italic;}
+
+/* ── TIP BOXES ── */
+.tip-box{border-radius:9px;padding:18px 20px;margin:16px 0;display:flex;gap:14px;}
+.tip-box.trick{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);}
+.tip-box.connect{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.25);}
+.tip-box.warning{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);}
+.tip-box.pred-tip{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);}
+.tip-icon{font-size:21px;flex-shrink:0;margin-top:3px;}
+.tip-content{flex:1;}
+.tip-title{font-family:var(--head);font-size:.84rem;font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.tip-box.trick .tip-title{color:var(--gold);}
+.tip-box.connect .tip-title{color:var(--u1);}
+.tip-box.warning .tip-title{color:var(--u3);}
+.tip-box.pred-tip .tip-title{color:var(--upred);}
+.tip-content p{font-size:.92rem;color:var(--text);margin:0;line-height:1.78;}
+
+/* ── TABLES ── */
+.comp-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.9rem;display:block;overflow-x:auto;}
+.comp-table th{background:var(--surface2);padding:12px 16px;text-align:left;font-family:var(--head);font-weight:700;color:var(--cc);border-bottom:1px solid var(--border);white-space:nowrap;}
+.comp-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:var(--surface2);}
+
+/* ── PYQ SECTION ── */
+.pyq-section{background:#06101a;border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:clamp(18px,2.5vw,28px) clamp(20px,3vw,34px);margin-top:26px;}
+.pyq-header{font-family:var(--head);font-size:1rem;font-weight:700;color:var(--upred);margin-bottom:18px;}
+.pyq-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:18px 20px;margin-bottom:16px;}
+.pyq-q-text{font-family:var(--head);font-size:1rem;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.45;}
+.pyq-meta{font-family:var(--mono);font-size:.68rem;color:var(--dim2);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;}
+.topic-tag{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:var(--cc);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pred-tag{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--upred);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.unit-tag{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:var(--u1);padding:2px 9px;border-radius:4px;font-family:var(--mono);font-size:.68rem;}
+.pyq-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 16px;cursor:pointer;font-family:var(--mono);font-size:.73rem;color:var(--upred);margin-top:12px;transition:all .2s;}
+.pyq-toggle:hover{background:var(--upred);color:#000;}
+.answer-content{display:none;margin-top:16px;font-size:.95rem;line-height:1.9;}
+.answer-content.open{display:block;}
+.answer-content strong{color:var(--cc2);}
+.answer-content ul,.answer-content ol{padding-left:22px;margin:10px 0;}
+.answer-content li{margin-bottom:8px;}
+
+/* ── PRED BANNER ── */
+.pred-banner{background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(245,158,11,.03));border:1px solid rgba(245,158,11,.35);border-left:3px solid var(--upred);border-radius:9px;padding:14px 18px;margin:16px 0;font-family:var(--mono);font-size:.8rem;color:var(--upred);display:flex;gap:12px;align-items:flex-start;}
+.pred-banner .pb-text{line-height:1.7;}
+
+/* ── IMPORTANCE BARS ── */
+.imp-bar-wrap{margin-bottom:12px;}
+.imp-bar-label{font-family:var(--mono);font-size:.75rem;color:var(--dim2);margin-bottom:5px;display:flex;justify-content:space-between;}
+.imp-bar{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.imp-bar-fill{height:100%;border-radius:4px;}
+.ibf-hot{background:var(--u3);}
+.ibf-high{background:var(--cc);}
+.ibf-med{background:var(--upred);}
+
+/* ── DIAGRAM WRAP ── */
+.diagram-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin:18px 0;text-align:center;overflow-x:auto;}
+.diagram-cap{font-family:var(--mono);font-size:.72rem;color:var(--dim2);margin-top:12px;}
+
+/* ── HIGHLIGHT HELPERS ── */
+.hl-v{color:var(--cc2);font-weight:600;}
+.hl-o{color:var(--u2);font-weight:600;}
+.hl-r{color:var(--u3);font-weight:600;}
+.hl-g{color:var(--cc);font-weight:600;}
+.hl-c{color:var(--u1);font-weight:600;}
+.hl-p{color:var(--u4);font-weight:600;}
+code{font-family:var(--mono);background:var(--surface2);padding:2px 7px;border-radius:4px;font-size:.8rem;color:var(--cc2);}
+
+/* ── PREDICTED SECTION ── */
+.predicted-section{background:linear-gradient(135deg,rgba(4,13,16,1) 0%,rgba(16,185,129,.04) 100%);border-top:1px solid rgba(16,185,129,.2);border-bottom:1px solid rgba(16,185,129,.2);}
+.pred-inner{max-width:100%;margin:0 auto;padding:clamp(36px,4vw,64px) clamp(28px,4vw,88px);}
+@media(min-width:1400px){.pred-inner{padding:clamp(44px,3.5vw,70px) clamp(40px,4.5vw,100px);}}
+@media(min-width:1800px){.pred-inner{padding:clamp(50px,3vw,76px) clamp(52px,5vw,120px);}}
+.pred-badge{display:inline-block;font-family:var(--mono);font-size:.75rem;color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:5px 14px;border-radius:5px;margin-bottom:14px;}
+.pred-sec-title{font-family:var(--head);font-size:clamp(22px,3vw,38px);font-weight:800;color:#fff;margin-bottom:6px;}
+.pred-sec-sub{font-family:var(--mono);font-size:.72rem;color:var(--dim2);letter-spacing:1px;margin-bottom:14px;}
+.pred-intro{font-family:var(--mono);font-size:.78rem;color:var(--dim2);max-width:980px;line-height:1.75;margin-bottom:18px;}
+.disc-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:14px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-start;}
+.disc-box p{font-size:.86rem;color:var(--text);}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:18px;margin-top:24px;}
+@media(min-width:1400px){.pred-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));}}
+@media(min-width:1800px){.pred-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));}}
+.pred-card{background:var(--surface);border:1px solid rgba(245,158,11,.2);border-radius:12px;border-top:3px solid var(--upred);overflow:hidden;}
+.pred-card-head{padding:20px 22px 14px;}
+.pred-part{font-family:var(--mono);font-size:.67rem;color:var(--dim2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-unit{font-family:var(--mono);font-size:.67rem;color:var(--u1);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pred-q{font-family:var(--head);font-size:clamp(.94rem,1.05vw,1.1rem);font-weight:700;color:#fff;line-height:1.4;margin-bottom:8px;}
+.pred-reason{font-size:clamp(.82rem,.92vw,.96rem);color:var(--dim2);line-height:1.7;margin-bottom:10px;}
+.pred-conf{font-family:var(--mono);font-size:.68rem;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:14px;}
+.pred-conf.high{color:var(--u3);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);}
+.pred-conf.med{color:var(--upred);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);}
+.pred-answer-toggle{width:100%;padding:10px 22px;background:var(--surface2);border:none;border-top:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:.72rem;color:var(--cc);text-align:left;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.pred-answer-toggle:hover{background:var(--cc);color:#000;}
+.pred-answer{display:none;padding:20px 22px;border-top:1px solid var(--border);background:var(--bg);}
+.pred-answer.open{display:block;}
+.pred-answer p{font-size:.92rem;line-height:1.9;margin-bottom:12px;}
+.pred-answer strong{color:var(--cc2);}
+.pred-answer ul,.pred-answer ol{padding-left:22px;margin:10px 0;}
+.pred-answer li{margin-bottom:8px;font-size:.9rem;}
+.fbox.inside-pred{background:#030c14;border:1px solid rgba(16,185,129,.22);border-left:3px solid var(--cc);border-radius:8px;padding:14px 18px;margin:10px 0;font-family:var(--mono);font-size:.78rem;color:#6ee7b7;overflow-x:auto;line-height:1.7;}
+.fbox.inside-pred .fl{color:#a7f3d0;display:block;}
+.fbox.inside-pred .fn{color:var(--dim2);font-size:.7rem;margin-top:6px;display:block;font-style:italic;}
+.fbox.inside-pred .flbl{font-size:.63rem;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:block;}
+.dbox{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin:14px 0;overflow-x:auto;}
+.dcap{font-family:var(--mono);font-size:.7rem;color:var(--dim2);margin-top:8px;text-align:center;}
+
+/* ── PREP BOX ── */
+.prep-box{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:22px 26px;margin-top:28px;}
+.prep-box h3{font-family:var(--head);font-size:clamp(1rem,1.15vw,1.25rem);font-weight:700;color:var(--cc);margin-bottom:14px;}
+.prep-box p{font-size:.92rem;line-height:1.88;margin-bottom:10px;}
+.prep-box strong{color:#fff;}
+
+/* ── FOOTER ── */
+.site-footer{background:#030b10;border-top:1px solid var(--border2);padding:28px 5vw;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--dim);}
+.site-footer a{color:var(--dim2);text-decoration:none;margin:0 12px;transition:color .2s;}
+.site-footer a:hover{color:var(--cc);}
+.footer-links{margin-bottom:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;}
+
+/* ── MOBILE ── */
+@media(max-width:1100px){:root{--sidebar-w:270px;}}
+@media(max-width:900px){
+  .sidebar{position:fixed;top:0;left:0;height:100vh;z-index:99;background:var(--bg);transform:translateX(-100%);border-right:1px solid var(--border);transition:transform .3s ease;width:var(--sidebar-w);}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.9);}
+  .sidebar-close{display:block;}
+  .sidebar-toggle{display:flex;}
+  .content{max-width:100%;padding:24px 18px;}
+  .pred-inner{padding:36px 18px;}
+  .pred-grid{grid-template-columns:1fr;}
+  .hero{padding:36px 18px 32px;}
+}
+@media(max-width:600px){.theory-block{padding:18px 16px;}.pyq-section{padding:16px;}}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="tnlabel">DS · RTU</span>
+  <a class="tnlink" href="index.html">🏠 Home</a>
+  <a class="tnlink" href="unit2.html">🌐 U2: DS Fundamentals</a>
+  <a class="tnlink" href="unit3.html">⚙️ U3: Processes & IPC</a>
+  <a class="tnlink" href="unit4.html">📁 U4: Scheduling & DFS</a>
+  <a class="tnlink active" href="unit5.html">🧠 U5: DSM & Computation</a>
+  <a class="tnlink" href="unit6.html">🛡️ U6: Agreement & CORBA</a>
+  <a class="tnlink pred" href="#predicted">🔮 Predicted 2026</a>
+</nav>
+
+<div class="credit-band">
+  <div class="credit-text">Crafted by <span>Mahansh Gaur</span> · B.Tech RTU Jaipur</div>
+  <a class="credit-link" href="https://www.instagram.com/mahaanshgaur_6513" target="_blank">📸 @mahaanshgaur_6513</a>
+  <a class="credit-link" href="https://github.com/mahanshstarktech" target="_blank">🐙 GitHub</a>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="hero-dot"></span>🧠 B.Tech VI Sem · RTU · DS 6CS5-11 / 6E7136 · Unit 5</div>
+    <h1>Distributed <span>Shared Memory</span><br>&amp; <em>Distributed Computation</em></h1>
+    <p class="hero-sub">Complete Unit 5 coverage — NUMA, Memory Consistency Models, DSM Implementation, Causality, Mutual Exclusion, Election, Deadlock, Termination Detection. All RTU PYQs 2023–2025 solved. Full 2026 Predicted Paper with answers.</p>
+    <div class="hero-badges">
+      <span class="badge badge-r">🔥 DSM — CERTAIN every year Part A + Part C</span>
+      <span class="badge badge-gold">🔮 Memory Consistency Models — CERTAIN 2026 Part B</span>
+      <span class="badge badge-v">Distributed Deadlock — VERY HIGH every year</span>
+      <span class="badge badge-g">DME (Mutual Exclusion) — HIGH Part A 2026</span>
+    </div>
+  </div>
+</section>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="layout">
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Unit 5 Topics</div>
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <a class="nav-item" href="#overview">📊 Importance Overview</a>
+  <a class="nav-item" href="#numa">🖥️ NUMA Architecture<span class="nav-imp high">88%</span></a>
+  <a class="nav-item" href="#consistency">⚖️ Memory Consistency<span class="nav-imp high">95%</span></a>
+  <a class="nav-item" href="#cache">🗄️ Multiprocessor Cache<span class="nav-imp med">75%</span></a>
+  <a class="nav-item" href="#dsm">🌐 Distributed Shared Memory<span class="nav-imp high">98%</span></a>
+  <a class="nav-item" href="#dsm-impl">⚙️ DSM Implementation<span class="nav-imp high">95%</span></a>
+  <a class="nav-item" href="#causality">🔗 Causality & Snapshots<span class="nav-imp high">85%</span></a>
+  <a class="nav-item" href="#failures">💥 Failures in DS<span class="nav-imp high">88%</span></a>
+  <a class="nav-item" href="#dme">🔒 Distributed Mutual Exclusion<span class="nav-imp high">90%</span></a>
+  <a class="nav-item" href="#election">👑 Election Algorithms<span class="nav-imp high">85%</span></a>
+  <a class="nav-item" href="#deadlock">🔴 Distributed Deadlock<span class="nav-imp high">95%</span></a>
+  <a class="nav-item" href="#termination">🏁 Termination Detection<span class="nav-imp med">72%</span></a>
+  <a class="nav-item" href="#predicted">🔮 2026 Predicted Paper</a>
+  <a class="nav-item" href="#pyq-master">📝 All PYQs</a>
+</nav>
+
+<main class="content">
+
+<!-- ═══════════ SECTION 00: OVERVIEW ═══════════ -->
+<section class="section" id="overview">
+  <div class="section-header"><span class="section-num">00</span><h2 class="section-title">Topic Importance — Unit 5</h2></div>
+  <div class="theory-block">
+    <p>Unit 5 is the <strong>highest-value unit</strong> in the DS exam. DSM appears in Part A AND Part C every single year (3/3 papers). Distributed deadlock appears every year in some form. Memory consistency models are a new anchor introduced in 2025 — confirmed to return. Mutual exclusion, election algorithms, and failures are standard Part A/B questions.</p>
+    <div class="imp-bar-wrap" style="margin-top:18px">
+      <div class="imp-bar-label"><span>Distributed Shared Memory (DSM)</span><span style="color:#ef4444">98% 🔮 CERTAIN Part A + Part C</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:98%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Memory Consistency Models</span><span style="color:#ef4444">95% 🔮 CERTAIN Part B 2026</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:95%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Distributed Deadlock Handling</span><span style="color:#ef4444">95% 🔮 VERY HIGH every year</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:95%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Distributed Mutual Exclusion (DME)</span><span style="color:#ef4444">90% — Part A/B anchor</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:90%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>NUMA Architecture</span><span style="color:#ef4444">88% — 2023 Part A Q7</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:88%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Failures in DS (fault/error/failure)</span><span style="color:#ef4444">88% — 2023 Q9, 2025 Q9</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-hot" style="width:88%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Election Algorithms (Bully, Ring)</span><span style="color:#06b6d4">85% — Part B topic</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:85%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Causality + Distributed Snapshots</span><span style="color:#06b6d4">85% — 2023 Part B Q6</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-high" style="width:85%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Multiprocessor Cache + Coherence</span><span style="color:#f59e0b">75%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:75%"></div></div>
+    </div>
+    <div class="imp-bar-wrap">
+      <div class="imp-bar-label"><span>Termination Detection</span><span style="color:#f59e0b">72%</span></div>
+      <div class="imp-bar"><div class="imp-bar-fill ibf-med" style="width:72%"></div></div>
+    </div>
+  </div>
+  <div class="tip-box connect">
+    <div class="tip-icon">🔗</div>
+    <div class="tip-content">
+      <div class="tip-title">Connection to Previous Units</div>
+      <p>Unit 2 introduced Logical Clocks (Lamport, Vector) — Unit 5 uses them for Causality and Mutual Exclusion. Unit 3 covered RPC/Message Passing — Unit 5 uses them for DME algorithms (sending REQUEST/REPLY/RELEASE messages). Unit 4 covered Load Balancing — Unit 5 deepens that with DSM's motivation (shared memory across distributed load). Every unit builds on the last!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 01: NUMA ═══════════ -->
+<section class="section" id="numa">
+  <div class="section-header"><span class="section-num">01</span><h2 class="section-title">Non-Uniform Memory Access (NUMA) Architecture</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part A Q7):</strong> "What is non-uniform memory access model?" appeared in 2023 Part A Q7. A foundational question that connects directly to DSM (Unit 5's main topic). RTU pattern shows that hardware architecture questions alternate every 2 years. VERY HIGH for 2026.</div></div>
+
+  <div class="theory-block">
+    <h3>What Problem Does NUMA Solve?</h3>
+    <p>Before NUMA, multiprocessor systems used <span class="hl-v">SMP (Symmetric Multiprocessing)</span> — all CPUs share ONE memory bus. Imagine 16 CPUs all fighting to access the same memory bus. The bus becomes a massive bottleneck. NUMA solves this by giving each CPU (or group of CPUs) its own <strong>local memory bank</strong>, while still allowing access to other CPUs' memory when needed.</p>
+
+    <div class="layman">Imagine a library (memory) with one desk (memory bus). If 16 students (CPUs) all rush to the same desk, only one can be served at a time — everyone else waits. NUMA solution: Give each student their own mini-library near their desk. They can get books from their own shelf instantly, but if they need a book from another student's shelf, they have to walk there (slower, but still possible). Their "local" books are fast. "Remote" books take longer. That's NUMA — Non-Uniform Memory Access (speed is non-uniform depending on where the memory is).</div>
+
+    <h3>NUMA — Key Concept</h3>
+    <p>In a <span class="hl-v">NUMA system</span>, the time to access memory depends on where the memory is located relative to the processor:</p>
+    <ul>
+      <li><strong>Local Memory Access:</strong> Fast — memory physically close to the CPU (same node). Typical: 2–5 nanoseconds.</li>
+      <li><strong>Remote Memory Access:</strong> Slow — memory on a different node, accessed via an interconnect (QPI, HyperTransport). Typical: 10–40 nanoseconds.</li>
+    </ul>
+    <div class="fbox">
+      <span class="flbl">NUMA — Structure (Memorize This)</span>
+      <div class="fl">Node 0: [CPU 0, CPU 1] ←→ [Local Memory Bank 0]</div>
+      <div class="fl">Node 1: [CPU 2, CPU 3] ←→ [Local Memory Bank 1]</div>
+      <div class="fl">Node 2: [CPU 4, CPU 5] ←→ [Local Memory Bank 2]</div>
+      <div class="fl">         ↑                    ↑</div>
+      <div class="fl">All nodes connected via HIGH-SPEED INTERCONNECT (QPI / HyperTransport)</div>
+      <div class="fl"></div>
+      <div class="fl">CPU0 accessing Memory Bank 0 → LOCAL → FAST (~2ns)</div>
+      <div class="fl">CPU0 accessing Memory Bank 2 → REMOTE → SLOW (~20ns)</div>
+      <div class="fn">Key: Access time is NON-UNIFORM — depends on which node the memory is on.</div>
+    </div>
+
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 580 240" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="290" y="20" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">NUMA Architecture — 4 Node Example</text>
+        <!-- Node 0 -->
+        <rect x="10" y="35" width="130" height="80" rx="7" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="75" y="58" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">NODE 0</text>
+        <rect x="20" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="45" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 0</text>
+        <rect x="78" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="103" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 1</text>
+        <rect x="20" y="92" width="108" height="16" rx="3" fill="#0c2030" stroke="#10b981" stroke-width="1"/>
+        <text x="74" y="104" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">Memory Bank 0</text>
+        <!-- Node 1 -->
+        <rect x="155" y="35" width="130" height="80" rx="7" fill="#081820" stroke="#22d3ee" stroke-width="2"/>
+        <text x="220" y="58" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="9" font-weight="bold">NODE 1</text>
+        <rect x="165" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="190" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 2</text>
+        <rect x="223" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="248" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 3</text>
+        <rect x="165" y="92" width="108" height="16" rx="3" fill="#0c2030" stroke="#22d3ee" stroke-width="1"/>
+        <text x="219" y="104" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">Memory Bank 1</text>
+        <!-- Node 2 -->
+        <rect x="300" y="35" width="130" height="80" rx="7" fill="#081820" stroke="#a78bfa" stroke-width="2"/>
+        <text x="365" y="58" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">NODE 2</text>
+        <rect x="310" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="335" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 4</text>
+        <rect x="368" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="393" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 5</text>
+        <rect x="310" y="92" width="108" height="16" rx="3" fill="#0c2030" stroke="#a78bfa" stroke-width="1"/>
+        <text x="364" y="104" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">Memory Bank 2</text>
+        <!-- Node 3 -->
+        <rect x="445" y="35" width="130" height="80" rx="7" fill="#081820" stroke="#f97316" stroke-width="2"/>
+        <text x="510" y="58" text-anchor="middle" fill="#f97316" font-family="JetBrains Mono" font-size="9" font-weight="bold">NODE 3</text>
+        <rect x="455" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="480" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 6</text>
+        <rect x="513" y="66" width="50" height="20" rx="3" fill="#0c2030"/>
+        <text x="538" y="80" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">CPU 7</text>
+        <rect x="455" y="92" width="108" height="16" rx="3" fill="#0c2030" stroke="#f97316" stroke-width="1"/>
+        <text x="509" y="104" text-anchor="middle" fill="#f97316" font-family="JetBrains Mono" font-size="8">Memory Bank 3</text>
+        <!-- Interconnect bus -->
+        <rect x="10" y="140" width="565" height="38" rx="6" fill="#040d10" stroke="#5a8aa0" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="292" y="163" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="9" font-weight="bold">HIGH-SPEED INTERCONNECT (Intel QPI / AMD HyperTransport)</text>
+        <!-- Vertical connectors -->
+        <line x1="75" y1="115" x2="75" y2="140" stroke="#10b981" stroke-width="1.5"/>
+        <line x1="220" y1="115" x2="220" y2="140" stroke="#22d3ee" stroke-width="1.5"/>
+        <line x1="365" y1="115" x2="365" y2="140" stroke="#a78bfa" stroke-width="1.5"/>
+        <line x1="510" y1="115" x2="510" y2="140" stroke="#f97316" stroke-width="1.5"/>
+        <!-- Labels -->
+        <text x="150" y="198" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">CPU0→Mem0: LOCAL ≈ 2ns ⚡</text>
+        <text x="400" y="198" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="8">CPU0→Mem3: REMOTE ≈ 20ns 🐢</text>
+        <text x="292" y="218" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">OS scheduler tries to place processes on same NUMA node as their memory (NUMA-aware scheduling)</text>
+      </svg>
+      <div class="diagram-cap">Fig: NUMA 4-Node System — each node has local CPUs + local memory. Remote access goes through interconnect (slower).</div>
+    </div>
+
+    <h3 class="cyan">NUMA vs SMP — Classic Comparison</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>SMP (Symmetric Multiprocessing)</th><th>NUMA (Non-Uniform Memory Access)</th></tr>
+      <tr><td>Memory structure</td><td>ONE shared memory, one bus</td><td>Multiple memory banks, one per node</td></tr>
+      <tr><td>Access time</td><td>UNIFORM — all CPUs same speed</td><td>NON-UNIFORM — local fast, remote slow</td></tr>
+      <tr><td>Scalability</td><td>Poor — bus is bottleneck beyond 8–16 CPUs</td><td>Good — scales to 100s of CPUs</td></tr>
+      <tr><td>Programming difficulty</td><td>Easy — no locality concern</td><td>Harder — must optimize for locality</td></tr>
+      <tr><td>Real example</td><td>Intel Core i7 (single socket)</td><td>Intel Xeon multi-socket server, AMD EPYC</td></div></tr>
+      <tr><td>OS complexity</td><td>Simple memory management</td><td>NUMA-aware scheduler + memory allocator</td></tr>
+    </table>
+
+    <h3 class="orange">Types of NUMA Systems</h3>
+    <ul>
+      <li><strong>CC-NUMA (Cache Coherent NUMA):</strong> Hardware ensures all caches stay consistent automatically. CPUs share a single address space. Most modern multi-socket servers. Example: Intel Xeon E7 family.</li>
+      <li><strong>NC-NUMA (Non-Cache Coherent NUMA):</strong> No hardware cache coherence — software must manage consistency. Used in very large systems (IBM SP2).</li>
+      <li><strong>COMA (Cache-Only Memory Architecture):</strong> All memory is treated as cache — data migrates to where it's used. No fixed home node for data. Complex but efficient for irregular workloads.</li>
+    </ul>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: NUMA → DSM → Memory Consistency</div>
+        <p>NUMA shows that even within one physical machine, memory access is not uniform. DSM (next topic) extends this concept to multiple machines connected by a network — access is even MORE non-uniform! Memory Consistency Models are needed because different CPUs/nodes may see memory updates at different times. These three topics form a natural progression in this unit.</p>
+      </div>
+    </div>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — NUMA in 25 Words (Part A)</div>
+        <p>"NUMA (Non-Uniform Memory Access) is a multiprocessor architecture where memory access time depends on a processor's distance from the memory. Local memory is fast; remote memory (on another node) is slower. Used in multi-socket servers."</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — NUMA</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7. What is non uniform memory access model?</div>
+      <div class="pyq-meta"><span>2023 Part A Q7 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">NUMA</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>NUMA (Non-Uniform Memory Access)</strong> is a multiprocessor computer memory architecture where the time to access memory is non-uniform — it depends on whether the memory is local (on the same node as the CPU) or remote (on a different node).<br><br>
+        <strong>Key Properties:</strong><br>
+        · Local memory access: fast (2–5 ns) — memory on same node as processor<br>
+        · Remote memory access: slow (10–40 ns) — memory on different node, accessed via interconnect<br>
+        · Multiple NUMA nodes: each node = group of CPUs + local memory bank<br>
+        · All nodes connected via high-speed interconnect (Intel QPI, AMD HyperTransport)<br><br>
+        <strong>Why used:</strong> Solves the SMP memory bus bottleneck. SMP with 32+ CPUs all sharing one memory bus gets congested. NUMA gives each node its own local memory, reducing bus contention and scaling better.<br><br>
+        <strong>Example:</strong> Modern 4-socket Intel Xeon server — 4 NUMA nodes, each with 8 CPU cores + 64 GB local RAM. OS (NUMA-aware) schedules processes on the same node as their data.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7. What is the difference between shared memory and distributed memory?</div>
+      <div class="pyq-meta"><span>2024 Part A Q7 · 2 marks ⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">Shared vs Distributed Memory</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Shared Memory:</strong> All processors share a common physical address space — any processor can read/write any memory location directly. Communication via shared variables. Requires synchronization (locks). Example: SMP/NUMA systems, multi-core CPUs.<br><br>
+        <strong>Distributed Memory:</strong> Each processor has its own private memory — no processor can directly access another's memory. Communication only via message passing (send/receive). No shared variables. Example: Cluster of PCs connected by Ethernet, cloud computing nodes.<br><br>
+        <table style="width:100%;font-size:.88rem;border-collapse:collapse;">
+          <tr><th style="padding:6px;background:#0c2030;text-align:left;">Aspect</th><th style="padding:6px;background:#0c2030;">Shared Memory</th><th style="padding:6px;background:#0c2030;">Distributed Memory</th></tr>
+          <tr><td style="padding:6px;border-bottom:1px solid #133040">Address space</td><td style="padding:6px;border-bottom:1px solid #133040">Single shared space</td><td style="padding:6px;border-bottom:1px solid #133040">Separate per processor</td></tr>
+          <tr><td style="padding:6px;border-bottom:1px solid #133040">Communication</td><td style="padding:6px;border-bottom:1px solid #133040">Shared variables</td><td style="padding:6px;border-bottom:1px solid #133040">Message passing</td></tr>
+          <tr><td style="padding:6px">Scalability</td><td style="padding:6px">Limited (bus bottleneck)</td><td style="padding:6px">Highly scalable</td></tr>
+        </table>
+        <br><strong>DSM bridges both worlds</strong> — software creates illusion of shared memory on physically distributed hardware.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 02: MEMORY CONSISTENCY MODELS ═══════════ -->
+<section class="section" id="consistency">
+  <div class="section-header"><span class="section-num">02</span><h2 class="section-title">Memory Consistency Models</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN (Part B Q5):</strong> "Explain the concept of memory consistency models. Why are they important?" appeared in 2025 Part B Q6 — a brand-new anchor question. RTU's confirmed pattern (CAO, DIP, ML) retains new Part B anchors for 2–3 years. CERTAIN for 2026.</div></div>
+
+  <div class="theory-block">
+    <h3>Why Do We Need Consistency Models?</h3>
+    <p>In a distributed or multiprocessor system, when Process P1 writes a value to shared memory, when does Process P2 (on a different machine) see that new value? The answer depends on the <span class="hl-v">memory consistency model</span> — a contract between the hardware/software and the programmer specifying what values a read operation can return.</p>
+    <div class="layman">Imagine you post something on Instagram. Your friends in different countries see it at different times — some instantly, some after a few seconds, some after minutes. What guarantee does Instagram give you? That's their "consistency model." In shared memory systems, the same problem exists: when you write to memory, when does everyone else see the new value? Different consistency models give different guarantees — stronger guarantees = more expensive, weaker = cheaper but harder to program.</div>
+
+    <h3>The Consistency Spectrum</h3>
+    <p>Consistency models range from <span class="hl-r">Strict</span> (strongest, most expensive) to <span class="hl-v">Eventual</span> (weakest, cheapest). The key trade-off: <strong>stronger consistency = easier programming but lower performance</strong>.</p>
+
+    <h3>1. Strict Consistency (Strongest)</h3>
+    <p>Any read always returns the value of the <strong>most recent write</strong> globally. If P1 writes X=5 at time t, any read of X after time t on any processor returns 5.</p>
+    <div class="fbox">
+      <span class="flbl">Strict Consistency Rule</span>
+      <div class="fl">Any read(X) returns the value written by the MOST RECENT write(X) globally.</div>
+      <div class="fl">Timeline: P1 writes X=5 at t=10. P2 reads X at t=11 → must get 5.</div>
+      <div class="fn">Requires GLOBAL CLOCK (impossible in DS!). Cannot be implemented in distributed systems.</div>
+    </div>
+
+    <h3 class="cyan">2. Sequential Consistency (Lamport, 1979)</h3>
+    <p>The most practically important strong model. <span class="hl-v">Sequential Consistency</span> requires two properties:</p>
+    <ol>
+      <li>All memory operations appear to execute in <strong>some sequential order</strong> (not necessarily real time).</li>
+      <li>The operations of each individual process appear in program order (as written in the program).</li>
+    </ol>
+    <div class="fbox">
+      <span class="flbl">Sequential Consistency Rules</span>
+      <div class="fl">Rule 1: Each process's operations execute in program order.</div>
+      <div class="fl">Rule 2: All processors see ALL operations in the SAME GLOBAL ORDER.</div>
+      <div class="fl"></div>
+      <div class="fl">Example — VALID under Sequential Consistency:</div>
+      <div class="fl">P1: write(X,1)  write(Y,1)</div>
+      <div class="fl">P2: read(Y)=1   read(X)=1   (Sees both writes, in some order)</div>
+      <div class="fl"></div>
+      <div class="fl">INVALID example (violates SC):</div>
+      <div class="fl">P1: write(X,1)  P2: write(Y,1)</div>
+      <div class="fl">P3: read(X)=1, read(Y)=0  |  P4: read(Y)=1, read(X)=0</div>
+      <div class="fl">→ P3 and P4 see operations in DIFFERENT orders — not sequentially consistent!</div>
+      <div class="fn">Most intuitive model for programmers. Java/C++ memory model is based on it. Expensive in hardware.</div>
+    </div>
+
+    <h3 class="orange">3. Causal Consistency</h3>
+    <p>Only <span class="hl-v">causally related</span> writes must be seen in the same order by all processes. Concurrent (non-causal) writes can be seen in different orders.</p>
+    <div class="fbox">
+      <span class="flbl">Causal Consistency Rule</span>
+      <div class="fl">If write A causally precedes write B (A→B), then:</div>
+      <div class="fl">ALL processes must see write A before write B.</div>
+      <div class="fl">BUT: concurrent writes (A || B) can be seen in any order.</div>
+      <div class="fl"></div>
+      <div class="fl">Example:</div>
+      <div class="fl">P1: write(X,1)</div>
+      <div class="fl">P2: read(X)=1, write(Y,2)   [P2's write causally follows P1's write]</div>
+      <div class="fl">P3: read(Y)=2, read(X)=1    [must see P1's write before P2's write]</div>
+      <div class="fl">P4: read(Y)=2, read(X)=0    [INVALID — must see X=1 if it sees Y=2]</div>
+      <div class="fn">Implemented using Vector Clocks (from Unit 2). Weaker than Sequential but still captures programming intent.</div>
+    </div>
+
+    <h3 class="purple">4. FIFO (PRAM) Consistency</h3>
+    <p>Writes from a single process are seen by all other processes in the order they were issued. But writes from different processes may be seen in different orders by different processes.</p>
+    <div class="fbox">
+      <div class="fl">P1: write(X,1), write(X,2), write(X,3)</div>
+      <div class="fl">P2 must see: X=1, then X=2, then X=3 (in order)</div>
+      <div class="fl">P3 can see them in same order: X=1, X=2, X=3</div>
+      <div class="fl">But if P4 also writes: P2 and P3 might see P1 and P4 writes interleaved differently.</div>
+      <div class="fn">Simple to implement. Used as a baseline. Does NOT require atomic broadcasting.</div>
+    </div>
+
+    <h3 class="blue">5. Release Consistency (Practical)</h3>
+    <p>Memory is synchronized only at explicit <span class="hl-v">synchronization points</span> — acquire (lock) and release (unlock) operations. Between synchronization points, reads may return stale values.</p>
+    <div class="fbox">
+      <span class="flbl">Release Consistency Phases</span>
+      <div class="fl">acquire(lock) → SYNCHRONIZED START: see all writes up to previous release</div>
+      <div class="fl">[critical section: reads/writes may be non-coherent internally]</div>
+      <div class="fl">release(lock) → SYNCHRONIZED END: all writes visible to next acquirer</div>
+      <div class="fl"></div>
+      <div class="fl">Between acquire and release: no guarantees about visibility to others</div>
+      <div class="fn">Used by TreadMarks DSM system. Very efficient — minimizes coherence traffic dramatically.</div>
+    </div>
+
+    <h3>6. Eventual Consistency (Weakest)</h3>
+    <p>If no new updates are made to a data item, all replicas will <strong>eventually</strong> converge to the same value. No timing guarantee — convergence may take seconds or minutes.</p>
+    <ul>
+      <li>Used in: Amazon Dynamo, Apache Cassandra, DNS.</li>
+      <li>Perfect for: shopping carts (eventual sync is fine), DNS records (propagation delay acceptable).</li>
+      <li>Not for: bank transactions (you want immediate, correct balance).</li>
+    </ul>
+
+    <h3>Complete Comparison Table (RTU LOVES This)</h3>
+    <table class="comp-table">
+      <tr><th>Model</th><th>Guarantee</th><th>Performance</th><th>Difficulty</th><th>Used In</th></tr>
+      <tr><td><strong>Strict</strong></td><td>Most recent write always returned</td><td>❌ Impossible in DS</td><td>Easy to program</td><td>Single CPU</td></tr>
+      <tr><td><strong>Sequential</strong></td><td>All see operations in same global order</td><td>Low — expensive</td><td>Intuitive</td><td>Java/C++ memory model</td></tr>
+      <tr><td><strong>Causal</strong></td><td>Causally related writes in order</td><td>Medium</td><td>Moderate</td><td>Bayou, Ops-based CRDTs</td></tr>
+      <tr><td><strong>FIFO (PRAM)</strong></td><td>Each process's writes in order</td><td>Good</td><td>Moderate</td><td>Basic DSM systems</td></tr>
+      <tr><td><strong>Release</strong></td><td>Sync at acquire/release only</td><td>High ✅</td><td>Requires discipline</td><td>TreadMarks, OpenMP</td></tr>
+      <tr><td><strong>Eventual</strong></td><td>Eventually converges</td><td>Highest ✅✅</td><td>Hard to reason about</td><td>Dynamo, Cassandra, DNS</td></tr>
+    </table>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Consistency Answer</div>
+        <p>Start with the trade-off line: <strong>"Stronger consistency = easier to program but higher overhead. Weaker = better performance but harder to reason about."</strong> Then list 4–5 models with one example each. Always mention: Strict (impossible in DS), Sequential (standard), Release (TreadMarks), Eventual (Cassandra). Draw the spectrum table for full marks.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Memory Consistency Models</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q6(Part B). Explain the concept of memory consistency models. Why are they important?</div>
+      <div class="pyq-meta"><span>2025 Part B Q6 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">Memory Consistency</span><span class="pred-tag">🔮 CERTAIN 2026 Part B</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Memory Consistency Model</strong> defines the rules for how memory operations (reads/writes) from different processors appear to each other in a shared/distributed memory system. It specifies what value a read returns given a history of writes.<br><br>
+        <strong>Why Important?</strong> Without a defined model, programmers cannot reason about their program's behavior — different processors may see memory updates in different orders. The model is the contract between programmer and hardware.<br><br>
+        <strong>Common Models (strongest to weakest):</strong><br>
+        1. <strong>Strict Consistency:</strong> Read always returns most recent write globally — requires global clock, impossible in DS.<br>
+        2. <strong>Sequential Consistency (Lamport):</strong> All processes see all operations in same global order, each process's ops in program order — standard model, used in Java/C++.<br>
+        3. <strong>Causal Consistency:</strong> Causally related writes seen in causal order — concurrent writes can differ — implemented via Vector Clocks.<br>
+        4. <strong>Release Consistency:</strong> Sync only at acquire/release boundaries — very efficient, used by TreadMarks DSM.<br>
+        5. <strong>Eventual Consistency:</strong> All replicas converge if no new updates — used in Cassandra, Dynamo, DNS.<br><br>
+        <strong>Key Trade-off:</strong><br>
+        Stronger model → Easier programming → Higher overhead (more sync messages)<br>
+        Weaker model → Harder programming → Better performance<br><br>
+        [Draw the consistency spectrum table with 5 models, guarantee, example]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 03: MULTIPROCESSOR CACHE ═══════════ -->
+<section class="section" id="cache">
+  <div class="section-header"><span class="section-num">03</span><h2 class="section-title">Multiprocessor Cache Systems &amp; Cache Coherence</h2></div>
+
+  <div class="theory-block">
+    <h3>The Cache Coherence Problem</h3>
+    <p>In a multiprocessor system, each CPU has its own cache (L1, L2, L3). When multiple CPUs cache the same memory location and one CPU modifies it, the other caches have <span class="hl-r">stale (outdated) copies</span>. This is the <span class="hl-v">cache coherence problem</span>.</p>
+    <div class="layman">Imagine 4 students each have a photocopy of the same textbook page. One student (CPU) changes a word in their copy. Now the other 3 copies are wrong! If they all try to use their copies, they'll get different answers. The "cache coherence protocol" is the system for keeping all copies correct — either notify others of changes (write-update) or tell them their copy is now invalid (write-invalidate).</div>
+
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 580 220" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="290" y="18" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">Cache Coherence Problem</text>
+        <!-- Main memory -->
+        <rect x="215" y="155" width="150" height="40" rx="6" fill="#0c2030" stroke="#5a8aa0" stroke-width="2"/>
+        <text x="290" y="178" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="9" font-weight="bold">MAIN MEMORY: X = 5</text>
+        <!-- CPU1 -->
+        <rect x="10" y="30" width="120" height="90" rx="6" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="70" y="50" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">CPU 1</text>
+        <rect x="20" y="58" width="100" height="22" rx="3" fill="#0c2030"/>
+        <text x="70" y="73" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">Cache: X = 5</text>
+        <text x="70" y="98" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8" font-weight="bold">write(X, 10)</text>
+        <rect x="20" y="105" width="100" height="22" rx="3" fill="#0c2030" stroke="#10b981" stroke-width="1"/>
+        <text x="70" y="120" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">Cache: X = 10 ✓</text>
+        <!-- CPU2 -->
+        <rect x="230" y="30" width="120" height="90" rx="6" fill="#081820" stroke="#ef4444" stroke-width="2"/>
+        <text x="290" y="50" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="9" font-weight="bold">CPU 2 (STALE!)</text>
+        <rect x="240" y="58" width="100" height="22" rx="3" fill="#0c2030" stroke="#ef4444" stroke-width="1"/>
+        <text x="290" y="73" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="8">Cache: X = 5 ❌</text>
+        <text x="290" y="98" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">read(X) = 5 ← WRONG!</text>
+        <!-- CPU3 -->
+        <rect x="450" y="30" width="120" height="90" rx="6" fill="#081820" stroke="#ef4444" stroke-width="2"/>
+        <text x="510" y="50" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="9" font-weight="bold">CPU 3 (STALE!)</text>
+        <rect x="460" y="58" width="100" height="22" rx="3" fill="#0c2030" stroke="#ef4444" stroke-width="1"/>
+        <text x="510" y="73" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="8">Cache: X = 5 ❌</text>
+        <text x="510" y="98" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">read(X) = 5 ← WRONG!</text>
+        <!-- Bus -->
+        <rect x="10" y="140" width="560" height="10" rx="3" fill="#133040"/>
+        <text x="290" y="136" text-anchor="middle" fill="#133040" font-family="JetBrains Mono" font-size="8">BUS</text>
+        <!-- Lines -->
+        <line x1="70" y1="120" x2="70" y2="140" stroke="#10b981" stroke-width="1.5"/>
+        <line x1="290" y1="120" x2="290" y2="140" stroke="#ef4444" stroke-width="1.5"/>
+        <line x1="510" y1="120" x2="510" y2="140" stroke="#ef4444" stroke-width="1.5"/>
+        <line x1="290" y1="155" x2="290" y2="150" stroke="#5a8aa0" stroke-width="1.5"/>
+        <text x="290" y="210" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">CPU 1 wrote X=10. CPU 2 and CPU 3 still have stale X=5 in cache → Cache Incoherence!</text>
+      </svg>
+      <div class="diagram-cap">Fig: Cache Coherence Problem — CPU 1 updates X=10 in its cache, but CPUs 2 and 3 still see the old value X=5</div>
+    </div>
+
+    <h3 class="cyan">Cache Coherence Protocols</h3>
+    <p>Two main approaches to solving cache coherence:</p>
+    <div class="fbox">
+      <span class="flbl">Write-Invalidate Protocol (MSI, MESI — most common)</span>
+      <div class="fl">When CPU1 writes to X:</div>
+      <div class="fl">  1. CPU1 broadcasts INVALIDATE(X) on the bus</div>
+      <div class="fl">  2. All other caches mark their copy of X as INVALID</div>
+      <div class="fl">  3. CPU1 writes new value to its cache</div>
+      <div class="fl">  4. Next read by CPU2: cache miss → fetch fresh copy from CPU1 or memory</div>
+      <div class="fl"></div>
+      <div class="fl">States (MESI protocol): M=Modified, E=Exclusive, S=Shared, I=Invalid</div>
+      <div class="fn">Write-Invalidate: One writer at a time. Low bus traffic for consecutive writes. Used by Intel x86.</div>
+    </div>
+    <div class="fbox">
+      <span class="flbl">Write-Update Protocol (Dragon protocol)</span>
+      <div class="fl">When CPU1 writes to X:</div>
+      <div class="fl">  1. CPU1 broadcasts UPDATE(X, new_value) on the bus</div>
+      <div class="fl">  2. All other caches UPDATE their copy to new value immediately</div>
+      <div class="fl">  3. All caches stay valid but have latest value</div>
+      <div class="fl"></div>
+      <div class="fl">Pros: Fewer cache misses after write | Cons: High bus traffic on every write</div>
+      <div class="fn">Better when data shared by many readers who read often after a write. Rarely used today.</div>
+    </div>
+
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>Write-Invalidate</th><th>Write-Update</th></tr>
+      <tr><td>On write</td><td>Invalidate all other copies</td><td>Update all other copies</td></tr>
+      <tr><td>Bus traffic</td><td>Low for consecutive writes</td><td>High on every write</td></tr>
+      <tr><td>Cache misses</td><td>More misses (need to fetch after invalidate)</td><td>Fewer misses (copies stay valid)</td></tr>
+      <tr><td>Best for</td><td>Producer-consumer (one writer, occasional readers)</td><td>Shared data read by many after write</td></tr>
+      <tr><td>Example</td><td>Intel MESI, AMD MOESI</td><td>DEC Firefly (old)</td></tr>
+    </table>
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Cache Coherence → DSM Coherence Protocols</div>
+        <p>The same two approaches (Write-Invalidate and Write-Update) are used in DSM systems (next section) — but instead of invalidating/updating CPU caches, DSM invalidates/updates pages on different machines across a network. The concept is identical — scale is different!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 04: DSM ═══════════ -->
+<section class="section" id="dsm">
+  <div class="section-header"><span class="section-num">04</span><h2 class="section-title">Distributed Shared Memory (DSM)</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN (Part A Q7 + Part C Q1):</strong> DSM appeared in Part A in 2024 Q7 and 2025 Q7 (two consecutive years, same slot). Part C DSM appeared in 2024 Q4 and 2025 Q4 (two consecutive years). THREE out of THREE papers have DSM. The most certain question in the entire DS exam.</div></div>
+
+  <div class="theory-block">
+    <h3>What is DSM? The Big Picture</h3>
+    <p><span class="hl-v">Distributed Shared Memory (DSM)</span> is a software abstraction that provides the <strong>illusion of a single shared memory address space</strong> across multiple machines that do NOT physically share memory. Processes on different machines can read and write to shared variables as if they were accessing local memory — the DSM system handles all network communication transparently.</p>
+    <div class="layman">Imagine 4 people in different cities each with their own whiteboard (local memory). DSM creates a "virtual whiteboard" that all 4 people can see and write on — even though physically each person only has their own whiteboard. When person A writes "Hello" on the virtual whiteboard, DSM software makes sure persons B, C, and D eventually see "Hello" on their local whiteboards too. The trick: they're all actually working on their own copy, and DSM syncs changes between them.</div>
+
+    <h3>Physical Reality vs DSM Abstraction</h3>
+    <div class="fbox">
+      <span class="flbl">WITHOUT DSM (Physical Reality)</span>
+      <div class="fl">Machine A: Process P1 has Memory A (private)</div>
+      <div class="fl">Machine B: Process P2 has Memory B (private)</div>
+      <div class="fl">Communication: P1 must explicitly send(msg) and P2 must recv(msg)</div>
+      <div class="fl">→ Programmer must manage all communication explicitly</div>
+      <div class="fl"></div>
+      <span class="flbl">WITH DSM (Abstraction)</span>
+      <div class="fl">Machine A: Process P1 sees SHARED address space (0...N)</div>
+      <div class="fl">Machine B: Process P2 sees SAME SHARED address space (0...N)</div>
+      <div class="fl">Communication: P1 writes x[100]=5. P2 reads x[100] → gets 5.</div>
+      <div class="fl">→ DSM handles all network communication TRANSPARENTLY</div>
+      <div class="fn">DSM = Distributed System + Shared Memory Programming Model. Best of both worlds!</div>
+    </div>
+
+    <h3 class="orange">Advantages and Disadvantages of DSM</h3>
+    <table class="comp-table">
+      <tr><th>Advantages</th><th>Disadvantages</th></tr>
+      <tr><td>Familiar programming model — use shared variables as normal</td><td>High latency — page faults involve network communication (100x slower than local)</td></tr>
+      <tr><td>No need to explicitly partition data between nodes</td><td>False sharing — two unrelated variables on same page cause unnecessary coherence traffic</td></tr>
+      <tr><td>Easy to port shared-memory programs to distributed hardware</td><td>Complex coherence protocols needed</td></tr>
+      <tr><td>Cheaper than hardware shared memory (use commodity hardware)</td><td>Performance hard to predict</td></tr>
+      <tr><td>Scales to large numbers of nodes</td><td>Programmer still needs to think about locality for performance</td></tr>
+    </table>
+
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 580 240" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="290" y="18" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">DSM — How It Works (Page-Fault Based)</text>
+        <!-- Machine A -->
+        <rect x="10" y="35" width="175" height="140" rx="8" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="97" y="58" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="9" font-weight="bold">MACHINE A</text>
+        <rect x="20" y="66" width="155" height="22" rx="3" fill="#0c2030"/>
+        <text x="97" y="81" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">Process P1: read(x[200])</text>
+        <rect x="20" y="94" width="155" height="30" rx="3" fill="#0c2030" stroke="#ef4444" stroke-width="1"/>
+        <text x="97" y="107" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="8">PAGE FAULT!</text>
+        <text x="97" y="119" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">x[200] is on Machine B's page</text>
+        <rect x="20" y="130" width="155" height="22" rx="3" fill="#0c2030" stroke="#f59e0b" stroke-width="1"/>
+        <text x="97" y="145" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">DSM Software Intercepts</text>
+        <rect x="20" y="158" width="155" height="12" rx="3" fill="#0c2030"/>
+        <text x="97" y="168" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">Local Pages: [0...99], cached pages</text>
+        <!-- Machine B -->
+        <rect x="395" y="35" width="175" height="140" rx="8" fill="#081820" stroke="#a78bfa" stroke-width="2"/>
+        <text x="482" y="58" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="9" font-weight="bold">MACHINE B</text>
+        <rect x="405" y="66" width="155" height="22" rx="3" fill="#0c2030" stroke="#a78bfa" stroke-width="1"/>
+        <text x="482" y="81" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">Owns pages [200...299]</text>
+        <rect x="405" y="94" width="155" height="22" rx="3" fill="#0c2030"/>
+        <text x="482" y="109" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">x[200] = 42 (stored here)</text>
+        <rect x="405" y="122" width="155" height="22" rx="3" fill="#0c2030" stroke="#f59e0b" stroke-width="1"/>
+        <text x="482" y="137" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">Sends page to Machine A</text>
+        <rect x="405" y="150" width="155" height="20" rx="3" fill="#0c2030"/>
+        <text x="482" y="164" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="7">DSM Software Layer</text>
+        <!-- Network -->
+        <defs><marker id="darr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#22d3ee" stroke-width="1.5"/></marker></defs>
+        <line x1="185" y1="130" x2="393" y2="130" stroke="#22d3ee" stroke-width="2" marker-end="url(#darr)" stroke-dasharray="6,3"/>
+        <line x1="393" y1="120" x2="185" y2="110" stroke="#10b981" stroke-width="2" marker-end="url(#darr)" stroke-dasharray="6,3"/>
+        <text x="290" y="115" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="8">REQUEST page</text>
+        <text x="290" y="135" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="8">SEND page copy</text>
+        <!-- Network label -->
+        <rect x="230" y="145" width="120" height="24" rx="4" fill="#040d10" stroke="#133040"/>
+        <text x="290" y="161" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">NETWORK</text>
+        <!-- Result -->
+        <text x="290" y="205" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">After page transfer: Machine A caches the page.</text>
+        <text x="290" y="220" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">P1's read(x[200]) now returns 42. Process continues as if memory were local.</text>
+      </svg>
+      <div class="diagram-cap">Fig: DSM Page-Fault Mechanism — P1 reads x[200] → page fault → DSM fetches page from Machine B → P1 gets value transparently</div>
+    </div>
+
+    <h3>DSM vs Message Passing — Which is Better?</h3>
+    <table class="comp-table">
+      <tr><th>Aspect</th><th>DSM</th><th>Message Passing</th></tr>
+      <tr><td>Programming model</td><td>Familiar — shared variables like single machine</td><td>Explicit send/recv — must learn new API</td></tr>
+      <tr><td>Data sharing</td><td>Implicit via shared memory</td><td>Explicit — must copy data into messages</td></tr>
+      <tr><td>Performance</td><td>Hard to predict — page faults unpredictable</td><td>Predictable — programmer controls comms</td></tr>
+      <tr><td>Correctness</td><td>Race conditions possible — need synchronization</td><td>Cleaner — no shared state</td></tr>
+      <tr><td>Portability</td><td>Depends on DSM middleware</td><td>Standard (MPI) — highly portable</td></tr>
+    </table>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — DSM</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7. What is distributed shared memory?</div>
+      <div class="pyq-meta"><span>2025 Part A Q7 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">DSM Definition</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Shared Memory (DSM)</strong> is a software abstraction that provides the illusion of a single shared memory address space across multiple physically separate machines connected by a network. Processes on different nodes can access remote memory as if it were local.<br><br>
+        <strong>Mechanism:</strong> When process P1 accesses a memory address that belongs to Machine B, a <em>page fault</em> occurs. The DSM software intercepts it, sends a network request to Machine B for the page, receives the page, caches it locally, and resumes P1 — all transparently.<br><br>
+        <strong>Key properties:</strong><br>
+        · Single virtual address space across all nodes<br>
+        · No explicit message passing needed by programmer<br>
+        · Network communication hidden by DSM layer<br>
+        · Consistency maintained by coherence protocols (write-invalidate or write-update)<br><br>
+        <strong>Examples:</strong> Ivy, TreadMarks, Munin. [Draw page-fault diagram]
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q8. How does distributed shared memory improve system performance?</div>
+      <div class="pyq-meta"><span>2025 Part A Q8 · 2 marks ⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">DSM Performance</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        DSM improves system performance in the following ways:<br><br>
+        1. <strong>Reduced Programming Overhead:</strong> Programmers use shared memory model — no need to partition data, write send/recv, or manage communication. Less development time = faster deployment of parallel applications.<br>
+        2. <strong>Better Resource Utilization:</strong> All nodes' memory is pooled — a process needing large data can access memory on other nodes without crashing. Avoids single-machine memory limits.<br>
+        3. <strong>Caching:</strong> Once a page is fetched from a remote machine, it's cached locally. Subsequent reads to that page are fast (local cache hit).<br>
+        4. <strong>Parallel Computation:</strong> Multiple processes run simultaneously on different nodes, accessing shared data — parallelism improves throughput.<br>
+        5. <strong>Release Consistency:</strong> Modern DSM (TreadMarks) uses lazy release consistency — pages synced only at lock boundaries, not on every write. Dramatically reduces network traffic.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q7(Part B). Explain distributed shared memory with the help of suitable diagram.</div>
+      <div class="pyq-meta"><span>2023 Part B Q7 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">DSM Diagram</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Shared Memory (DSM)</strong> is an abstraction that provides a single shared address space across physically distributed machines.<br><br>
+        <strong>How it works (Page-Based DSM):</strong><br>
+        1. Each node has a portion of the shared virtual address space physically in its local memory<br>
+        2. The OS's virtual memory mechanism (page tables) is used — each node's pages are either VALID (local) or INVALID (on another node)<br>
+        3. When a process accesses an INVALID page: <em>page fault</em> → DSM software intercepts → requests page from owning node → receives page → caches locally → resumes process<br>
+        4. Coherence: If multiple nodes have copies of a page and one writes to it, the protocol invalidates or updates other copies<br><br>
+        <strong>DSM Architecture:</strong><br>
+        [Application Layer] ← uses shared variables<br>
+        [DSM Software Layer] ← intercepts page faults, manages coherence<br>
+        [OS Virtual Memory] ← page table entries marked invalid for remote pages<br>
+        [Network Layer] ← page transfer between nodes<br><br>
+        [Draw the two-machine diagram: Process → Page Fault → DSM Layer → Network → Remote Node → Page Transfer Back]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 05: DSM IMPLEMENTATION ═══════════ -->
+<section class="section" id="dsm-impl">
+  <div class="section-header"><span class="section-num">05</span><h2 class="section-title">Implementation of DSM Systems</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN (Part C Q1):</strong> "Design and implementation issues in distributed shared memory" appeared in 2024 Part C Q4 and 2025 Part C Q4 — TWO consecutive years. The most consistent Part C topic in DS. This is CERTAIN to appear again in 2026. Include all 4 implementation aspects + all coherence protocols for full marks.</div></div>
+
+  <div class="theory-block">
+    <h3>Design Issues in DSM</h3>
+    <p>Before implementing DSM, designers must decide four key issues:</p>
+
+    <h3 class="orange">Issue 1: Granularity</h3>
+    <p>What is the unit of data transfer between nodes?</p>
+    <ul>
+      <li><strong>Page-based (most common):</strong> Transfer entire virtual memory pages (4 KB). Uses existing OS VM hardware. Simple but suffers from <span class="hl-r">false sharing</span>.</li>
+      <li><strong>Word/byte-based:</strong> Transfer only the specific word/byte accessed. Minimal data transfer but very high overhead per access.</li>
+      <li><strong>Object-based:</strong> Transfer shared objects. Only modified fields sent. Avoids false sharing. Used in object-oriented DSM (Linda, Orca).</li>
+    </ul>
+    <div class="fbox">
+      <span class="flbl">False Sharing — THE Classic DSM Problem</span>
+      <div class="fl">Page contains: [variable A (used by P1)] [variable B (used by P2)]</div>
+      <div class="fl">P1 writes to A → entire page invalidated</div>
+      <div class="fl">P2 wants to read B → page fault! Must fetch entire page from P1</div>
+      <div class="fl">P2 writes to B → entire page invalidated again</div>
+      <div class="fl">P1 wants A → page fault again!</div>
+      <div class="fl"></div>
+      <div class="fl">A and B are on the SAME PAGE but logically UNRELATED.</div>
+      <div class="fl">They're "falsely sharing" a page, causing massive coherence traffic (ping-pong effect).</div>
+      <div class="fn">Solution: Object-based DSM (only transfer the specific variable), or programmer restructures data layout.</div>
+    </div>
+
+    <h3 class="cyan">Issue 2: Structure of Shared Address Space</h3>
+    <ul>
+      <li><strong>Single address space:</strong> One flat virtual address space across all nodes. Simple for programmers. Example: Ivy.</li>
+      <li><strong>Partitioned address space:</strong> Each node "owns" a portion; pages migrate on access. Example: TreadMarks.</li>
+      <li><strong>Object-based space:</strong> Shared data structured as typed objects. Access via method calls. Example: Orca, Linda tuple spaces.</li>
+    </ul>
+
+    <h3 class="purple">Issue 3: Scalability</h3>
+    <p>As nodes increase, coherence protocol messages increase quadratically with write-update (every write notifies all nodes). Solutions:</p>
+    <ul>
+      <li>Use write-invalidate (O(n) invalidations, not updates).</li>
+      <li>Hierarchical DSM — organize nodes in tree, propagate invalidations up/down.</li>
+      <li>Lazy release consistency — batch updates and sync only at lock boundaries.</li>
+    </ul>
+
+    <h3 class="blue">Issue 4: Heterogeneity</h3>
+    <p>Different machines may have different byte orderings (big-endian vs little-endian), word sizes (32-bit vs 64-bit), or data formats. DSM must convert data on transfer. Object-based DSM handles this naturally.</p>
+
+    <h3>DSM Implementation Approaches</h3>
+
+    <div class="fbox">
+      <span class="flbl">1. Page-Based DSM (Ivy — Li & Hudak 1986)</span>
+      <div class="fl">Mechanism: Uses OS virtual memory hardware (MMU + page tables)</div>
+      <div class="fl">→ Pages on other nodes marked INVALID in local page table</div>
+      <div class="fl">→ Access to invalid page triggers hardware page fault</div>
+      <div class="fl">→ OS calls DSM page fault handler</div>
+      <div class="fl">→ DSM sends page request to "manager" of that page</div>
+      <div class="fl">→ Page transferred over network → mapped in local address space</div>
+      <div class="fl"></div>
+      <div class="fl">IVY coherence: Write-Invalidate. Single writer, multiple readers (SWMR).</div>
+      <div class="fl">On write request: invalidate ALL other copies → writer gets exclusive access</div>
+      <div class="fn">Ivy: Simple but high latency. Every write to a shared page causes network traffic.</div>
+    </div>
+
+    <div class="fbox">
+      <span class="flbl">2. TreadMarks — Lazy Release Consistency</span>
+      <div class="fl">Key Insight: Only sync memory at lock boundaries (acquire/release)</div>
+      <div class="fl">Between lock boundaries: writes are local only (no network traffic)</div>
+      <div class="fl"></div>
+      <div class="fl">Protocol: Multiple-Writer Protocol</div>
+      <div class="fl">→ Multiple nodes can write the SAME page simultaneously</div>
+      <div class="fl">→ Each creates a "diff" (list of changes made)</div>
+      <div class="fl">→ At release: diffs are stored</div>
+      <div class="fl">→ At next acquire of same lock: diffs applied to page</div>
+      <div class="fl"></div>
+      <div class="fl">Twin: Copy of page made before first write</div>
+      <div class="fl">Diff = XOR(twin, modified page) → compact representation of changes</div>
+      <div class="fn">TreadMarks dramatically reduces network traffic vs Ivy. False sharing still possible but less harmful.</div>
+    </div>
+
+    <div class="fbox">
+      <span class="flbl">3. Object-Based DSM (Orca, Munin)</span>
+      <div class="fl">Shared data structured as typed objects</div>
+      <div class="fl">Access only via object methods (no raw memory access)</div>
+      <div class="fl">When object accessed remotely: transfer only changed fields</div>
+      <div class="fl">Avoids false sharing completely (no pages — just objects)</div>
+      <div class="fl"></div>
+      <div class="fl">Munin: "Multiple consistency protocol" — different consistency protocols</div>
+      <div class="fl">for different access patterns (write-shared, producer-consumer, etc.)</div>
+      <div class="fn">Most flexible but requires programmers to use object model. Used in research systems.</div>
+    </div>
+
+    <h3>DSM Coherence Protocols Summary</h3>
+    <table class="comp-table">
+      <tr><th>Protocol</th><th>Used By</th><th>How It Works</th><th>Traffic</th></tr>
+      <tr><td><strong>Write-Invalidate</strong></td><td>Ivy</td><td>On write: invalidate all other copies. Reader re-fetches on next access.</td><td>Low for consecutive writes</td></tr>
+      <tr><td><strong>Write-Update</strong></td><td>Some research DSMs</td><td>On write: broadcast new value to all copies immediately.</td><td>High on every write</td></tr>
+      <tr><td><strong>Lazy Release Consistency</strong></td><td>TreadMarks</td><td>Sync only at lock acquire/release. Multiple writers, diffs applied at boundaries.</td><td>Very low ✅</td></tr>
+    </table>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Full 10-Mark Answer Structure for DSM Implementation</div>
+        <p>Introduction — what is DSM (1 mark) + Design Issues: granularity, false sharing, scalability (2 marks) + Page-based implementation with Ivy diagram (3 marks) + TreadMarks lazy release + diff protocol (2 marks) + Memory consistency models in DSM (2 marks) = 10 marks. Always draw the page-fault diagram!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — DSM Implementation</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q4(Part C). What are the design and implementation issues in distributed shared memory?</div>
+      <div class="pyq-meta"><span>2024 Part C Q4 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">DSM Design & Implementation</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Shared Memory</strong> provides illusion of shared memory across physically distributed nodes.<br><br>
+        <strong>Design Issues:</strong><br>
+        1. <strong>Granularity:</strong> Unit of transfer — page (4KB, simple but false sharing), word (precise but overhead), object (flexible, avoids false sharing). Page-based most common using OS VM hardware.<br>
+        2. <strong>False Sharing:</strong> Two unrelated variables on same page cause unnecessary invalidations — ping-pong effect. Solution: object-based DSM or careful data layout.<br>
+        3. <strong>Scalability:</strong> Coherence messages grow with nodes. Use lazy protocols, hierarchical structures.<br>
+        4. <strong>Heterogeneity:</strong> Different byte orders, word sizes — data conversion on transfer.<br><br>
+        <strong>Implementation Approaches:</strong><br>
+        1. <strong>Page-Based (Ivy):</strong> Uses OS VM hardware. Invalid page → page fault → DSM fetches from owner. Write-invalidate: single writer, multiple readers. Simple but high latency for shared writable data.<br>
+        2. <strong>TreadMarks (Lazy Release Consistency):</strong> Multiple writers per page. Creates "diffs" (XOR of before/after). Syncs diffs only at lock acquire/release. Dramatically reduces network traffic.<br>
+        3. <strong>Object-Based (Orca, Munin):</strong> Shared data as typed objects. No false sharing. Different consistency per object type.<br><br>
+        <strong>Coherence Protocols:</strong><br>
+        · Write-Invalidate (Ivy): On write → invalidate all copies → writer exclusive<br>
+        · Write-Update: On write → broadcast new value to all (high traffic)<br>
+        · Release Consistency (TreadMarks): Sync only at synchronization boundaries<br><br>
+        [Draw page-fault diagram and TreadMarks diff protocol diagram for full marks]
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q4(Part C). Explain the implementation of distributed shared memory systems.</div>
+      <div class="pyq-meta"><span>2025 Part C Q4 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">DSM Implementation</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        Same comprehensive answer as above. For 2025, focus more on:<br><br>
+        <strong>Additional: DSM System Architecture Layers:</strong><br>
+        Application Layer → uses shared variables via normal memory operations<br>
+        DSM Middleware Layer → intercepts page faults, manages page directory, handles coherence<br>
+        OS Layer → virtual memory, page tables mark remote pages as invalid<br>
+        Network Layer → page transfer protocol (request/response)<br><br>
+        <strong>Page Directory:</strong> Centralized (one manager node) or Distributed (different managers for different page ranges)<br>
+        · Centralized: Simple, single point of failure<br>
+        · Distributed: Scalable, no bottleneck<br><br>
+        <strong>Memory Consistency Integration:</strong> DSM's behavior depends on which consistency model it implements. TreadMarks (release consistency) outperforms Ivy (sequential consistency) by 3–5x in practice because of reduced synchronization overhead.<br><br>
+        [Draw full architecture diagram + page-fault sequence + diff creation diagram]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 06: CAUSALITY & SNAPSHOTS ═══════════ -->
+<section class="section" id="causality">
+  <div class="section-header"><span class="section-num">06</span><h2 class="section-title">Models of Distributed Computation: Causality &amp; Snapshots</h2></div>
+
+  <div class="theory-block">
+    <h3>Models of Distributed Computation — Overview</h3>
+    <p>A <span class="hl-v">model of distributed computation</span> formalizes how we reason about what happened in a distributed system — which events occurred, in what order, and what the system state was at any point. These models are needed because there is <strong>no global clock and no global state visibility</strong> in real distributed systems.</p>
+
+    <h3>Preliminaries — Events and Processes</h3>
+    <p>A distributed computation consists of a set of <strong>processes</strong>, each executing a sequence of <strong>events</strong>:</p>
+    <div class="fbox">
+      <span class="flbl">Types of Events</span>
+      <div class="fl">Internal Event: computation within a process (no communication)</div>
+      <div class="fl">Send Event: process sends a message (always followed by a receive event somewhere)</div>
+      <div class="fl">Receive Event: process receives a message sent by another process</div>
+      <div class="fl"></div>
+      <div class="fl">Process: pi = &lt;ei1, ei2, ei3, ...&gt; — ordered sequence of events</div>
+      <div class="fl">Distributed Computation: C = (E, →) — events E with happened-before ordering →</div>
+    </div>
+
+    <h3 class="cyan">Causality — The Happened-Before Relation</h3>
+    <p><span class="hl-v">Causality</span> is the fundamental concept linking events in a distributed computation. The <strong>happened-before (→)</strong> relation (Lamport, 1978) captures which events could causally influence which others.</p>
+    <div class="fbox">
+      <span class="flbl">Causality Rules (Happened-Before →)</span>
+      <div class="fl">Rule 1 (Process Order): If a and b are in same process and a precedes b, then a → b</div>
+      <div class="fl">Rule 2 (Message): If a = send(m) and b = receive(m), then a → b</div>
+      <div class="fl">Rule 3 (Transitivity): If a → b and b → c, then a → c</div>
+      <div class="fl"></div>
+      <div class="fl">CONCURRENT: a || b iff NOT(a → b) AND NOT(b → a)</div>
+      <div class="fl">Concurrent means neither could have influenced the other.</div>
+      <div class="fn">Lamport Clock Theorem: a → b ⟹ C(a) &lt; C(b). Contrapositive: C(a) ≥ C(b) ⟹ NOT(a → b).</div>
+    </div>
+
+    <h3 class="orange">Distributed Snapshots — Recording Global State</h3>
+    <p>A <span class="hl-v">global snapshot</span> records the state of all processes AND all communication channels at a "consistent" point in time — consistent meaning no message appears to be received without being sent.</p>
+    <div class="layman">Imagine 4 ATM machines in different cities all connected to one bank. You want to take a "photo" of the bank's total money at one moment. But you can't freeze all ATMs simultaneously. Some ATMs are sending/receiving transaction messages. The Chandy-Lamport algorithm takes a consistent snapshot — like a detective reconstructing the exact state at one moment from evidence collected over time, without stopping anything.</div>
+
+    <div class="fbox">
+      <span class="flbl">Chandy-Lamport Algorithm — Complete Steps</span>
+      <div class="fl">STEP 1 — INITIATOR Pi starts the snapshot:</div>
+      <div class="fl">  a) Record own local state: LSi = current state of Pi</div>
+      <div class="fl">  b) Send MARKER message on ALL outgoing channels</div>
+      <div class="fl">  c) Begin recording messages received on ALL incoming channels</div>
+      <div class="fl"></div>
+      <div class="fl">STEP 2 — Process Pj receives MARKER on channel Cij:</div>
+      <div class="fl">  CASE A (First MARKER received by Pj):</div>
+      <div class="fl">    · Record local state: LSj = current state of Pj</div>
+      <div class="fl">    · Set channel state CS(Cij) = EMPTY (no messages "in transit")</div>
+      <div class="fl">    · Send MARKER on ALL of Pj's outgoing channels</div>
+      <div class="fl">    · Begin recording on all OTHER incoming channels of Pj</div>
+      <div class="fl">  CASE B (Pj already recorded state):</div>
+      <div class="fl">    · CS(Cij) = all messages received since Pj recorded state until this MARKER</div>
+      <div class="fl"></div>
+      <div class="fl">STEP 3 — Termination:</div>
+      <div class="fl">  Pj stops recording on Cij after receiving MARKER on it</div>
+      <div class="fl">  Algorithm complete when every process received MARKER on all incoming channels</div>
+      <div class="fl"></div>
+      <div class="fl">GLOBAL SNAPSHOT = ∪ LSi (all local states) + ∪ CS(Cij) (all channel states)</div>
+      <div class="fn">Key insight: MARKER is a "time fence" — everything before marker is in snapshot, everything after is not.</div>
+    </div>
+
+    <h3>Applications of Distributed Snapshots</h3>
+    <ul>
+      <li><strong>Deadlock Detection:</strong> Capture global state, check if wait-for graph has a cycle.</li>
+      <li><strong>Termination Detection:</strong> Capture global state, check if all processes are idle and no messages in transit.</li>
+      <li><strong>Checkpointing:</strong> Save consistent global state so system can recover from failures by rolling back to snapshot.</li>
+      <li><strong>Garbage Collection:</strong> Detect distributed objects with no remaining references.</li>
+      <li><strong>Debugging:</strong> Post-mortem analysis of distributed system state.</li>
+    </ul>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Snapshot Answer</div>
+        <p><strong>Consistent Cut:</strong> A "cut" through the space-time diagram where for every message shown as received, the corresponding send event is also in the cut (left of the cut line). This is exactly what Chandy-Lamport guarantees. Drawing the space-time diagram with the cut line is worth 2–3 marks in Part B/C.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 07: FAILURES ═══════════ -->
+<section class="section" id="failures">
+  <div class="section-header"><span class="section-num">07</span><h2 class="section-title">Failures in Distributed Systems</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — HIGH (Part A Q9):</strong> "Concept of faults" appeared in 2023 Part A Q9 and 2025 Part A Q9 (alternating years). The alternating pattern + this being a Unit 6 intro topic makes it HIGH for 2026. Also covered in 2024 Part B Q6. Very high overall.</div></div>
+
+  <div class="theory-block">
+    <h3>Fault → Error → Failure Chain</h3>
+    <p>Three related but distinct concepts in distributed system reliability:</p>
+    <div class="fbox">
+      <span class="flbl">The FEF Chain (Fault → Error → Failure)</span>
+      <div class="fl">FAULT: The underlying physical or design cause</div>
+      <div class="fl">  Example: Cosmic ray flips a bit in memory (hardware fault)</div>
+      <div class="fl">  Example: Buffer overflow vulnerability (software design fault)</div>
+      <div class="fl"></div>
+      <div class="fl">ERROR: The incorrect system state resulting from a fault</div>
+      <div class="fl">  Example: The bit flip causes a wrong value to be stored in a variable</div>
+      <div class="fl">  Example: Memory corruption from buffer overflow</div>
+      <div class="fl"></div>
+      <div class="fl">FAILURE: The system deviates from its specified behavior (user-visible)</div>
+      <div class="fl">  Example: Wrong output produced. System crash. Wrong data stored.</div>
+      <div class="fl"></div>
+      <div class="fn">Memory: Fault CAUSES Error, Error LEADS TO Failure. Not every fault causes an error (may be dormant). Not every error causes failure (may be masked).</div>
+    </div>
+
+    <h3 class="cyan">Types of Faults by Duration</h3>
+    <table class="comp-table">
+      <tr><th>Fault Type</th><th>Description</th><th>Frequency</th><th>Example</th></tr>
+      <tr><td><strong>Transient</strong></td><td>Occurs once, then disappears permanently</td><td>Most common</td><td>Cosmic ray bit flip, power glitch, solar flare</td></tr>
+      <tr><td><strong>Intermittent</strong></td><td>Occurs, vanishes, then reappears unpredictably</td><td>Hardest to diagnose</td><td>Loose cable connection, overheating component</td></tr>
+      <tr><td><strong>Permanent</strong></td><td>Remains until component is repaired/replaced</td><td>Least common</td><td>Burned-out chip, broken fiber, corrupted disk</td></tr>
+    </table>
+
+    <h3 class="orange">Types of Failures by Behavior (Failure Models)</h3>
+    <p>From simplest (easiest to handle) to most complex (hardest):</p>
+    <div class="fbox">
+      <span class="flbl">Failure Taxonomy — Easiest to Hardest</span>
+      <div class="fl">1. CRASH FAILURE (Fail-Stop):</div>
+      <div class="fl">   Server halts and remains halted. No more messages from it.</div>
+      <div class="fl">   Example: OS kernel panic, power outage.</div>
+      <div class="fl">   Handling: Timeout — if no response after T seconds, assume crashed.</div>
+      <div class="fl"></div>
+      <div class="fl">2. OMISSION FAILURE:</div>
+      <div class="fl">   Server fails to respond to some requests (but not all).</div>
+      <div class="fl">   Send Omission: fails to send some messages</div>
+      <div class="fl">   Receive Omission: fails to receive some messages (buffer overflow)</div>
+      <div class="fl">   Example: Network packet loss, buffer overflow causing drop.</div>
+      <div class="fl"></div>
+      <div class="fl">3. TIMING FAILURE:</div>
+      <div class="fl">   Response falls outside specified time interval (too slow or too fast).</div>
+      <div class="fl">   Example: Real-time system response deadline missed.</div>
+      <div class="fl">   Only in SYNCHRONOUS distributed systems.</div>
+      <div class="fl"></div>
+      <div class="fl">4. RESPONSE FAILURE:</div>
+      <div class="fl">   Response is incorrect. Two subtypes:</div>
+      <div class="fl">   Value Failure: Wrong value returned</div>
+      <div class="fl">   State Transition Failure: Server deviates from correct state machine</div>
+      <div class="fl"></div>
+      <div class="fl">5. BYZANTINE (Arbitrary) FAILURE — HARDEST:</div>
+      <div class="fl">   Any behavior — including sending conflicting values to different clients,</div>
+      <div class="fl">   colluding with other faulty nodes, actively trying to subvert the system.</div>
+      <div class="fl">   Example: Compromised server in a banking system sending wrong balances.</div>
+      <div class="fn">Failure containment: If a component has crash failure, it's easy to contain. Byzantine failures can spread corruption through the entire system.</div>
+    </div>
+
+    <h3 class="purple">Fault Tolerance Techniques</h3>
+    <ul>
+      <li><strong>Redundancy:</strong> Replicate components — if one fails, others continue. Hardware redundancy (RAID), Software redundancy (multiple servers), Information redundancy (error-correcting codes).</li>
+      <li><strong>Checkpointing:</strong> Periodically save state. On failure, roll back to last checkpoint + replay messages.</li>
+      <li><strong>Message Logging:</strong> Log all received messages. On recovery, replay logged messages to reconstruct state.</li>
+      <li><strong>Retry:</strong> On timeout, resend request. Requires idempotent operations (safe to repeat).</li>
+      <li><strong>Fail-Stop Design:</strong> Design components to halt cleanly on fault detection rather than producing wrong results.</li>
+    </ul>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Faults Answer in Part A (25 words)</div>
+        <p>"Types: Transient (occurs once — cosmic ray), Intermittent (comes and goes — loose connection), Permanent (lasts until fixed — broken cable). Failure types: Crash (halts), Omission (drops messages), Timing (too slow/fast), Byzantine (arbitrary, worst). Fault→Error→Failure chain."</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Failures in DS</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q9. Explain concept of faults in distributed agreement.</div>
+      <div class="pyq-meta"><span>2023 Part A Q9 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5/6</span><span class="topic-tag">Faults</span><span class="pred-tag">🔮 HIGH 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        In distributed agreement problems, processes must reach consensus despite some being faulty. Faults are classified by their nature:<br><br>
+        <strong>By Duration:</strong> Transient (once, disappears), Intermittent (periodic), Permanent (until repaired).<br><br>
+        <strong>By Behavior:</strong> Crash (halts), Omission (drops messages), Byzantine (arbitrary — worst for agreement).<br><br>
+        <strong>Impact on Agreement:</strong> Crash-stop failures: agreement still possible if fewer than n/2 crash. Byzantine failures: agreement requires at least 3f+1 processes to tolerate f Byzantine. Byzantine is hardest because faulty processes can actively mislead others (Covered in detail in Unit 6).
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q6(Part B). Briefly explain fault, errors, and failure in distributed system.</div>
+      <div class="pyq-meta"><span>2024 Part B Q6 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">Fault/Error/Failure</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Fault, Error, and Failure — The FEF Chain:</strong><br><br>
+        <strong>Fault:</strong> The underlying physical or logical defect that MAY lead to incorrect behavior. Example: a corrupted disk sector (hardware fault), division-by-zero bug (software fault). Faults can be dormant and never manifest.<br><br>
+        <strong>Error:</strong> The system state that deviates from the correct state due to a fault being activated. Example: a bit in memory being 1 when it should be 0 due to the disk fault. Not yet visible to users.<br><br>
+        <strong>Failure:</strong> The externally visible, user-observable incorrect behavior of the system. Example: the wrong output being displayed due to the corrupted state. System fails to meet its specification.<br><br>
+        <strong>Chain:</strong> Fault → (when activated) → Error → (when propagates to output) → Failure.<br><br>
+        <strong>Types of Faults:</strong> Transient, Intermittent, Permanent.<br>
+        <strong>Types of Failures:</strong> Crash, Omission, Timing, Response, Byzantine (increasing severity).<br><br>
+        <strong>Goal of fault tolerance:</strong> Break the chain — prevent faults from becoming errors, or errors from becoming failures.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 08: DISTRIBUTED MUTUAL EXCLUSION ═══════════ -->
+<section class="section" id="dme">
+  <div class="section-header"><span class="section-num">08</span><h2 class="section-title">Distributed Mutual Exclusion (DME)</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — VERY HIGH (Part A Q8):</strong> "Explain distributed mutual exclusion" appeared in 2023 Part A Q8. Absent from 2024 and 2025 Part A — the 2-year gap pattern that RTU's 2026 cross-paper analysis confirms as a strong return signal. VERY HIGH confidence for 2026 Part A.</div></div>
+
+  <div class="theory-block">
+    <h3>What is Distributed Mutual Exclusion?</h3>
+    <p><span class="hl-v">Distributed Mutual Exclusion (DME)</span> ensures that at most one process at a time can access a shared <strong>critical section</strong> (CS) in a distributed system — where there is NO shared memory and NO common clock between processes.</p>
+    <div class="layman">A critical section is a shared resource — like one photocopier shared by 10 offices. Only ONE office can use the photocopier at a time. In a single building, you'd use a lock on the door. In a DISTRIBUTED building (offices in different cities), there's no physical lock — you must use messages to coordinate. That's DME. The challenge: how do you ensure only one "office" (process) uses the "photocopier" (critical section) at a time, using only message-passing?</div>
+
+    <h3>Requirements of DME Algorithms</h3>
+    <div class="fbox">
+      <span class="flbl">DME Requirements</span>
+      <div class="fl">1. SAFETY (Mutual Exclusion): At most ONE process in CS at any time</div>
+      <div class="fl">2. LIVENESS (Progress): Every request to enter CS is eventually granted</div>
+      <div class="fl">3. ORDERING (optional): If request(A) happened before request(B), then A enters CS before B</div>
+      <div class="fl">   (FIFO ordering — not all algorithms provide this)</div>
+    </div>
+
+    <h3 class="cyan">Algorithm 1: Centralized Algorithm</h3>
+    <p>One process is designated as the <span class="hl-v">coordinator</span>. All others ask the coordinator for permission to enter CS.</p>
+    <div class="fbox">
+      <span class="flbl">Centralized Algorithm Steps</span>
+      <div class="fl">To ENTER critical section:</div>
+      <div class="fl">  1. Process P sends REQUEST to Coordinator</div>
+      <div class="fl">  2. If CS is free: Coordinator sends REPLY(grant) immediately</div>
+      <div class="fl">     If CS is busy: Coordinator queues P's request</div>
+      <div class="fl">  3. P enters CS after receiving REPLY</div>
+      <div class="fl"></div>
+      <div class="fl">To EXIT critical section:</div>
+      <div class="fl">  4. P sends RELEASE to Coordinator</div>
+      <div class="fl">  5. Coordinator dequeues next waiting process, sends REPLY to it</div>
+      <div class="fl"></div>
+      <div class="fl">Messages per CS entry: 3 (REQUEST + REPLY + RELEASE)</div>
+      <div class="fn">+ Easy to implement, fair (FIFO queue). − Single point of failure (coordinator crash). Single bottleneck.</div>
+    </div>
+
+    <h3 class="orange">Algorithm 2: Ricart-Agrawala Algorithm (1981)</h3>
+    <p>Fully distributed — no coordinator. Process broadcasts REQUEST to ALL others and waits for REPLY from ALL.</p>
+    <div class="fbox">
+      <span class="flbl">Ricart-Agrawala Algorithm</span>
+      <div class="fl">To ENTER critical section:</div>
+      <div class="fl">  1. P timestamps request: T = current Lamport clock value</div>
+      <div class="fl">  2. P sends REQUEST(T, P) to ALL other processes</div>
+      <div class="fl">  3. P waits to receive REPLY from ALL n-1 other processes</div>
+      <div class="fl">  4. P enters CS after all REPLYs received</div>
+      <div class="fl"></div>
+      <div class="fl">On receiving REQUEST(T, Q) at process P:</div>
+      <div class="fl">  Case A: P is NOT interested in CS → send REPLY immediately</div>
+      <div class="fl">  Case B: P is in CS → defer REPLY (send after exiting)</div>
+      <div class="fl">  Case C: P wants CS too (competing) →</div>
+      <div class="fl">    if T_P &lt; T_Q (P has earlier timestamp): defer REPLY to Q</div>
+      <div class="fl">    if T_P &gt; T_Q (Q has earlier timestamp): send REPLY immediately</div>
+      <div class="fl">    if tie: lower process ID wins</div>
+      <div class="fl"></div>
+      <div class="fl">To EXIT critical section:</div>
+      <div class="fl">  5. Send REPLY to all deferred requests</div>
+      <div class="fl"></div>
+      <div class="fl">Messages per CS entry: 2(n-1) = n-1 requests + n-1 replies</div>
+      <div class="fn">+ No single point of failure. Provides total ordering. − 2(n-1) messages per CS. Any crash → all blocked.</div>
+    </div>
+
+    <h3 class="purple">Algorithm 3: Token Ring Algorithm</h3>
+    <p>Processes are arranged in a <span class="hl-v">logical ring</span>. A single TOKEN circulates around the ring. Only the process holding the token may enter the CS.</p>
+    <div class="fbox">
+      <span class="flbl">Token Ring Algorithm</span>
+      <div class="fl">Setup: Processes P0, P1, P2, ... Pn-1 form a logical ring</div>
+      <div class="fl">       Token starts at P0 and circulates: P0→P1→P2→...→P(n-1)→P0→...</div>
+      <div class="fl"></div>
+      <div class="fl">To ENTER critical section:</div>
+      <div class="fl">  1. Process Pi waits until it receives the TOKEN</div>
+      <div class="fl">  2. If Pi wants CS: enter CS, use it, exit, then pass token to P(i+1)</div>
+      <div class="fl">  3. If Pi does NOT want CS: immediately pass token to P(i+1)</div>
+      <div class="fl"></div>
+      <div class="fl">Messages per CS entry: 1 to n (wait for token to come around)</div>
+      <div class="fl">Bandwidth: 1 message per CS entry (if token circulates efficiently)</div>
+      <div class="fn">+ No starvation (token always comes around). + Simple, efficient when processes often want CS. − Token loss if a process crashes. − Variable wait time (up to n-1 token passes).</div>
+    </div>
+
+    <h3>Comparison of DME Algorithms</h3>
+    <table class="comp-table">
+      <tr><th>Algorithm</th><th>Messages/Entry</th><th>Delay</th><th>Fault Tolerance</th><th>Best For</th></tr>
+      <tr><td><strong>Centralized</strong></td><td>3</td><td>2 message delays</td><td>❌ Coordinator crash fatal</td><td>Low contention, simple systems</td></tr>
+      <tr><td><strong>Ricart-Agrawala</strong></td><td>2(n-1)</td><td>2 message delays</td><td>❌ Any crash blocks all</td><td>High correctness requirements</td></tr>
+      <tr><td><strong>Token Ring</strong></td><td>1 to n</td><td>0 to n-1 messages</td><td>⚠️ Token loss = disaster</td><td>High contention, token rarely lost</td></tr>
+    </table>
+
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — DME Answer</div>
+        <p>For Part A (2 marks): "DME ensures only one process enters CS at a time in a DS without shared memory. Three algorithms: Centralized (3 messages, coordinator bottleneck), Ricart-Agrawala (2(n-1) messages, fully distributed, timestamp ordering), Token Ring (token passed around ring, holder enters CS)."<br>For Part B (4 marks): Explain all three with steps. For Part C: Draw message diagrams for each.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Distributed Mutual Exclusion</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q8. Explain distributed mutual exclusion.</div>
+      <div class="pyq-meta"><span>2023 Part A Q8 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">DME</span><span class="pred-tag">🔮 VERY HIGH 2026 (2yr absence)</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Mutual Exclusion (DME)</strong> ensures that at most ONE process at a time can access a shared critical section in a distributed system (no shared memory, no common clock).<br><br>
+        <strong>Requirements:</strong> Safety (only one in CS), Liveness (every request eventually granted), Ordering (optional FIFO).<br><br>
+        <strong>Approaches:</strong><br>
+        · <strong>Centralized:</strong> Coordinator grants access. 3 messages (REQUEST+REPLY+RELEASE). Simple but single point of failure.<br>
+        · <strong>Ricart-Agrawala:</strong> Process broadcasts to all, enters after all REPLY. Uses Lamport timestamps to break ties. 2(n-1) messages. Fully distributed.<br>
+        · <strong>Token Ring:</strong> Token circulates in ring. Token holder may enter CS. 1–n messages per entry. No starvation.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q8. Which two instructions are required to perform hardware support for mutual exclusion?</div>
+      <div class="pyq-meta"><span>2024 Part A Q8 · 2 marks ⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">Hardware ME Support</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Hardware Support for Mutual Exclusion (Single Machine):</strong><br><br>
+        1. <strong>Test-and-Set (TAS):</strong> Atomically reads a memory location and sets it to 1 in one indivisible instruction. <code>TAS(lock): old = lock; lock = 1; return old;</code> If old=0, process acquired lock. If old=1, lock was already held — spin wait.<br><br>
+        2. <strong>Compare-and-Swap (CAS) / XCHG:</strong> Atomically compares memory value with expected value; if equal, writes new value. <code>CAS(lock, 0, 1)</code> — if lock==0, sets it to 1 (acquired); otherwise fails. Used in lock-free algorithms.<br><br>
+        <strong>Why atomic?</strong> Without atomicity, two processes can simultaneously read lock=0, both set it to 1, and both think they acquired the lock — race condition. Hardware ensures test and set happen in ONE indivisible cycle.<br><br>
+        <strong>Note:</strong> These work for SHARED MEMORY (single machine). In DS (no shared memory), software algorithms (Ricart-Agrawala, Token Ring) are needed instead.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 09: ELECTION ALGORITHMS ═══════════ -->
+<section class="section" id="election">
+  <div class="section-header"><span class="section-num">09</span><h2 class="section-title">Election Algorithms</h2></div>
+
+  <div class="theory-block">
+    <h3>What is an Election?</h3>
+    <p>Many distributed algorithms require a designated <span class="hl-v">coordinator</span> (leader/coordinator process). An <span class="hl-v">election algorithm</span> selects one process as coordinator when no coordinator exists (initial startup) or when the coordinator crashes.</p>
+    <div class="layman">Imagine a group of employees (processes) who need a team leader (coordinator). Their current leader (old coordinator) has suddenly resigned (crashed). They need to quickly hold an election and pick a new leader — without anyone from outside choosing for them, using only messaging between themselves. The elected leader is typically the one with the highest "employee ID" (process ID).</div>
+
+    <h3>Key Assumptions</h3>
+    <ul>
+      <li>Each process has a unique process ID (PID).</li>
+      <li>The process with the <strong>highest PID</strong> becomes the new coordinator.</li>
+      <li>All processes know all other PIDs (but not which are currently alive).</li>
+    </ul>
+
+    <h3 class="cyan">Algorithm 1: Bully Algorithm (Garcia-Molina 1982)</h3>
+    <p>The process with the highest PID always wins — it "bullies" smaller processes into submission. When a process detects the coordinator has crashed, it starts an election.</p>
+
+    <div class="fbox">
+      <span class="flbl">Bully Algorithm — 3 Types of Messages</span>
+      <div class="fl">ELECTION: "I want to be coordinator — any process with higher ID?"</div>
+      <div class="fl">OK (Answer): "Yes, I have higher ID — I'll take over"</div>
+      <div class="fl">COORDINATOR: "I am the new coordinator — I won"</div>
+    </div>
+
+    <div class="fbox">
+      <span class="flbl">Bully Algorithm Steps</span>
+      <div class="fl">Process P detects coordinator crash:</div>
+      <div class="fl">  1. P sends ELECTION to all processes with higher PID</div>
+      <div class="fl">  2. If no response in T seconds: P declares itself coordinator</div>
+      <div class="fl">     → P sends COORDINATOR to all processes</div>
+      <div class="fl">  3. If P receives OK from some Q (Q has higher PID):</div>
+      <div class="fl">     → P waits for COORDINATOR message</div>
+      <div class="fl">     → If no COORDINATOR in T seconds, start election again</div>
+      <div class="fl"></div>
+      <div class="fl">Process Q receives ELECTION from P (where P has lower PID than Q):</div>
+      <div class="fl">  4. Q sends OK to P (silences P)</div>
+      <div class="fl">  5. Q starts its own election (sends ELECTION to all higher than Q)</div>
+      <div class="fl">  6. If Q gets no response: Q is highest alive → sends COORDINATOR to all</div>
+      <div class="fn">Messages: O(n²) in worst case. Terminates in O(n) time. Called "bully" because larger processes bully smaller ones into giving up.</div>
+    </div>
+
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 580 200" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+        <text x="290" y="18" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="bold">Bully Algorithm — 6 Processes (P5 = coordinator, crashes)</text>
+        <!-- Processes -->
+        <rect x="10" y="40" width="65" height="40" rx="6" fill="#081820" stroke="#5a8aa0" stroke-width="2"/>
+        <text x="42" y="64" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="10" font-weight="bold">P1</text>
+        <rect x="95" y="40" width="65" height="40" rx="6" fill="#081820" stroke="#5a8aa0" stroke-width="2"/>
+        <text x="127" y="64" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="10" font-weight="bold">P2</text>
+        <rect x="180" y="40" width="65" height="40" rx="6" fill="#081820" stroke="#22d3ee" stroke-width="2"/>
+        <text x="212" y="64" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="10" font-weight="bold">P3</text>
+        <text x="212" y="76" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="7">starts election</text>
+        <rect x="265" y="40" width="65" height="40" rx="6" fill="#081820" stroke="#10b981" stroke-width="2"/>
+        <text x="297" y="64" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono" font-size="10" font-weight="bold">P4</text>
+        <rect x="350" y="40" width="65" height="40" rx="6" fill="#0c2030" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="382" y="64" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="10" font-weight="bold">P5</text>
+        <text x="382" y="76" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono" font-size="7">CRASHED ✗</text>
+        <rect x="435" y="40" width="65" height="40" rx="6" fill="#081820" stroke="#f59e0b" stroke-width="2"/>
+        <text x="467" y="60" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="10" font-weight="bold">P6</text>
+        <text x="467" y="74" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="7">NEW COORD</text>
+        <!-- Arrows Step 1: P3 sends ELECTION to P4, P5, P6 -->
+        <defs><marker id="ea" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#22d3ee" stroke-width="1.5"/></marker>
+        <marker id="ea2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="none" stroke="#10b981" stroke-width="1.5"/></marker></defs>
+        <line x1="245" y1="100" x2="265" y2="110" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#ea)"/>
+        <text x="256" y="108" fill="#22d3ee" font-family="JetBrains Mono" font-size="7">ELEC</text>
+        <line x1="245" y1="105" x2="350" y2="115" stroke="#22d3ee" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#ea)"/>
+        <text x="294" y="121" fill="#ef4444" font-family="JetBrains Mono" font-size="7">no answer (crashed)</text>
+        <line x1="245" y1="110" x2="435" y2="120" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#ea)"/>
+        <text x="340" y="130" fill="#22d3ee" font-family="JetBrains Mono" font-size="7">ELEC→P6</text>
+        <!-- P4 and P6 reply OK to P3 -->
+        <line x1="265" y1="130" x2="245" y2="140" stroke="#10b981" stroke-width="1.5" marker-end="url(#ea2)"/>
+        <text x="252" y="148" fill="#10b981" font-family="JetBrains Mono" font-size="7">OK</text>
+        <!-- P6 becomes coordinator -->
+        <text x="467" y="100" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">No higher PID!</text>
+        <text x="467" y="115" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono" font-size="8">Sends COORD to all</text>
+        <text x="290" y="175" text-anchor="middle" fill="#5a8aa0" font-family="JetBrains Mono" font-size="8">P3 starts election → P4 and P6 respond OK → P6 starts own election → no higher alive → P6 wins → sends COORDINATOR to all</text>
+      </svg>
+      <div class="diagram-cap">Fig: Bully Algorithm — P5 crashes. P3 starts election. P6 (highest alive) eventually wins and sends COORDINATOR to all.</div>
+    </div>
+
+    <h3 class="orange">Algorithm 2: Ring Algorithm</h3>
+    <p>Processes are arranged in a logical ring. Election messages circulate around the ring until the winner is identified.</p>
+    <div class="fbox">
+      <span class="flbl">Ring Election Algorithm Steps</span>
+      <div class="fl">Setup: Processes in logical ring P0 → P1 → P2 → ... → P(n-1) → P0</div>
+      <div class="fl"></div>
+      <div class="fl">Step 1: Initiator Pi sends ELECTION(Pi) to its neighbor P(i+1)</div>
+      <div class="fl">Step 2: Each process Pj receiving ELECTION(Pk):</div>
+      <div class="fl">  If Pk > Pj's PID: forward ELECTION(Pk) to P(j+1)</div>
+      <div class="fl">  If Pk &lt; Pj's PID: forward ELECTION(Pj) to P(j+1) (replace with own ID)</div>
+      <div class="fl">  If Pk = Pj's PID: Pj is the coordinator! (message went all the way around)</div>
+      <div class="fl">Step 3: New coordinator sends COORDINATOR(Pk) around ring</div>
+      <div class="fl"></div>
+      <div class="fl">Messages: O(n) to elect + O(n) to notify = O(2n)</div>
+      <div class="fn">Ring algorithm: simpler, fewer messages, but SLOWER (must traverse full ring). Bully algorithm: faster but more messages.</div>
+    </div>
+
+    <table class="comp-table">
+      <tr><th>Algorithm</th><th>Messages</th><th>Speed</th><th>Key Feature</th></tr>
+      <tr><td><strong>Bully</strong></td><td>O(n²) worst case</td><td>Fast — responds quickly</td><td>Highest PID wins. OK messages silence losers.</td></tr>
+      <tr><td><strong>Ring</strong></td><td>O(2n)</td><td>Slower — full ring traversal</td><td>Message circulates full ring. Winner sends back COORDINATOR.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 10: DISTRIBUTED DEADLOCK ═══════════ -->
+<section class="section" id="deadlock">
+  <div class="section-header"><span class="section-num">10</span><h2 class="section-title">Distributed Deadlock Handling</h2></div>
+  <div class="pred-banner"><span style="font-size:18px;flex-shrink:0">🔮</span><div class="pb-text"><strong>2026 Prediction — CERTAIN (Part A + Part B):</strong> Distributed deadlock: 2023 Part C Q3 (full strategies), 2024 Part A Q9 + Part B Q5, 2025 Part B Q4. THREE consecutive years in various forms. THE most consistently tested Unit 5 topic alongside DSM. CERTAIN for 2026.</div></div>
+
+  <div class="theory-block">
+    <h3>What is Distributed Deadlock?</h3>
+    <p><span class="hl-v">Distributed Deadlock</span> occurs when a set of processes in a distributed system are permanently blocked — each process is waiting for a resource held by another process in a cycle, and NO process can ever proceed.</p>
+    <div class="layman">Imagine 4 people standing in a circle, each holding one chopstick and waiting for the chopstick held by the person to their right. Nobody moves. Nobody can eat. Nobody can release their chopstick because they're all frozen waiting. THAT's deadlock — a circular wait with no way out. In DS, processes wait for messages/resources held by other processes on different machines, creating a distributed deadlock cycle that's much harder to see because no single machine has the full picture.</div>
+
+    <h3>Coffman's Necessary Conditions (All 4 must hold)</h3>
+    <div class="fbox">
+      <span class="flbl">Coffman Conditions — Memorize MHNC</span>
+      <div class="fl">1. MUTUAL EXCLUSION: Resources cannot be shared — only one process at a time</div>
+      <div class="fl">2. HOLD AND WAIT: Process holds resources while waiting for more</div>
+      <div class="fl">3. NO PREEMPTION: Resources cannot be forcibly taken away</div>
+      <div class="fl">4. CIRCULAR WAIT: Cycle of processes: P1 waits for P2, P2 waits for P3, ... Pn waits for P1</div>
+      <div class="fn">All four MUST hold simultaneously for deadlock. Remove any one → deadlock impossible.</div>
+    </div>
+
+    <h3 class="cyan">Strategy 1: Distributed Deadlock Prevention</h3>
+    <p>Ensure at least one of Coffman's conditions NEVER holds:</p>
+    <ul>
+      <li><strong>Eliminate Circular Wait:</strong> Impose a global ordering on resources (e.g., numbered 1 to N). Processes must request resources in increasing order. No cycle possible.</li>
+      <li><strong>Eliminate Hold-and-Wait:</strong> Process must request ALL resources it will ever need at once before starting. Impractical in DS (can't predict future needs).</li>
+      <li><strong>Allow Preemption:</strong> If a process with high priority needs a resource, forcibly take it from a lower-priority process. The preempted process must restart. Possible only for resources that allow rollback (e.g., CPU time, not printers).</li>
+    </ul>
+
+    <h3 class="orange">Strategy 2: Deadlock Avoidance (Wait-Die / Wound-Wait)</h3>
+    <p>Use process timestamps to prevent circular wait in DS. Every process gets a unique timestamp at creation time (Lamport clock value). <strong>Older processes have smaller timestamps.</strong></p>
+    <div class="fbox">
+      <span class="flbl">Wait-Die (Non-Preemptive)</span>
+      <div class="fl">Process Pi requests resource held by Pj:</div>
+      <div class="fl">  If Ti &lt; Tj (Pi is OLDER): Pi WAITS (older waits for younger)</div>
+      <div class="fl">  If Ti &gt; Tj (Pi is YOUNGER): Pi DIES (aborts and restarts with same timestamp)</div>
+      <div class="fl"></div>
+      <div class="fl">Mnemonic: "Old wait, young die"</div>
+      <div class="fn">Only older processes wait — younger ones die. Eventually the oldest process always gets resource. No deadlock possible because no circular wait (only older→younger direction).</div>
+    </div>
+    <div class="fbox">
+      <span class="flbl">Wound-Wait (Preemptive)</span>
+      <div class="fl">Process Pi requests resource held by Pj:</div>
+      <div class="fl">  If Ti &lt; Tj (Pi is OLDER): Pi WOUNDS Pj (preempts — aborts Pj, gets resource)</div>
+      <div class="fl">  If Ti &gt; Tj (Pi is YOUNGER): Pi WAITS for Pj to release</div>
+      <div class="fl"></div>
+      <div class="fl">Mnemonic: "Old wound young, young wait for old"</div>
+      <div class="fn">Older processes preempt younger ones. Preempted process restarts. No deadlock because younger processes never cause older ones to wait indefinitely.</div>
+    </div>
+
+    <table class="comp-table">
+      <tr><th>Algorithm</th><th>Older requests from Younger</th><th>Younger requests from Older</th><th>Type</th></tr>
+      <tr><td><strong>Wait-Die</strong></td><td>Older WAITS (non-preemptive)</td><td>Younger DIES (aborts)</td><td>Non-preemptive</td></tr>
+      <tr><td><strong>Wound-Wait</strong></td><td>Older WOUNDS (preempts younger)</td><td>Younger WAITS</td><td>Preemptive</td></tr>
+    </table>
+
+    <h3 class="purple">Strategy 3: Distributed Deadlock Detection</h3>
+    <p>Allow deadlocks to occur but detect them using the <span class="hl-v">Wait-For Graph (WFG)</span>. In a distributed WFG, edges represent "process waiting for resource held by another process." A cycle in the WFG means deadlock.</p>
+    <p><strong>Challenge:</strong> No single node has the complete global WFG — each node only sees its local part. We need a distributed algorithm to collect and detect cycles in the global WFG.</p>
+
+    <div class="fbox">
+      <span class="flbl">Chandy-Misra-Haas Algorithm for Deadlock Detection</span>
+      <div class="fl">Terminology: Pi is waiting for Pj (Pi → Pj in WFG)</div>
+      <div class="fl"></div>
+      <div class="fl">PROBE Message: PROBE(i, j, k) — sent to detect deadlock</div>
+      <div class="fl">  i = process that might be deadlocked (initiator)</div>
+      <div class="fl">  j = process that sent this probe</div>
+      <div class="fl">  k = process receiving this probe</div>
+      <div class="fl"></div>
+      <div class="fl">Algorithm:</div>
+      <div class="fl">Step 1: Pi detects it is waiting for Pj</div>
+      <div class="fl">         Pi sends PROBE(i, i, j) to Pj</div>
+      <div class="fl">Step 2: Pj receives PROBE(i, j, k=Pj):</div>
+      <div class="fl">  If Pj is waiting for Pl (for all l that Pj is waiting for):</div>
+      <div class="fl">    Send PROBE(i, Pj, Pl) to Pl</div>
+      <div class="fl">  [Probe propagates along wait-for edges]</div>
+      <div class="fl">Step 3: DEADLOCK DETECTED:</div>
+      <div class="fl">  If Pi receives PROBE(i, j, i) for some j</div>
+      <div class="fl">  (Probe returned to initiator!) → CYCLE EXISTS → Pi is deadlocked</div>
+      <div class="fn">When probe returns to initiator, a cycle has been found in the global WFG. Algorithm finds ALL deadlocks, not just cycles involving the initiator.</div>
+    </div>
+
+    <h3>Deadlock Recovery</h3>
+    <p>Once deadlock is detected, the system must recover by breaking the cycle:</p>
+    <ul>
+      <li><strong>Victim Selection:</strong> Choose one or more processes to abort. Selection criteria: youngest process (lowest cost to restart), process with least work done, process requesting the most resources.</li>
+      <li><strong>Process Rollback:</strong> Roll back victim to a previously saved checkpoint and restart.</li>
+      <li><strong>Resource Preemption:</strong> Take resources from victim process and give to others. Victim may need to restart.</li>
+    </ul>
+    <div class="tip-box trick">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-content">
+        <div class="tip-title">Exam Trick — Deadlock Answer Structure</div>
+        <p>For Part B (4 marks): Coffman conditions (1) + Prevention strategies (1) + Wait-Die vs Wound-Wait table (1) + Chandy-Misra-Haas algorithm steps (1) = 4 marks. For Part C (10 marks): Add the Wait-For Graph diagram + full Chandy-Misra-Haas with example + Recovery strategies.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-section">
+    <div class="pyq-header">📝 RTU PYQs — Distributed Deadlock</div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q9. Define distributed deadlock.</div>
+      <div class="pyq-meta"><span>2024 Part A Q9 · 2 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">Distributed Deadlock</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Deadlock</strong> occurs in a distributed system when a set of processes are permanently blocked — each process is waiting for a resource held by another process in the set, forming a circular wait cycle, and no process can ever proceed.<br><br>
+        <strong>Coffman's necessary conditions:</strong> Mutual exclusion · Hold and wait · No preemption · Circular wait.<br><br>
+        <strong>Challenge in DS:</strong> No single node has a global view of the wait-for graph. Each node sees only local waiting relationships. Distributed algorithms (Chandy-Misra-Haas) are needed to detect global cycles.
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q4(Part B). What is distributed deadlock handling? Explain it.</div>
+      <div class="pyq-meta"><span>2025 Part B Q4 · 4 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">Deadlock Handling</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Deadlock</strong> occurs when processes in different nodes form a circular wait in the global wait-for graph. Three strategies:<br><br>
+        <strong>1. Prevention:</strong> Impose ordering on resource requests (eliminates circular wait). Or require all resources upfront (impractical). Most rigid approach.<br><br>
+        <strong>2. Avoidance (Wait-Die / Wound-Wait):</strong> Uses Lamport timestamps.<br>
+        · Wait-Die: Older waits; younger dies (aborts+restarts).<br>
+        · Wound-Wait: Older preempts (wounds) younger; younger waits.<br>
+        Both ensure no circular wait — only unidirectional waiting (older from younger or younger for older).<br><br>
+        <strong>3. Detection + Recovery:</strong> Allow deadlocks; detect via Chandy-Misra-Haas algorithm.<br>
+        · Initiator Pi sends PROBE(i,i,j) to process Pj it's waiting for.<br>
+        · Probe propagates along wait-for edges.<br>
+        · Deadlock detected when probe returns to Pi (cycle found).<br>
+        · Recovery: abort youngest process in cycle (victim selection).<br><br>
+        [Draw wait-for graph with 4 processes in a cycle]
+      </div>
+    </div>
+    <div class="pyq-item">
+      <div class="pyq-q-text">Q3(Part C). Explain following strategies used for deadlock handling in distributed system: a) Deadlock prevention. b) Deadlock avoidance. c) Deadlock detection and Recovery.</div>
+      <div class="pyq-meta"><span>2023 Part C Q3 · 10 marks ⭐⭐⭐</span><span class="unit-tag">Unit 5</span><span class="topic-tag">All Deadlock Strategies</span><span class="pred-tag">🔮 CERTAIN 2026</span></div>
+      <button class="pyq-toggle" onclick="toggle(this)">▼ Show Answer</button>
+      <div class="answer-content">
+        <strong>Distributed Deadlock</strong> — all four Coffman conditions (mutual exclusion, hold-and-wait, no preemption, circular wait) must hold simultaneously.<br><br>
+        <strong>(a) Deadlock Prevention:</strong><br>
+        Goal: Ensure at least one Coffman condition can never hold.<br>
+        · Ordered resource allocation: number all resources 1 to N; processes request in increasing order → eliminates circular wait.<br>
+        · Request-all-at-once: process must request all needed resources before starting → eliminates hold-and-wait. Very wasteful.<br>
+        · Preemption-based: OS can forcibly take resources from waiting process → eliminates no-preemption. Only works for preemptable resources (CPU, memory — not printers).<br><br>
+        <strong>(b) Deadlock Avoidance (Timestamp-Based):</strong><br>
+        Assign each process a Lamport timestamp at creation. Two algorithms:<br>
+        · Wait-Die: Pi requests resource held by Pj. If Ti&lt;Tj (Pi older): Pi waits. If Ti&gt;Tj (Pi younger): Pi dies (restarts with same timestamp). Non-preemptive.<br>
+        · Wound-Wait: Pi requests from Pj. If Ti&lt;Tj (Pi older): Pi wounds Pj (preempts). If Ti&gt;Tj (Pi younger): Pi waits. Preemptive.<br>
+        Guarantee: No circular wait. Only unidirectional waiting (older→younger).<br><br>
+        <strong>(c) Deadlock Detection and Recovery:</strong><br>
+        Detection — Chandy-Misra-Haas Algorithm:<br>
+        1. Pi (waiting for Pj) sends PROBE(i, i, j) to Pj<br>
+        2. Receiving process Pk forwards PROBE(i, k, Pl) to all Pl that Pk waits for<br>
+        3. If PROBE returns to Pi → deadlock detected<br><br>
+        Recovery: Select victim (youngest/least work), abort it. Resources released. Remaining processes may proceed.<br><br>
+        [Draw WFG diagram + Probe propagation diagram for full marks]
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 11: TERMINATION DETECTION ═══════════ -->
+<section class="section" id="termination">
+  <div class="section-header"><span class="section-num">11</span><h2 class="section-title">Distributed Termination Detection</h2></div>
+
+  <div class="theory-block">
+    <h3>The Termination Problem</h3>
+    <p><span class="hl-v">Distributed Termination Detection</span> determines when a distributed computation has completed — when all processes are <strong>idle</strong> AND all communication channels are <strong>empty</strong> (no messages in transit).</p>
+    <div class="layman">Imagine 10 workers in different cities collaborating on a project. How do you know when they're ALL done? It's not enough that each individual reports "I'm done" — because messages might still be travelling between them (a worker sent a task to another worker, and that task is in the mail). You need to know: everyone is idle AND no work is "in flight" anymore. That's the termination detection problem.</div>
+
+    <h3>Why is it Hard?</h3>
+    <p>Termination seems simple — just wait for all processes to signal "done." But this fails because:</p>
+    <ul>
+      <li>Process A might be idle, but a message sent by Process B (also idle) is still in transit to A. When A receives the message, A becomes active again — so A was not truly done.</li>
+      <li>No global state is visible to any single process.</li>
+    </ul>
+    <div class="fbox">
+      <span class="flbl">Termination Condition</span>
+      <div class="fl">Computation has TERMINATED iff:</div>
+      <div class="fl">  Condition 1: ALL processes are in PASSIVE (idle) state</div>
+      <div class="fl">    AND</div>
+      <div class="fl">  Condition 2: ALL communication channels are EMPTY (no messages in transit)</div>
+      <div class="fl"></div>
+      <div class="fl">Process States:</div>
+      <div class="fl">  ACTIVE: process is computing or has unprocessed messages</div>
+      <div class="fl">  PASSIVE: process is idle, waiting for messages</div>
+      <div class="fn">A passive process becomes active when it receives a message. An active process becomes passive when it finishes its current computation.</div>
+    </div>
+
+    <h3 class="cyan">Dijkstra-Scholten Algorithm</h3>
+    <p>Uses a <span class="hl-v">spanning tree</span> of active processes. Root is the initiator. Each process tracks its "deficit" (tokens sent minus tokens received).</p>
+    <div class="fbox">
+      <span class="flbl">Dijkstra-Scholten Algorithm — Key Ideas</span>
+      <div class="fl">Environment sends initial message to Root (activates Root)</div>
+      <div class="fl">Root "owns" all processes it activates (forms spanning tree)</div>
+      <div class="fl"></div>
+      <div class="fl">Deficit(P) = (messages sent by P) - (acknowledgements received by P)</div>
+      <div class="fl"></div>
+      <div class="fl">TERMINATION DETECTED when:</div>
+      <div class="fl">  Root becomes passive AND Deficit(Root) = 0</div>
+      <div class="fl">  (Root sent no unacknowledged messages AND root is idle)</div>
+      <div class="fl"></div>
+      <div class="fl">Process P becomes leaf in tree and sends acknowledgement to parent when:</div>
+      <div class="fl">  P is passive AND P has no unacknowledged messages (Deficit(P)=0)</div>
+      <div class="fn">Tree shrinks as processes become idle. When tree reduces to root and root becomes idle → termination.</div>
+    </div>
+
+    <h3 class="orange">Token-Based Termination: Safra's Algorithm</h3>
+    <p>Processes are arranged in a ring. A token circulates. Color system (black/white) tracks whether a process has "become active again" after the token passed it.</p>
+    <div class="fbox">
+      <span class="flbl">Safra's Algorithm</span>
+      <div class="fl">Token has: (color, count)</div>
+      <div class="fl">Process state: white (clean) or black (sent message to earlier process)</div>
+      <div class="fl"></div>
+      <div class="fl">P0 initiates: send token(WHITE, 0) to P1</div>
+      <div class="fl">Each process Pk receives token:</div>
+      <div class="fl">  If Pk is active: wait until passive, then forward</div>
+      <div class="fl">  new_count = token.count + (messages sent - messages received) by Pk</div>
+      <div class="fl">  new_color = BLACK if Pk is black; else token color</div>
+      <div class="fl">  Forward token(new_color, new_count) to P(k+1)</div>
+      <div class="fl"></div>
+      <div class="fl">P0 detects termination when:</div>
+      <div class="fl">  Token returns AND token.color = WHITE AND token.count = 0</div>
+      <div class="fl">  AND P0 is white AND P0 is passive</div>
+      <div class="fn">count=0 means messages sent = messages received globally. WHITE = no process "went black" during this round.</div>
+    </div>
+
+    <div class="tip-box connect">
+      <div class="tip-icon">🔗</div>
+      <div class="tip-content">
+        <div class="tip-title">Connection: Termination Detection ↔ Distributed Snapshots</div>
+        <p>Distributed Snapshots (Chandy-Lamport) can also detect termination: take a snapshot, check if all processes are passive AND all channel states are empty. If yes → terminated! In practice, dedicated termination algorithms (Dijkstra-Scholten, Safra) are more efficient because they don't need to record full system state.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ PREDICTED PAPER 2026 ═══════════ -->
+<div id="predicted"></div>
+</main>
+</div>
+
+<div class="predicted-section">
+  <div class="pred-inner">
+    <div class="pred-badge">🔮 AI-Powered Analysis — CAO 2026, DIP 2026, ML 2026 Cross-Referenced</div>
+    <div class="pred-sec-title">Predicted Paper — DS Unit 5 · 2026</div>
+    <div class="pred-sec-sub">BASED ON 3-YEAR DS PYQ ANALYSIS (2023–2025) + 2026 CAO, DIP, ML PAPER PATTERNS · 6E7136 / 6CS5-11</div>
+    <p class="pred-intro">Unit 5 is the highest-yield unit for 2026. DSM (Part A + Part C) is CERTAIN — it has appeared in all 3 papers consecutively. Memory consistency models introduced in 2025 Part B are CONFIRMED to return. Distributed deadlock appeared in 3 consecutive papers. DME (mutual exclusion) has a 2-year Part A absence — the strongest return signal in RTU pattern. NUMA and Failures alternate years and are both due. Election algorithms are a classic Part B topic that has been missing — HIGH for 2026.</p>
+    <div class="disc-box">
+      <span style="font-size:18px;flex-shrink:0;">⚠️</span>
+      <p>Predictions are based on historical patterns. Actual paper may differ. Use this to prioritize study time.</p>
+    </div>
+
+    <div class="pred-grid">
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q4/Q5)</div>
+          <div class="pred-unit">Unit 5 | DME</div>
+          <div class="pred-q">Explain distributed mutual exclusion.</div>
+          <div class="pred-reason">DME appeared in 2023 Part A Q8. Absent from 2024 and 2025 — a 2-year gap. The 2-year gap pattern is the STRONGEST return signal in RTU analysis (confirmed across CAO, DIP, ML 2026 papers). VERY HIGH for 2026 Part A.</div>
+          <span class="pred-conf high">VERY HIGH confidence (2-yr absence)</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>DME</strong> ensures only ONE process at a time accesses a critical section in a distributed system (no shared memory).</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Requirements: Safety (1 in CS at a time) · Liveness (request granted eventually)</div>
+            <div class="fl">Centralized: Coordinator grants. 3 messages. Single point of failure.</div>
+            <div class="fl">Ricart-Agrawala: Broadcast to all, enter after all REPLY. 2(n-1) msgs. Timestamp ordering.</div>
+            <div class="fl">Token Ring: Token circulates ring, holder enters CS. No starvation.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q7)</div>
+          <div class="pred-unit">Unit 5 | DSM</div>
+          <div class="pred-q">What is distributed shared memory?</div>
+          <div class="pred-reason">DSM appeared in Part A Q7 in BOTH 2024 and 2025 — same question slot, two consecutive years. The single most consistent Part A question in Unit 5. CERTAIN for 2026.</div>
+          <span class="pred-conf high">CERTAIN — 2 consecutive years same slot</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>DSM</strong> provides the illusion of a single shared memory address space across multiple physically distributed machines.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Physical: Each machine has own private memory</div>
+            <div class="fl">DSM Abstraction: Single virtual address space visible to all processes</div>
+            <div class="fl">Mechanism: Access to remote page → page fault → DSM fetches page over network</div>
+            <div class="fn">Advantage: Familiar shared memory programming model. Disadvantage: Network latency.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q6)</div>
+          <div class="pred-unit">Unit 5 | Deadlock</div>
+          <div class="pred-q">What is distributed deadlock?</div>
+          <div class="pred-reason">Distributed deadlock appeared in 2024 Part A Q9. The topic appears in every paper in some form. For 2026, Part A definition question is HIGHLY predicted based on the absence from 2025 Part A.</div>
+          <span class="pred-conf high">HIGH confidence</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Distributed deadlock</strong> occurs when processes in a distributed system form a circular wait in the global wait-for graph — each permanently blocked waiting for a resource held by another.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Coffman conditions (all 4 must hold): Mutual Exclusion · Hold-and-Wait · No Preemption · Circular Wait</div>
+            <div class="fl">Challenge: No single node sees full global wait-for graph</div>
+            <div class="fl">Detection: Chandy-Misra-Haas PROBE algorithm traces circular waits</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📝 Part A — 2 marks (Q9)</div>
+          <div class="pred-unit">Unit 5 | Failures</div>
+          <div class="pred-q">What is concept of Faults?</div>
+          <div class="pred-reason">Faults appeared in 2023 Q9 and 2025 Q9 — alternating years. 2026 follows the even-year pattern. VERY HIGH based on the alternating year pattern confirmed by RTU cross-paper analysis.</div>
+          <span class="pred-conf high">VERY HIGH (alternating year pattern)</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <div class="fbox inside-pred">
+            <div class="fl">Fault → Error → Failure chain</div>
+            <div class="fl">By Duration: Transient (once), Intermittent (comes/goes), Permanent (stays)</div>
+            <div class="fl">By Behavior: Crash (halt) · Omission (drops msgs) · Timing (too slow) · Byzantine (arbitrary)</div>
+            <div class="fn">Byzantine is worst — process sends conflicting/wrong messages to different receivers.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q4/Q5)</div>
+          <div class="pred-unit">Unit 5 | Deadlock</div>
+          <div class="pred-q">What is distributed deadlock handling? Explain prevention, avoidance, detection and recovery.</div>
+          <div class="pred-reason">Distributed deadlock: Part C 2023, Part B 2024 (Q5), Part B 2025 (Q4). THREE consecutive years. Appears every year, shifted between Part B and Part C. CERTAIN for 2026.</div>
+          <span class="pred-conf high">CERTAIN — 3 consecutive years</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Prevention:</strong> Impose global ordering on resources → eliminates circular wait. Or request all resources at once → eliminates hold-and-wait.</p>
+          <p><strong>Avoidance (Wait-Die / Wound-Wait):</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">Wait-Die: Older waits for younger; younger DIES (aborts+restarts)</div>
+            <div class="fl">Wound-Wait: Older WOUNDS (preempts) younger; younger waits for older</div>
+            <div class="fn">Both prevent circular wait. Only unidirectional waiting direction possible.</div>
+          </div>
+          <p><strong>Detection (Chandy-Misra-Haas):</strong> PROBE(i,j,k) messages follow wait-for edges. If probe returns to initiator → cycle → deadlock. <strong>Recovery:</strong> Abort youngest victim in cycle.</p>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q5/Q6)</div>
+          <div class="pred-unit">Unit 5 | Memory Consistency</div>
+          <div class="pred-q">Explain the concept of memory consistency models. Why are they important?</div>
+          <div class="pred-reason">NEW anchor in 2025 Part B Q6. RTU pattern (confirmed by 2026 CAO, DIP, ML analysis): new Part B anchors persist for 2–3 years. CERTAIN to appear in 2026 Part B.</div>
+          <span class="pred-conf high">CERTAIN — new 2025 anchor</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Memory Consistency Model</strong> defines what values a read can return given a history of writes in a shared/distributed memory system.</p>
+          <div class="fbox inside-pred">
+            <div class="fl">Strict: Most recent write returned — impossible in DS (no global clock)</div>
+            <div class="fl">Sequential (Lamport): All see same global op order — standard, Java/C++</div>
+            <div class="fl">Causal: Causally related writes in order; concurrent writes can differ</div>
+            <div class="fl">Release: Sync only at lock acquire/release — efficient, TreadMarks</div>
+            <div class="fl">Eventual: All replicas converge if no new writes — Cassandra, Dynamo</div>
+            <div class="fn">Trade-off: Stronger = easier to program, lower performance. Weaker = harder, better performance.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📋 Part B — 4 marks (Q2/Q3)</div>
+          <div class="pred-unit">Unit 5 | Election</div>
+          <div class="pred-q">Explain election algorithms in distributed systems — Bully and Ring algorithms.</div>
+          <div class="pred-reason">Election algorithms have NOT appeared in 2024 or 2025 Part B — 2-year absence. Classic, foundational topic that RTU examinees expect. The 2-year absence pattern (confirmed in 2026 cross-paper analysis) makes this HIGH for 2026.</div>
+          <span class="pred-conf high">HIGH confidence (2-yr absence)</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Election Algorithm</strong> selects a new coordinator when existing one crashes. Process with highest PID wins.</p>
+          <p><strong>Bully Algorithm:</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">P detects crash → sends ELECTION to higher-PID processes</div>
+            <div class="fl">No response → P declares itself coordinator, sends COORDINATOR to all</div>
+            <div class="fl">If OK received → wait for COORDINATOR from winner</div>
+            <div class="fn">Messages: O(n²). Fast. Highest alive process always wins.</div>
+          </div>
+          <p><strong>Ring Algorithm:</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">ELECTION(PID) circulates ring. Each process replaces if own PID > message PID.</div>
+            <div class="fl">When message returns to sender → sender wins → sends COORDINATOR around ring.</div>
+            <div class="fn">Messages: O(2n). Simpler. Full ring traversal needed.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-card-head">
+          <div class="pred-part">📖 Part C — 10 marks (Q1)</div>
+          <div class="pred-unit">Unit 5 | DSM</div>
+          <div class="pred-q">Explain the design and implementation issues in Distributed Shared Memory (DSM) systems. Also explain memory consistency models used in DSM.</div>
+          <div class="pred-reason">DSM Part C appeared in 2024 Part C Q4 AND 2025 Part C Q4 — TWO consecutive years same slot. THE most certain Part C question in DS. CERTAIN every year.</div>
+          <span class="pred-conf high">CERTAIN — 2 consecutive Part C appearances</span>
+        </div>
+        <button class="pred-answer-toggle" onclick="togglePred(this)">▼ Show Answer</button>
+        <div class="pred-answer">
+          <p><strong>Design Issues:</strong> Granularity (page/word/object — false sharing with pages), Structure (single/partitioned/object address space), Scalability (lazy protocols), Heterogeneity (byte order differences).</p>
+          <p><strong>Implementation:</strong></p>
+          <div class="fbox inside-pred">
+            <div class="fl">Page-Based (Ivy): OS VM hardware. Invalid page → page fault → DSM requests from owner.</div>
+            <div class="fl">Write-Invalidate: single writer, invalidate all others on write.</div>
+            <div class="fl">TreadMarks: Lazy Release Consistency. Multiple writers. "Diff" = XOR(original, modified).</div>
+            <div class="fl">Sync diffs only at lock acquire/release boundaries — minimal network traffic.</div>
+            <div class="fl">Object-Based (Orca): No false sharing. Objects as transfer units.</div>
+          </div>
+          <p><strong>Consistency in DSM:</strong> Sequential (Ivy) — expensive. Release (TreadMarks) — efficient. Eventual — used in some distributed databases.</p>
+          <p>[Draw: page-fault mechanism diagram + TreadMarks diff protocol + consistency spectrum table]</p>
+        </div>
+      </div>
+
+    </div><!-- /pred-grid -->
+
+    <div class="prep-box">
+      <h3>✅ Quick Prep Strategy — DS Unit 5 · 2026</h3>
+      <p><strong>MUST prepare (Part C level):</strong> DSM design + implementation (Ivy + TreadMarks + page-fault diagram — CERTAIN), Distributed Deadlock (prevention + Wait-Die/Wound-Wait + Chandy-Misra-Haas diagram), Memory Consistency Models (all 5 models with examples and trade-off table).</p>
+      <p><strong>MUST prepare (Part B level):</strong> Memory consistency models (new 2025 anchor), Election algorithms (Bully + Ring — 2yr absence), DME algorithms (Centralized + Ricart-Agrawala + Token Ring), NUMA vs SMP, Cache coherence protocols (write-invalidate vs write-update), Failures (fault/error/failure + types), Termination detection basics.</p>
+      <p><strong>Part A only (≤25 words):</strong> DSM (CERTAIN), Distributed deadlock (Coffman), DME (2yr absence — VERY HIGH), Faults (alternating year — VERY HIGH), NUMA (HIGH), Shared vs Distributed memory, False sharing, DSM performance improvement, Memory consistency why important.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PYQ MASTER LIST ═══════════ -->
+<div class="layout">
+  <div style="width:var(--sidebar-w);min-width:var(--sidebar-w);flex-shrink:0;display:none;"></div>
+  <div class="content">
+    <section class="section" id="pyq-master" style="margin-top:40px">
+      <div class="section-header"><span class="section-num">M</span><h2 class="section-title">All Unit 5 PYQs — Master List (2023–2025)</h2></div>
+      <div class="pyq-section">
+        <div class="pyq-header">📋 Complete Unit 5 PYQ Coverage — 6E7136 (2023–2025)</div>
+        <div class="pyq-item">
+          <div class="pyq-q-text">Complete Unit 5 Questions Across All 3 Papers</div>
+          <button class="pyq-toggle" onclick="toggle(this)">▼ Show Full Master List</button>
+          <div class="answer-content">
+            <strong>2023 Questions (Unit 5 topics):</strong><br>
+            Part A: Q7=NUMA, Q8=Distributed mutual exclusion, Q9=Faults in distributed agreement<br>
+            Part B: Q6=Recording state of DS (Chandy-Lamport), Q7=DSM with diagram<br>
+            Part C: Q3=Deadlock prevention + avoidance + detection/recovery, Q4=Lamport+Vector clock (Unit 2 but related to causality), Q5=Sender-initiated + receiver-initiated load sharing (Unit 4 but cross-connects)<br><br>
+            <strong>2024 Questions (Unit 5 topics):</strong><br>
+            Part A: Q7=Shared memory vs distributed memory, Q8=Hardware support for mutual exclusion, Q9=Distributed deadlock definition<br>
+            Part B: Q5=Concurrency control issues in DS, Q6=Fault/error/failure, Q7=Byzantine Agreement (Unit 6)<br>
+            Part C: Q4=Design and implementation issues in DSM<br><br>
+            <strong>2025 Questions (Unit 5 topics):</strong><br>
+            Part A: Q7=Distributed shared memory, Q8=DSM improves performance, Q9=Concept of faults<br>
+            Part B: Q4=Distributed deadlock handling, Q5=Distributed process implementation, Q6=Memory consistency models<br>
+            Part C: Q4=Implementation of DSM systems, Q5=Byzantine Agreement (Unit 6)<br><br>
+            <strong>KEY PATTERNS:</strong><br>
+            DSM Part A: 2024 Q7, 2025 Q7 → <span style="color:#ef4444">CERTAIN 2026 Part A</span><br>
+            DSM Part C: 2024 Q4, 2025 Q4 → <span style="color:#ef4444">CERTAIN 2026 Part C</span><br>
+            Distributed Deadlock: 2023 Part C, 2024 Part A+Part B, 2025 Part B → <span style="color:#ef4444">CERTAIN 2026</span><br>
+            Memory Consistency: 2025 Part B Q6 (new) → <span style="color:#ef4444">CERTAIN 2026 Part B</span><br>
+            DME: 2023 Part A Q8 → 2yr absence → <span style="color:#ef4444">VERY HIGH 2026</span><br>
+            Faults: 2023 Q9, 2025 Q9 (alternating) → <span style="color:#ef4444">VERY HIGH 2026</span><br>
+            NUMA: 2023 Part A Q7 → <span style="color:#ef4444">HIGH 2026</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="openSidebar()">☰</button>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="index.html">🏠 Home</a>
+    <a href="unit2.html">🌐 Unit 2: DS Fundamentals</a>
+    <a href="unit3.html">⚙️ Unit 3: Processes & IPC</a>
+    <a href="unit4.html">📁 Unit 4: Scheduling & DFS</a>
+    <a href="unit5.html" style="color:var(--cc)">🧠 Unit 5: DSM & Computation (current)</a>
+    <a href="unit6.html">🛡️ Unit 6: Agreement & CORBA</a>
+    <a href="#predicted" style="color:var(--upred)">🔮 Predicted 2026</a>
+  </div>
+  © 2026 Mahansh Gaur · DS RTU Study Guide · Unit 5 — DSM & Distributed Computation · 6E7136 / 6CS5-11 · Educational use only.
+</footer>
+
+<script>
+function toggle(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function togglePred(btn){
+  const ans=btn.nextElementSibling;
+  if(ans.classList.contains('open')){ans.classList.remove('open');btn.textContent=btn.textContent.replace('▲','▼');}
+  else{ans.classList.add('open');btn.textContent=btn.textContent.replace('▼','▲');}
+}
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('visible');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+const sections=document.querySelectorAll('.section');
+const navItems=document.querySelectorAll('.nav-item');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navItems.forEach(n=>{
+        n.classList.remove('active');
+        if(n.getAttribute('href')==='#'+e.target.id) n.classList.add('active');
+      });
+    }
+  });
+},{rootMargin:'-15% 0px -70% 0px'});
+sections.forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>
